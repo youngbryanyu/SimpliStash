@@ -1,2 +1,2 @@
 # BurgerDB
-A Simple Key-Value Database
+A Simple Key-Value Database 🍔

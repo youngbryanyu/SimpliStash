@@ -1,29 +1,40 @@
 package com.youngbryanyu.burgerdb.server;
 
+import java.util.concurrent.TimeUnit;
+
+import com.youngbryanyu.burgerdb.exceptions.ServerStartupException;
+
 /**
  * The class encapsulating the servers to communicate with clients.
  */
 public class Server {
     /**
-     * Port to use for HTTP server.
+     * Port to use for the server.
      */
-    private static final int HTTP_PORT = 80;
-
-    /**
-     * Port to use for TCP server.
-     */
-    private static final int TCP_PORT = 3000;
+    private static final int SERVER_PORT = 3000;
 
     /**
      * Main method that the program runs on.
+     * 
      * @param args Command line args.
      */
     public static void main(String[] args) {
-        TcpServerHandler tcpServer = new TcpServerHandler(TCP_PORT);
-        HttpServerHandler httpServer = new HttpServerHandler(HTTP_PORT);
-        
-        /* Start TCP and HTTP servers in new threads */
-        new Thread(tcpServer::startServer).start();
-        new Thread(httpServer::startServer).start();
+        ServerHandler server = new ServerHandler(SERVER_PORT);
+        Thread serverThread = new Thread(() -> {
+            try {
+                server.startServer();
+            } catch (ServerStartupException e) {
+                e.printStackTrace();
+                System.exit(1); /* Exit with error due to server startup failure */
+            }
+        });
+
+        /* Spin up thread for server */
+        serverThread.start();
+
+        /* Shutdown hook to stop server gracefully */
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.stopServer();
+        }));
     }
 }

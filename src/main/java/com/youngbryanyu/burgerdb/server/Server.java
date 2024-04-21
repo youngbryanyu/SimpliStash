@@ -1,11 +1,9 @@
 package com.youngbryanyu.burgerdb.server;
 
-import java.util.concurrent.TimeUnit;
-
 import com.youngbryanyu.burgerdb.exceptions.ServerStartupException;
 
 /**
- * The class encapsulating the servers to communicate with clients.
+ * The class running the server to communicate with clients.
  */
 public class Server {
     /**

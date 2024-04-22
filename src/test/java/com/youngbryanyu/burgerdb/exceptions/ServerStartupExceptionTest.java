@@ -1,4 +1,4 @@
-package com.youngbryanyu.exceptions;
+package com.youngbryanyu.burgerdb.exceptions;
 
 public class ServerStartupExceptionTest {
     

@@ -42,6 +42,7 @@ public class ServerHandler {
     public void startServer() throws ServerStartupException {
         try {
             serverSocket = new ServerSocket(port);
+            serverSocket.setReuseAddress(true); /* Enable quick rebinding to the port */
             this.running = true;
             System.out.printf("TCP server started on port: %d\n", port);
 

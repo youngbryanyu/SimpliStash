@@ -12,11 +12,6 @@ import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
  */
 public class ServerHandler {
     /**
-     * Port that the server listens on.
-     */
-    private int port;
-
-    /**
      * The server socket that accepts connections.
      */
     private ServerSocket serverSocket;
@@ -31,8 +26,8 @@ public class ServerHandler {
      * 
      * @param port Port that the server listens on.
      */
-    public ServerHandler(int port) {
-        this.port = port;
+    public ServerHandler(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
         this.running = false;
     }
 
@@ -41,10 +36,9 @@ public class ServerHandler {
      */
     public void startServer() throws ServerStartupException {
         try {
-            serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true); /* Enable quick rebinding to the port */
             this.running = true;
-            System.out.printf("TCP server started on port: %d\n", port);
+            System.out.printf("TCP server started on port: %d\n", serverSocket.getLocalPort());
 
             while (running) {
                 try {
@@ -70,7 +64,7 @@ public class ServerHandler {
     public void stopServer() {
         this.running = false;
 
-        if (serverSocket != null && !serverSocket.isClosed()) {
+        if (serverSocket != null) {
             try {
                 serverSocket.close(); /* Force blocking call serverSocket.accept() to throw SocketException */
             } catch (IOException e) {

@@ -1,5 +1,8 @@
 package com.youngbryanyu.simplistash.server;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
 
 /**
@@ -17,22 +20,30 @@ public class Server {
      * @param args Command line args.
      */
     public static void main(String[] args) {
-        ServerHandler server = new ServerHandler(SERVER_PORT);
-        Thread serverThread = new Thread(() -> {
-            try {
-                server.startServer();
-            } catch (ServerStartupException e) {
-                e.printStackTrace();
-                System.exit(1); /* Exit with error due to server startup failure */
-            }
-        });
+        try {
+            ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+            ServerHandler server = new ServerHandler(serverSocket);
+            Thread serverThread = new Thread(() -> {
+                try {
+                    server.startServer();
+                } catch (ServerStartupException e) {
+                    e.printStackTrace();
+                    System.exit(1); /* Exit with error due to server startup failure */
+                }
+            });
 
-        /* Spin up thread for server */
-        serverThread.start();
+            /* Spin up thread for server */
+            serverThread.start();
 
-        /* Shutdown hook to stop server gracefully */
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            server.stopServer();
-        }));
+            /* Shutdown hook to stop server gracefully */
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                server.stopServer();
+            }));
+        } catch (IOException e) {
+            System.out.println("IOException occurred while creating server socket:");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
     }
 }

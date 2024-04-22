@@ -1,4 +1,4 @@
-package com.youngbryanyu.burgerdb.server;
+package com.youngbryanyu.simplistash.server;
 
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -13,6 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.youngbryanyu.simplistash.server.ClientHandler;
+
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

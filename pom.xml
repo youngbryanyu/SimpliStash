@@ -5,11 +5,11 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.youngbryanyu.burgerdb</groupId>
-    <artifactId>burgerdb</artifactId>
+    <groupId>com.youngbryanyu.simplistash</groupId>
+    <artifactId>simplistash</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>burgerdb</name>
+    <name>simplistash</name>
     <!-- FIXME change it to the project's website -->
     <!-- <url>http://www.example.com</url> -->
 

@@ -1,11 +1,11 @@
-package com.youngbryanyu.burgerdb.server;
+package com.youngbryanyu.simplistash.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import com.youngbryanyu.burgerdb.exceptions.ServerStartupException;
+import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
 
 /**
  * Class that represents the server used to communicate with clients.

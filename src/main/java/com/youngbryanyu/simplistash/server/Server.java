@@ -1,6 +1,6 @@
-package com.youngbryanyu.burgerdb.server;
+package com.youngbryanyu.simplistash.server;
 
-import com.youngbryanyu.burgerdb.exceptions.ServerStartupException;
+import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
 
 /**
  * The class running the server to communicate with clients.

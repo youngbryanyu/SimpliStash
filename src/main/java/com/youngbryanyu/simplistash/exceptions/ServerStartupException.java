@@ -1,4 +1,4 @@
-package com.youngbryanyu.burgerdb.exceptions;
+package com.youngbryanyu.simplistash.exceptions;
 
 /**
  * Exception thrown when the servers fails to startup.

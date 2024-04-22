@@ -80,12 +80,6 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
-                    <configuration>
-                        <!-- Don't reuse forks. Reuse forks is causing static mock tests to fail.
-                        Use 1x num cores. -->
-                        <forkCount>1C</forkCount>
-                        <reuseForks>false</reuseForks>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>

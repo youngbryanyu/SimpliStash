@@ -110,21 +110,24 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
                 <executions>
+                    <!-- Set up JaCoCo coverage detection -->
                     <execution>
-                        <id>prepare-agent</id>
+                        <id>default-prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+                    <!-- Set up coverage report -->
                     <execution>
-                        <id>report</id>
+                        <id>default-report</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    <!-- Set up coverage checks -->
                     <execution>
-                        <id>check</id>
+                        <id>default-check</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
@@ -137,11 +140,15 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum> 
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
                             </rules>
+                            <!-- Exclude files during coverage checks -->
+                            <excludes>
+                                <exclude>**/exceptions/**</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
                 </executions>

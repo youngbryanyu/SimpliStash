@@ -1,7 +1,6 @@
 package com.youngbryanyu.burgerdb.server;
 
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,10 +11,12 @@ import java.net.Socket;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-
+@ExtendWith(MockitoExtension.class)
 public class ClientHandlerTest {
     @Mock
     private Socket mockSocket;
@@ -23,9 +24,10 @@ public class ClientHandlerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     public void testRun() throws IOException {
         String clientMessage = "Hello from client\n";
         ByteArrayInputStream inStream = new ByteArrayInputStream(clientMessage.getBytes());

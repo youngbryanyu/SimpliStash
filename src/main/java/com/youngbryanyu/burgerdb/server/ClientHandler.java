@@ -52,7 +52,7 @@ public class ClientHandler implements Runnable {
      */
     private void closeSocket() {
         try {
-            if (clientSocket != null && clientSocket.isClosed()) {
+            if (clientSocket != null && !clientSocket.isClosed()) {
                 clientSocket.close();
             }
         } catch (IOException e) {

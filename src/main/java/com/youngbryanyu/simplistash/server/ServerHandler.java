@@ -3,9 +3,9 @@ package com.youngbryanyu.simplistash.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
+import com.youngbryanyu.simplistash.server.factory.ClientHandlerFactory;
 
 /**
  * Class that represents the server used to communicate with clients.
@@ -43,7 +43,7 @@ public class ServerHandler {
             while (running) {
                 try {
                     Socket clientSocket = serverSocket.accept();
-                    ClientHandler clientHandler = new ClientHandler(clientSocket);
+                    ClientHandler clientHandler = ClientHandlerFactory.createClientHandler(clientSocket);
                     new Thread(clientHandler).start();
                 } catch (IOException e) {
                     if (!running) {

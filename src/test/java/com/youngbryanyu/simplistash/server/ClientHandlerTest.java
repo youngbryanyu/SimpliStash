@@ -93,7 +93,7 @@ public class ClientHandlerTest {
         verify(mockSocket, atLeastOnce()).close();
     }
 
-   /**
+    /**
      * Test when an IOException is thrown when closing the client socket.
      */
     @Test
@@ -101,7 +101,7 @@ public class ClientHandlerTest {
         /* empty input stream to simulate end of stream */
         ByteArrayInputStream inStream = new ByteArrayInputStream(new byte[0]);
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        
+
         when(mockSocket.getInputStream()).thenReturn(inStream);
         when(mockSocket.getOutputStream()).thenReturn(outStream);
         doThrow(new IOException("Forced IOException")).when(mockSocket).close();
@@ -111,6 +111,6 @@ public class ClientHandlerTest {
         assertDoesNotThrow(() -> clientHandler.run(),
                 "No exception should be thrown.");
         verify(mockSocket, atLeastOnce()).close();
-        
+
     }
 }

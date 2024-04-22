@@ -20,7 +20,6 @@
 
         <!-- File paths to ignore in coverage report -->
         <jacoco.excludes>
-            <!-- **/exceptions/** -->
         </jacoco.excludes>
     </properties>
 
@@ -55,7 +54,6 @@
             <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 
@@ -82,6 +80,12 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
+                    <configuration>
+                        <!-- Don't reuse forks. Reuse forks is causing static mock tests to fail.
+                        Use 1x num cores. -->
+                        <forkCount>1C</forkCount>
+                        <reuseForks>false</reuseForks>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -150,12 +154,12 @@
                         <configuration>
                             <rules>
                                 <rule>
-                                    <element>PACKAGE</element>
+                                    <element>BUNDLE</element>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <minimum>.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

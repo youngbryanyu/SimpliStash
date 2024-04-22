@@ -49,11 +49,16 @@ public class ServerHandler {
                     if (!running) {
                         break;
                     }
-                } 
+                }
             }
         } catch (IOException e) {
             throw new ServerStartupException("IOException occurred while starting the server. ", e);
-        }  finally {
+        } finally {
+            /*
+             * This call to stopServer is probably redundant, since the server's loop will
+             * only exit and reach this finally block after stopServer is already called
+             * once in the shutdown hook. However, we keep this as a backup.
+             */
             stopServer();
         }
     }

@@ -32,13 +32,13 @@ public class ServerHandler {
     }
 
     /**
-     * Starts the TCP server.
+     * Starts the server.
      */
     public void startServer() throws ServerStartupException {
         try {
             serverSocket.setReuseAddress(true); /* Enable quick rebinding to the port */
             this.running = true;
-            System.out.printf("TCP server started on port: %d\n", serverSocket.getLocalPort());
+            System.out.printf("Server started on port: %d\n", serverSocket.getLocalPort());
 
             while (running) {
                 try {
@@ -59,7 +59,7 @@ public class ServerHandler {
     }
 
     /**
-     * Stops the TCP server and close its socket.
+     * Stops the server and close its socket.
      */
     public void stopServer() {
         this.running = false;

@@ -21,7 +21,7 @@ public class Server {
      */
     public static void main(String[] args) {
         try {
-            runServerStartupScript();
+            runStartupScript();
         } catch (IOException | ServerStartupException e) {
             /*
              * We aren't testing this branch of code due to complications with mocking
@@ -38,7 +38,7 @@ public class Server {
      * Server startup script that runs all necessary setup and logic to start up and
      * run the server.
      */
-    public static void runServerStartupScript() throws IOException, ServerStartupException {
+    public static void runStartupScript() throws IOException, ServerStartupException {
         ServerSocket serverSocket = ServerSocketFactory.createServerSocket(PORT);
         final ServerHandler server = ServerHandlerFactory.createServerHandler(serverSocket);
 

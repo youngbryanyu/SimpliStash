@@ -45,7 +45,7 @@ public class ServerHandler {
                     Socket clientSocket = serverSocket.accept();
                     ClientHandler clientHandler = new ClientHandler(clientSocket);
                     new Thread(clientHandler).start();
-                } catch (SocketException e) {
+                } catch (IOException e) {
                     if (!running) {
                         break;
                     }
@@ -53,7 +53,7 @@ public class ServerHandler {
             }
         } catch (IOException e) {
             throw new ServerStartupException("IOException occurred while starting the server. ", e);
-        } finally {
+        }  finally {
             stopServer();
         }
     }

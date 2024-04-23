@@ -9,7 +9,7 @@ public class Server {
     /**
      * Port to use for the server.
      */
-    public static final int PORT = 3000;
+    private static final int PORT = 3000;
 
     /**
      * Main method which the server startup script.

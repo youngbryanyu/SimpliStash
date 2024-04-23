@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.server.ServerHandler;
+import com.youngbryanyu.simplistash.cache.KeyValueStore;
 
 /**
  * Unit tests for the server handler.
@@ -38,36 +38,36 @@ class ServerHandlerTest {
      * The server handler under test.
      */
     private ServerHandler serverHandler;
-
     /**
      * The mocked channel selector.
      */
     @Mock
     private Selector mockSelector;
-
     /**
      * The mocked server socket channel.
      */
     @Mock
     private ServerSocketChannel mockServerSocketChannel;
-
     /**
      * The mocked server socket.
      */
     @Mock
     private ServerSocket mockServerSocket;
-
     /**
      * The mocked client socket channel.
      */
     @Mock
     private SocketChannel mockSocketChannel;
-
     /**
      * The mocked channel selection key.
      */
     @Mock
     private SelectionKey mockSelectionKey;
+    /**
+     * The mocked key-value store
+     */
+    @Mock
+    private KeyValueStore mockKeyValueStore;
 
     /**
      * Set up before all tests run.
@@ -97,7 +97,7 @@ class ServerHandlerTest {
         when(mockServerSocketChannel.register(mockSelector, SelectionKey.OP_ACCEPT)).thenReturn(null);
 
         /* Initialize the ServerHandler with a specific port */
-        serverHandler = new ServerHandler(8080);
+        serverHandler = new ServerHandler(8080, mockKeyValueStore);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.youngbryanyu.simplistash.server;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import com.youngbryanyu.simplistash.cache.KeyValueStore;
 
 import mockit.MockUp;
 
@@ -57,7 +60,7 @@ public class ServerTest {
      */
     @Test
     public void testRunServerScript_NormalExecution() throws IOException {
-        when(ServerHandlerFactory.createServerHandler(anyInt())).thenReturn(mockServerHandler);
+        when(ServerHandlerFactory.createServerHandler(anyInt(), any(KeyValueStore.class))).thenReturn(mockServerHandler);
 
         Server.main(null);
 
@@ -78,7 +81,7 @@ public class ServerTest {
         };
 
         try {
-            when(ServerHandlerFactory.createServerHandler(anyInt())).thenThrow(new IOException("Forced IOException"));
+            when(ServerHandlerFactory.createServerHandler(anyInt(), any(KeyValueStore.class))).thenThrow(new IOException("Forced IOException"));
 
             Server.main(null);
         } catch (RuntimeException e) {

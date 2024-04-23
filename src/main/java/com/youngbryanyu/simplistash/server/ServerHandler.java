@@ -12,20 +12,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.protocol.CommandHandler;
+import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
+
 /**
  * The server handler which handles all communication with clients. Runs on a
- * single thread using NIO (non-blocking IO).
+ * single thread using NIO (non-blocking IO). Is responsible for communicating
+ * with the in-memory cache.
  */
 public class ServerHandler {
     /**
      * Channel selector used to select client channels to perform I/O with.
      */
-    private Selector selector;
+    private final Selector selector;
 
     /**
      * The server socket channel which listens for connections.
      */
-    private ServerSocketChannel serverSocketChannel;
+    private final ServerSocketChannel serverSocketChannel;
+
+    /**
+     * The key value store being used
+     */
+    private final KeyValueStore keyValueStore;
 
     /**
      * Flag indicating whether or not the server is running.
@@ -39,13 +49,15 @@ public class ServerHandler {
      * 
      * @param port The port that the server listens on.
      */
-    public ServerHandler(int port) throws IOException {
+    public ServerHandler(int port, KeyValueStore keyValueStore) throws IOException {
         this.selector = Selector.open();
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.configureBlocking(false);
         this.serverSocketChannel.socket().bind(new InetSocketAddress(port));
         this.serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         this.running = false;
+
+        this.keyValueStore = keyValueStore;
     }
 
     /**
@@ -112,11 +124,12 @@ public class ServerHandler {
      */
     private void handleReadAndWrite(SelectionKey key) {
         SocketChannel clientChannel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(1024); // TODO: consider increasing the buffer size based on size limits
+        ByteBuffer buffer = ByteBuffer.allocate(ProtocolFormatter.MAX_INPUT_LENGTH);
 
         try {
             /* Read data into buffer */
             int numRead = clientChannel.read(buffer);
+            System.out.println(numRead);
 
             /* Check if connection was closed by client */
             if (numRead == -1) {
@@ -129,11 +142,13 @@ public class ServerHandler {
             buffer.flip();
             byte[] data = new byte[buffer.limit()];
             buffer.get(data);
-            String receivedString = new String(data, StandardCharsets.UTF_8).trim();
-            System.out.printf("Received from client (%s): %s\n", clientChannel.getRemoteAddress(), receivedString);
+            String inputLine = new String(data, StandardCharsets.UTF_8);
+            System.out.printf("Received from client (%s): %s\n", clientChannel.getRemoteAddress(), inputLine);
+
+            /* Parse and handle command from data */
+            String response = CommandHandler.handleCommand(inputLine, keyValueStore);
 
             /* Respond to client */
-            String response = "Received message on server side\n";
             ByteBuffer responseBuffer = ByteBuffer.wrap(response.getBytes(StandardCharsets.UTF_8));
             clientChannel.write(responseBuffer);
         } catch (IOException e) {
@@ -142,7 +157,7 @@ public class ServerHandler {
             /* Close client channel and invalidate its key */
             closeClientChannel(key, clientChannel);
         }
-    }
+    }    
 
     /**
      * Closes the client channel and invalidates its key used by the selector.

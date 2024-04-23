@@ -2,6 +2,9 @@ package com.youngbryanyu.simplistash.server;
 
 import java.io.IOException;
 
+import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.cache.KeyValueStoreFactory;
+
 /**
  * The class running the server to communicate with clients.
  */
@@ -41,7 +44,8 @@ public class Server {
      *                     {@link SeverHandler}.
      */
     public static void runStartupScript() throws IOException {
-        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT);
+        KeyValueStore keyValueStore = KeyValueStoreFactory.createKeyValueStore();
+        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT, keyValueStore);
 
         /* Set up server cleanup */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

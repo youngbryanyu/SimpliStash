@@ -1,11 +1,6 @@
 package com.youngbryanyu.simplistash.server;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-
-import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
-import com.youngbryanyu.simplistash.server.factory.ServerHandlerFactory;
-import com.youngbryanyu.simplistash.server.factory.ServerSocketFactory;
 
 /**
  * The class running the server to communicate with clients.
@@ -22,13 +17,16 @@ public class Server {
     public static void main(String[] args) {
         try {
             runStartupScript();
-        } catch (IOException | ServerStartupException e) {
+        } catch (Exception e) {
             /*
              * We aren't testing this branch of code due to complications with mocking
              * System.exit. We've tried existing libraries but many require the Security
              * Manager which is deprecated starting in Java 17.
+             * 
+             * We let most runtime exceptions bubble up to `main`, while catching and
+             * handling most checked exceptions.
              */
-            System.out.println("Error occurred while starting server: ");
+            System.out.println("Error occurred while running server:");
             e.printStackTrace();
             System.exit(1);
         }
@@ -37,17 +35,18 @@ public class Server {
     /**
      * Server startup script that runs all necessary setup and logic to start up and
      * run the server.
+     * 
+     * @throws IOException if an I/O exception was thrown while instantiating {@link SeverHandler}.
      */
-    public static void runStartupScript() throws IOException, ServerStartupException {
-        ServerSocket serverSocket = ServerSocketFactory.createServerSocket(PORT);
-        final ServerHandler server = ServerHandlerFactory.createServerHandler(serverSocket);
+    public static void runStartupScript() throws IOException {
+        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT);
 
         /* Set up server cleanup */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            server.stopServer();
+            serverHandler.stopServer();
         }));
 
         /* Run server on the main thread */
-        server.startServer();
+        serverHandler.startServer();
     }
 }

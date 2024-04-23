@@ -1,123 +1,315 @@
 package com.youngbryanyu.simplistash.server;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.exceptions.ServerStartupException;
+import com.youngbryanyu.simplistash.server.ServerHandler;
 
 /**
- * Unit tests for {@link ServerHandler}.
+ * Unit tests for the server handler.
  */
-public class ServerHandlerTest {
+class ServerHandlerTest {
     /**
-     * The Mocked server socket
+     * The server handler under test.
+     */
+    private ServerHandler serverHandler;
+
+    /**
+     * The mocked channel selector.
+     */
+    @Mock
+    private Selector mockSelector;
+
+    /**
+     * The mocked server socket channel.
+     */
+    @Mock
+    private ServerSocketChannel mockServerSocketChannel;
+
+    /**
+     * The mocked server socket.
      */
     @Mock
     private ServerSocket mockServerSocket;
 
     /**
-     * The mocked client socket
+     * The mocked client socket channel.
      */
     @Mock
-    private Socket mockClientSocket;
+    private SocketChannel mockSocketChannel;
 
     /**
-     * The server handler under test
+     * The mocked channel selection key.
      */
-    private ServerHandler serverHandler;
+    @Mock
+    private SelectionKey mockSelectionKey;
 
-    /*
-     * General setup before each unit test.
+    /**
+     * Set up before all tests run.
+     */
+    @BeforeAll
+    public static void beforeAllSetup() throws IOException {
+        /* Mock static methods before all */
+        Mockito.mockStatic(Selector.class);
+        Mockito.mockStatic(ServerSocketChannel.class);
+    }
+
+    /**
+     * Set up before each test runs.
      */
     @BeforeEach
-    public void setup() throws IOException {
+    void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
-        serverHandler = new ServerHandler(mockServerSocket);
+
+        /* Mock static methods in the constructor of ServerHandler */
+        when(Selector.open()).thenReturn(mockSelector);
+        when(ServerSocketChannel.open()).thenReturn(mockServerSocketChannel);
+
+        /* Mock methods in constructor of ServerHandler */
+        when(mockServerSocketChannel.configureBlocking(false)).thenReturn(mockServerSocketChannel);
+        when(mockServerSocketChannel.socket()).thenReturn(mockServerSocket);
+        doNothing().when(mockServerSocket).bind(any(InetSocketAddress.class));
+        when(mockServerSocketChannel.register(mockSelector, SelectionKey.OP_ACCEPT)).thenReturn(null);
+
+        /* Initialize the ServerHandler with a specific port */
+        serverHandler = new ServerHandler(8080);
     }
 
     /**
-     * Test successfully starting the server
+     * Tests the constructor of the server handler.
      */
     @Test
-    public void testStartServer() throws IOException, InterruptedException {
-        Socket mockClientSocket = mock(Socket.class);
-        when(mockServerSocket.accept())
-                .thenReturn(mockClientSocket)
-                .thenThrow(new SocketException("Socket closed")); /* Simulate socket closure on subsequent calls */
-
-        Thread serverThread = new Thread(() -> {
-            try {
-                serverHandler.startServer();
-            } catch (ServerStartupException e) {
-                /* Swallow exception */
-            }
-        });
-
-        serverThread.start();
-        Thread.sleep(500); /* Allow time for the server to process the initial accept */
-
-        serverHandler.stopServer(); /* This should lead to "Socket closed" on next accept call */
-        serverThread.join(); /* Ensure the server thread has completed before assertions */
-
-        verify(mockServerSocket, times(1)).setReuseAddress(true);
-        verify(mockServerSocket, atLeastOnce()).accept();
+    void testConstructor() throws IOException {
+        verify(mockServerSocketChannel).configureBlocking(false);
+        verify(mockServerSocket).bind(new InetSocketAddress(8080));
+        verify(mockServerSocketChannel).register(mockSelector, SelectionKey.OP_ACCEPT);
     }
 
     /**
-     * Test when a socket exception is thrown upon starting the server.
+     * Tests accepting an incoming client connection.
      */
     @Test
-    public void testServerStartupException() throws IOException {
-        doThrow(new SocketException("Forced error")).when(mockServerSocket).setReuseAddress(true);
-        assertThrows(ServerStartupException.class, () -> serverHandler.startServer());
+    void testHandleAccept() throws IOException {
+        when(mockSelector.select()).thenReturn(1).thenReturn(0);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenReturn(mockSocketChannel);
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable()).thenReturn(true);
+
+        serverHandler.startServer();
+
+        verify(mockSelector, times(2)).select();
+        verify(mockSelector, times(2)).isOpen();
+        verify(mockSelector).selectedKeys();
+        verify(mockSelectionKey).isAcceptable();
+        verify(mockServerSocketChannel).accept();
+        verify(mockSocketChannel).configureBlocking(false);
+        verify(mockSocketChannel).register(mockSelector, SelectionKey.OP_READ);
+        verify(mockSocketChannel).getRemoteAddress();
     }
 
     /**
-     * Test successfully stopping the server.
+     * Tests when an IOException is thrown and caught while accepting an incoming
+     * client connection.
      */
     @Test
-    public void testStopServer() throws IOException {
+    void testHandleAccept_catchIOException() throws IOException {
+        when(mockSelector.select()).thenReturn(1).thenReturn(0);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenThrow(new IOException("Forced IOException"));
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable()).thenReturn(true);
+
+        assertDoesNotThrow(() -> serverHandler.startServer());
+
+        verify(mockSelector, times(2)).select();
+        verify(mockSelector, times(2)).isOpen();
+        verify(mockSelector).selectedKeys();
+        verify(mockSelectionKey).isAcceptable();
+        verify(mockServerSocketChannel).accept();
+        verify(mockSocketChannel, times(0)).configureBlocking(false);
+        verify(mockSocketChannel, times(0)).register(mockSelector, SelectionKey.OP_READ);
+        verify(mockSocketChannel, times(0)).getRemoteAddress();
+    }
+
+    /**
+     * Test reading from and writing to a client.
+     */
+    @Test
+    void testHandleReadAndWrite() throws IOException {
+        String input = "Hello";
+        ByteBuffer buffer = ByteBuffer.wrap(input.getBytes(StandardCharsets.UTF_8));
+        when(mockSelector.select()).thenReturn(1).thenReturn(1);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenReturn(mockSocketChannel);
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable())
+                .thenReturn(false); /* Return false so code goes into isReadable block */
+        when(mockSelectionKey.isReadable())
+                .thenReturn(true);
+        when(mockSelectionKey.channel()).thenReturn(mockSocketChannel);
+        when(mockSocketChannel.read(any(ByteBuffer.class))).thenReturn(input.length());
+        when(mockSocketChannel.write(any(ByteBuffer.class))).thenReturn(buffer.remaining());
+
+        serverHandler.startServer();
+
+        verify(mockSocketChannel).read(any(ByteBuffer.class));
+        verify(mockSocketChannel).write(any(ByteBuffer.class));
+    }
+
+    /**
+     * Test when the client closed the connection (read -1 from the buffer which is
+     * end of stream)
+     */
+    @Test
+    void testHandleReadAndWrite_clientClosedConnection() throws IOException {
+        when(mockSelector.select()).thenReturn(1).thenReturn(1);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenReturn(mockSocketChannel);
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable())
+                .thenReturn(false); /* Return false so code goes into isReadable block */
+        when(mockSelectionKey.isReadable())
+                .thenReturn(true);
+        when(mockSelectionKey.channel()).thenReturn(mockSocketChannel);
+        when(mockSocketChannel.read(any(ByteBuffer.class))).thenReturn(-1); /* Return -1 to mark end of stream */
+
+        serverHandler.startServer();
+
+        verify(mockSocketChannel).read(any(ByteBuffer.class));
+        verify(mockSocketChannel).close();
+        verify(mockSelectionKey).cancel();
+    }
+
+    /**
+     * Test when an IOException is thrown and caught while reading from and writing
+     * to a client.
+     */
+    @Test
+    void testHandleReadAndWrite_catchIOException() throws IOException {
+        when(mockSelector.select()).thenReturn(1).thenReturn(1);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenReturn(mockSocketChannel);
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable())
+                .thenReturn(false); /* Return false so code goes into isReadable block */
+        when(mockSelectionKey.isReadable())
+                .thenReturn(true);
+        when(mockSelectionKey.channel()).thenReturn(mockSocketChannel);
+        when(mockSocketChannel.read(any(ByteBuffer.class))).thenThrow(new IOException("Forced IOException"));
+
+        serverHandler.startServer();
+
+        verify(mockSocketChannel).read(any(ByteBuffer.class));
+        verify(mockSocketChannel, times(0)).write(any(ByteBuffer.class));
+        verify(mockSelectionKey).cancel();
+        verify(mockSocketChannel).close();
+    }
+
+    /**
+     * Test when an IOException is thrown and caught while reading from and writing
+     * to a client, but another IOException is thrown when attempting to perform
+     * cleanup and close the client channel.
+     */
+    @Test
+    void testHandleReadAndWrite_catchIOException_failedToCloseClientChannel() throws IOException {
+        when(mockSelector.select()).thenReturn(1).thenReturn(1);
+        when(mockSelector.isOpen())
+                .thenReturn(true)
+                .thenReturn(false); /* Return false on 2nd loop iteration's invocation to stop server */
+        when(mockServerSocketChannel.accept()).thenReturn(mockSocketChannel);
+        when(mockSelector.selectedKeys()).thenReturn(new HashSet<>(Set.of(mockSelectionKey)));
+        when(mockSelectionKey.isAcceptable())
+                .thenReturn(false); /* Return false so code goes into isReadable block */
+        when(mockSelectionKey.isReadable())
+                .thenReturn(true);
+        when(mockSelectionKey.channel()).thenReturn(mockSocketChannel);
+        when(mockSocketChannel.read(any(ByteBuffer.class))).thenThrow(new IOException("Forced IOException"));
+        doThrow(new IOException("Forced IOException")).when(mockSocketChannel).close();
+
+        assertDoesNotThrow(() -> serverHandler.startServer());
+
+        verify(mockSocketChannel).read(any(ByteBuffer.class));
+        verify(mockSocketChannel, times(0)).write(any(ByteBuffer.class));
+        verify(mockSelectionKey).cancel();
+        verify(mockSocketChannel).close();
+    }
+
+    /**
+     * Test stopping the server.
+     */
+    @Test
+    void testStopServer() throws IOException {
         serverHandler.stopServer();
-        verify(mockServerSocket, times(1)).close();
+
+        verify(mockSelector).close();
+        verify(mockServerSocketChannel).close();
     }
 
     /**
-     * Test that the server is closed when {@link ServerHandler#stopServer} is called.
+     * Test when an IO exception is thrown and caught while stopping the server.
      */
     @Test
-    public void testServerClosesOnStop() throws IOException {
-        when(mockServerSocket.isClosed()).thenReturn(false);
-        serverHandler.stopServer();
-        verify(mockServerSocket, times(1)).close();
+    void testStopServer_IOException() throws IOException {
+        doThrow(new IOException("Forced IOException")).when(mockSelector).close();
+
+        assertDoesNotThrow(() -> serverHandler.stopServer());
+
+        verify(mockSelector).close();
     }
 
     /**
-     * Test when an IOException is thrown when stopping the server.
+     * Tests when an IOException is thrown and caught during the server's loop when
+     * the {@link Selector#select()} is called.
      */
     @Test
-    public void testCloseServerSocketThrowsIOException() throws IOException {
-        doThrow(new IOException("Forced IOException")).when(mockServerSocket).close();
+    void testStartServer_catchIOException() throws IOException {
+        when(mockSelector.select()).thenThrow(new IOException("Forced IOException"));
 
-        ServerHandler serverHandler = new ServerHandler(mockServerSocket);
+        assertDoesNotThrow(() -> serverHandler.startServer());
 
-        assertDoesNotThrow(() -> serverHandler.stopServer(),
-                "stopServer should not throw, even when IOException occurs");
-        verify(mockServerSocket, times(1)).close();
+        verify(mockSelector, times(1)).select();
+        verify(mockSelector, times(0)).selectedKeys();
+        verify(mockSelectionKey, times(0)).isAcceptable();
+        verify(mockServerSocketChannel, times(0)).accept();
+        verify(mockSocketChannel, times(0)).configureBlocking(false);
+        verify(mockSocketChannel, times(0)).register(mockSelector, SelectionKey.OP_READ);
+        verify(mockSocketChannel, times(0)).getRemoteAddress();
     }
+
 }

@@ -19,15 +19,16 @@ public class Server {
             runStartupScript();
         } catch (Exception e) {
             /*
-             * We aren't testing this branch of code due to complications with mocking
-             * System.exit. We've tried existing libraries but many require the Security
-             * Manager which is deprecated starting in Java 17.
-             * 
              * We let most runtime exceptions bubble up to `main`, while catching and
              * handling most checked exceptions.
              */
             System.out.println("Error occurred while running server:");
             e.printStackTrace();
+
+            /*
+             * This line will not be covered due to using workarounds with JMockit to mock
+             * System.exit during unit tests.
+             */
             System.exit(1);
         }
     }
@@ -36,7 +37,8 @@ public class Server {
      * Server startup script that runs all necessary setup and logic to start up and
      * run the server.
      * 
-     * @throws IOException if an I/O exception was thrown while instantiating {@link SeverHandler}.
+     * @throws IOException if an I/O exception was thrown while instantiating
+     *                     {@link SeverHandler}.
      */
     public static void runStartupScript() throws IOException {
         ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT);

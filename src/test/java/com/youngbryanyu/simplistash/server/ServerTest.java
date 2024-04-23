@@ -7,12 +7,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import mockit.MockUp;
 
 import java.io.IOException;
 
@@ -31,7 +35,7 @@ public class ServerTest {
      */
     @Mock
     ServerHandlerFactory mockServerHandlerFactory;
-    
+
     /*
      * Set up before all tests run.
      */
@@ -52,12 +56,34 @@ public class ServerTest {
      * Test running the server startup script through the main method.
      */
     @Test
-    public void testRunServerScriptNormalExecution() throws IOException {
+    public void testRunServerScript_NormalExecution() throws IOException {
         when(ServerHandlerFactory.createServerHandler(anyInt())).thenReturn(mockServerHandler);
 
         Server.main(null);
 
         verify(mockServerHandler, times(1)).startServer();
+    }
+
+    /**
+     * Test when an exception is thrown while running the server startup script
+     * through the main method, and it propagates up to the main method.
+     */
+    @Test
+    public void testRunServerScript_ThrowsException() throws IOException {
+        new MockUp<System>() {
+            @mockit.Mock
+            public void exit(int value) {
+                throw new RuntimeException(String.valueOf(value));
+            }
+        };
+
+        try {
+            when(ServerHandlerFactory.createServerHandler(anyInt())).thenThrow(new IOException("Forced IOException"));
+
+            Server.main(null);
+        } catch (RuntimeException e) {
+            Assertions.assertEquals("1", e.getMessage());
+        }
     }
 
     /**

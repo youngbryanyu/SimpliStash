@@ -54,6 +54,14 @@
             <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- JMockit (To help with mocking System.exit) -->
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>1.49</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
@@ -85,6 +93,11 @@
                         fail. Use 1x num cores. -->
                         <forkCount>1C</forkCount>
                         <reuseForks>false</reuseForks>
+
+                        <!-- Must prepend argLine with ${argLine} or else JaCoCo will not work -->
+                        <argLine>
+                            ${argLine} -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.49/jmockit-1.49.jar
+                        </argLine>
                     </configuration>
                 </plugin>
                 <plugin>

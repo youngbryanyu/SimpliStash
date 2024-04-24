@@ -8,7 +8,8 @@ import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 public enum Command {
     SET,
     GET,
-    DELETE;
+    DELETE,
+    PING;
 
     /**
      * Gets the enum value matching an input string. Throws an

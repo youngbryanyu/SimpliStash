@@ -4,8 +4,8 @@ import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
 /**
- * Class containing methods to parse the client's input into tokens, and handle
- * any commands by applying them to the cache.
+ * Class containing methods to help parse the client's input from their buffer
+ * into tokens, and handle any commands by applying them to the cache provided.
  */
 public class CommandHandler {
     /**
@@ -144,5 +144,10 @@ public class CommandHandler {
     private static String handleDeleteCommand(String key, InMemoryCache cache) {
         cache.delete(key);
         return ProtocolFormatter.buildOkResponse();
+    }
+
+    private static String handlePingCommand() {
+        // TODO: implement
+        return null;
     }
 }

@@ -2,21 +2,19 @@ package com.youngbryanyu.simplistash.cache;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
-
 /**
  * The in-memory key-value store.
  */
-public class KeyValueStore {
+public class InMemoryCache {
     /**
      * The concurrent hash map containing all key-value pairs in-memory
      */
     private final ConcurrentHashMap<String, String> store;
 
     /**
-     * The constructor for {@link KeyValueStore}.
+     * The constructor for {@link InMemoryCache}.
      */
-    public KeyValueStore() {
+    public InMemoryCache() {
         this.store = new ConcurrentHashMap<>();
     }
 
@@ -41,8 +39,3 @@ public class KeyValueStore {
         store.remove(key);
     } 
 }
-
-
-// TODO: add TTL
-// - TTLed values can be checked on read
-// - TTLed values should be cleaned up periodically by some process in the background

@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for the key value store factory.
  */
-public class KeyValueStoreFactoryTest {
+public class InMemoryCacheFactoryTest {
     /**
      * Test successfully creating a key value store.
      */
     @Test
     public void testCreateServerHandlerSuccess() {
-        KeyValueStore keyValueStore = KeyValueStoreFactory.createKeyValueStore();
-        
-        assertTrue(keyValueStore instanceof KeyValueStore);
+        InMemoryCache cache = InMemoryCacheFactory.createInMemoryCache();
+
+        assertTrue(cache instanceof InMemoryCache);
     }
 }

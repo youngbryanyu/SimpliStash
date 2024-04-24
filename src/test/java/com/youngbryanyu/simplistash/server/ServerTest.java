@@ -17,7 +17,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.cache.InMemoryCache;
 
 import mockit.MockUp;
 
@@ -60,7 +60,7 @@ public class ServerTest {
      */
     @Test
     public void testRunServerScript_NormalExecution() throws IOException {
-        when(ServerHandlerFactory.createServerHandler(anyInt(), any(KeyValueStore.class))).thenReturn(mockServerHandler);
+        when(ServerHandlerFactory.createServerHandler(anyInt(), any(InMemoryCache.class))).thenReturn(mockServerHandler);
 
         Server.main(null);
 
@@ -81,7 +81,7 @@ public class ServerTest {
         };
 
         try {
-            when(ServerHandlerFactory.createServerHandler(anyInt(), any(KeyValueStore.class))).thenThrow(new IOException("Forced IOException"));
+            when(ServerHandlerFactory.createServerHandler(anyInt(), any(InMemoryCache.class))).thenThrow(new IOException("Forced IOException"));
 
             Server.main(null);
         } catch (RuntimeException e) {

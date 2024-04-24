@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.cache.InMemoryCache;
 
 /**
  * Unit tests for the server handler.
@@ -67,7 +67,7 @@ class ServerHandlerTest {
      * The mocked key-value store
      */
     @Mock
-    private KeyValueStore mockKeyValueStore;
+    private InMemoryCache mockCache;
 
     /**
      * Set up before all tests run.
@@ -97,7 +97,7 @@ class ServerHandlerTest {
         when(mockServerSocketChannel.register(mockSelector, SelectionKey.OP_ACCEPT)).thenReturn(null);
 
         /* Initialize the ServerHandler with a specific port */
-        serverHandler = new ServerHandler(8080, mockKeyValueStore);
+        serverHandler = new ServerHandler(8080, mockCache);
     }
 
     /**

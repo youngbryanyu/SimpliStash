@@ -9,7 +9,7 @@ import java.security.Key;
 
 import org.junit.jupiter.api.Test;
 
-import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.cache.InMemoryCache;
 
 /**
  * Unit tests for the server handler factory.
@@ -21,8 +21,8 @@ public class ServerHandlerFactoryTest {
     @Test
     public void testCreateServerHandlerSuccess() throws IOException {
         int port = 12345;
-        KeyValueStore mockKeyValueStore = mock(KeyValueStore.class);
-        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(port, mockKeyValueStore);
+        InMemoryCache mockCache = mock(InMemoryCache.class);
+        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(port, mockCache);
         
         assertTrue(serverHandler instanceof ServerHandler);
     }

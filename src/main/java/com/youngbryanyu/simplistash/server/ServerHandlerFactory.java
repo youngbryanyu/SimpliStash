@@ -2,7 +2,7 @@ package com.youngbryanyu.simplistash.server;
 
 import java.io.IOException;
 
-import com.youngbryanyu.simplistash.cache.KeyValueStore;
+import com.youngbryanyu.simplistash.cache.InMemoryCache;
 
 /**
  * Factory class for creating {@link ServerHandler}.
@@ -17,7 +17,7 @@ public class ServerHandlerFactory {
     /**
      * Creates an instance of {@link ServerHandler}.
      */
-    public static ServerHandler createServerHandler(int port, KeyValueStore keyValueStore) throws IOException {
-        return new ServerHandler(port, keyValueStore);
+    public static ServerHandler createServerHandler(int port, InMemoryCache cache) throws IOException {
+        return new ServerHandler(port, cache);
     }
 }

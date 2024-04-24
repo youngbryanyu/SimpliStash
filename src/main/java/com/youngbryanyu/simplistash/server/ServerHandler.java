@@ -9,16 +9,18 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
-import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.commands.ProtocolFormatter;
-import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
+
+import javafx.util.Pair;
 
 /**
  * The server handler which handles all communication with clients. Runs on a
@@ -44,9 +46,11 @@ public class ServerHandler {
     private volatile boolean running;
     /**
      * A map of each open client socket channel to a buffer of what has been
-     * accumulated over input from the client.
+     * accumulated over input from the client. We use a StringBuilder to fill up the
+     * buffer and store chunks of delimited input in a Deque so we don't need to
+     * re-use indexOf to check for arguments.
      */
-    private final Map<SocketChannel, StringBuilder> clientBuffers;
+    private final Map<SocketChannel, Pair<StringBuilder, Deque<String>>> clientBuffersAndTokens;
 
     /**
      * Constructor for {@link ServerHandler}. Configures the server to be
@@ -57,13 +61,15 @@ public class ServerHandler {
      */
     public ServerHandler(int port, InMemoryCache cache) throws IOException {
         this.selector = Selector.open();
+
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.configureBlocking(false);
         this.serverSocketChannel.socket().bind(new InetSocketAddress(port));
         this.serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
         this.running = false;
         this.cache = cache;
-        clientBuffers = new ConcurrentHashMap<>();
+        clientBuffersAndTokens = new HashMap<>();
     }
 
     /**
@@ -130,12 +136,15 @@ public class ServerHandler {
      */
     private void handleReadAndWrite(SelectionKey key) {
         SocketChannel clientChannel = (SocketChannel) key.channel();
-        StringBuilder clientBuffer = clientBuffers.computeIfAbsent(clientChannel, k -> new StringBuilder());
+        Pair<StringBuilder, Deque<String>> clientBuffer = clientBuffersAndTokens.computeIfAbsent(clientChannel,
+                k -> {
+                    return new Pair<>(new StringBuilder(), new LinkedList<String>());
+                });
         ByteBuffer readBuffer = ByteBuffer.allocate(ProtocolFormatter.MAX_INPUT_LENGTH);
 
         try {
             /* Read data into buffer */
-            int numRead = clientChannel.read(readBuffer); 
+            int numRead = clientChannel.read(readBuffer);
 
             /* Check if connection was closed by client */
             if (numRead == -1) {
@@ -149,16 +158,17 @@ public class ServerHandler {
             byte[] data = new byte[readBuffer.limit()];
             readBuffer.get(data);
             String input = new String(data, StandardCharsets.UTF_8);
-            clientBuffer.append(input);
+            clientBuffer.getKey().append(input);
             System.out.printf("[LOG] Received from client (%s): %s", clientChannel.getRemoteAddress(), input);
 
             /* Parse and handle command from data */
             String response = CommandHandler.handleCommands(input, cache, clientBuffer);
 
-             /* Respond to client if a command was handled */
+            /* Respond to client if a command was handled */
             if (response != null) {
                 ByteBuffer responseBuffer = ByteBuffer.wrap(response.getBytes(StandardCharsets.UTF_8));
                 clientChannel.write(responseBuffer);
+                System.out.printf("[LOG] Send to client (%s): %s", clientChannel.getRemoteAddress(), response);
             }
         } catch (IOException e) {
             System.out.println("IOException occurred while reading or writing to client.");
@@ -176,7 +186,7 @@ public class ServerHandler {
      *                      server.
      */
     private void closeClientChannel(SelectionKey key, SocketChannel clientChannel) {
-        clientBuffers.remove(clientChannel);
+        clientBuffersAndTokens.remove(clientChannel);
         key.cancel();
 
         try {

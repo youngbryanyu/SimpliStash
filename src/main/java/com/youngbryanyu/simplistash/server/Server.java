@@ -15,11 +15,11 @@ public class Server {
     private static final int PORT = 3000;
 
     /**
-     * Main method which the server startup script.
+     * Main method which runs the server startup script.
      */
     public static void main(String[] args) {
         try {
-            runStartupScript();
+            start();
         } catch (Exception e) {
             /*
              * We let most runtime exceptions bubble up to `main`, while catching and
@@ -43,7 +43,7 @@ public class Server {
      * @throws IOException if an I/O exception was thrown while instantiating
      *                     {@link SeverHandler}.
      */
-    public static void runStartupScript() throws IOException {
+    public static void start() throws IOException {
         InMemoryCache cache = InMemoryCacheFactory.createInMemoryCache();
         ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT, cache);
 

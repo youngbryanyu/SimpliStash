@@ -1,7 +1,11 @@
 package com.youngbryanyu.simplistash.commands;
 
+import java.util.Deque;
+
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
+
+import javafx.util.Pair;
 
 /**
  * Class containing methods to help parse the client's input from their buffer
@@ -15,97 +19,98 @@ public class CommandHandler {
     }
 
     /**
-     * Parses possible tokens based on the delimiter from the client's
-     * current buffer, then applies any full valid command to the in-memory cache.
-     * Returns the response to be sent back to the client. Returns null if no
-     * command was parsed from the input at all and there is nothing to send back to
-     * the client.
+     * Parses tokens based on the delimiter from the client's current buffer, then
+     * applies any full valid command to the in-memory cache. Returns the response
+     * to be sent back to the client. Returns null if no command was parsed from the
+     * input at all and there is nothing to send back to the client.
      * 
      * The parsing stops once a full command cannot be reached, or once there are no
      * delimiters left.
      * 
-     * @param input  The input string to be processed.
-     * @param cache  The in-memory cache.
-     * @param buffer The buffer of accumulated input from client.
-     * @return The response to be sent back to the client, or null if no command was
-     *         handled and executed.
+     * @param input           The input string to be processed.
+     * @param cache           The in-memory cache.
+     * @param bufferAndTokens Contains a StringBuilder holding data that hasn't been
+     *                        processed into tokens yet, as well as a Deque of
+     *                        tokens to process.
+     * @return The response to be sent back to the client, or `null` if no command
+     *         was handled and executed to indicate to the caller that no response
+     *         is needed.
      */
-    public static String handleCommands(String input, InMemoryCache cache, StringBuilder buffer) {
+    public static String handleCommands(String input, InMemoryCache cache,
+            Pair<StringBuilder, Deque<String>> bufferAndTokens) {
         String delim = ProtocolFormatter.getDelim();
         int delimLength = delim.length();
-        int token1End;
-        boolean moreValidTokensLeft = true;
 
+        StringBuilder buffer = bufferAndTokens.getKey();
+        Deque<String> tokens = bufferAndTokens.getValue();
+
+        /*
+         * Add all delimited values to the deque, then remove them from the buffer's
+         * StringBuilder.
+         */
+        int delimIdx = -1;
+        while ((delimIdx = buffer.indexOf(delim)) != -1) {
+            String newToken = buffer.substring(0, delimIdx);
+            tokens.addLast(newToken);
+            buffer.delete(0, delimIdx + delimLength);
+        }
+
+        /*
+         * Execute sequences of full commands in the deque, append the response to
+         * the result, then remove the tokens. Once there are no more full command
+         * sequences then break.
+         */
         StringBuilder response = new StringBuilder();
-
-        while (moreValidTokensLeft && (token1End = buffer.indexOf(delim)) != -1) {
-            System.out.println("[LOG] Buffer before processing: " + buffer.toString());
-
-            /* Get the first token and get its corresponding command enum */
-            String token1 = buffer.substring(0, token1End);
+        boolean moreFullCommandsLeft = true;
+        while (moreFullCommandsLeft && !tokens.isEmpty()) {
+            /* Get the first token, but discard it if it's not a valid command */
+            String token1 = tokens.peekFirst();
             Command command;
             try {
                 command = Command.fromString(token1);
             } catch (InvalidCommandException e) {
-                /* Discard chunk if not a valid command */
-                buffer.delete(0, token1End + delimLength);
-                System.out.println("[LOG] Buffer after discarding: " + buffer.toString());
+                tokens.pollFirst();
                 continue;
             }
 
-            /*
-             * Try to get the 2nd and 3rd args necessary for each command. If the args
-             * exist, executes the command on the cache, clears the tokens from the buffer,
-             * and returns the response to send to the client. Else, returns null indicating
-             * no operation was performed.
-             */
-            int token2End;
-            int token3End;
+            /* Execute the command if there are enough tokens for arguments */
             String token2;
             String token3;
             switch (command) {
                 case SET:
-                    token2End = buffer.indexOf(delim, token1End + delimLength);
-                    if (token2End == -1) {
-                        moreValidTokensLeft = false;
+                    if (tokens.size() < 3) {
+                        moreFullCommandsLeft = false;
                         break;
                     }
-                    token3End = buffer.indexOf(delim, token2End + delimLength);
-                    if (token3End == -1) {
-                        moreValidTokensLeft = false;
-                        break;
-                    }
-                    token2 = buffer.substring(token1End + delimLength, token2End);
-                    token3 = buffer.substring(token2End + delimLength, token3End);
-                    buffer.delete(0, token3End + delimLength);
+
+                    tokens.pollFirst(); /* Remove command token */
+                    token2 = tokens.pollFirst();
+                    token3 = tokens.pollFirst();
                     response.append(handleSetCommand(token2, token3, cache));
                     break;
                 case GET:
-                    token2End = buffer.indexOf(delim, token1End + delimLength);
-                    if (token2End == -1) {
-                        moreValidTokensLeft = false;
+                    if (tokens.size() < 2) {
+                        moreFullCommandsLeft = false;
                         break;
                     }
-                    token2 = buffer.substring(token1End + delimLength, token2End);
-                    buffer.delete(0, token2End + delimLength);
+
+                    tokens.pollFirst(); /* Remove command token */
+                    token2 = tokens.pollFirst();
                     response.append(handleGetCommand(token2, cache));
                     break;
                 case DELETE:
-                    token2End = buffer.indexOf(delim, token1End + delimLength);
-                    if (token2End == -1) {
-                        moreValidTokensLeft = false;
+                    if (tokens.size() < 2) {
+                        moreFullCommandsLeft = false;
                         break;
                     }
-                    token2 = buffer.substring(token1End + delimLength, token2End);
-                    buffer.delete(0, token2End + delimLength);
+                    tokens.pollFirst(); /* Remove command token */
+                    token2 = tokens.pollFirst();
                     response.append(handleDeleteCommand(token2, cache));
                     break;
                 default:
                     /* This code shouldn't be reached since invalid commands are discarded */
                     return ProtocolFormatter.buildErrorResponse("Invalid command: " + token1);
             }
-
-            System.out.println("[LOG] Buffer after processing: " + buffer.toString());
         }
 
         return response.isEmpty() ? null : response.toString();
@@ -119,7 +124,10 @@ public class CommandHandler {
      * @return Returns an OK response.
      */
     private static String handleGetCommand(String key, InMemoryCache cache) {
-        return ProtocolFormatter.buildValueResponse(cache.get(key));
+        String value = cache.get(key);
+        return (value == null)
+                ? ProtocolFormatter.buildNullResponse()
+                : ProtocolFormatter.buildValueResponse(value);
     }
 
     /**

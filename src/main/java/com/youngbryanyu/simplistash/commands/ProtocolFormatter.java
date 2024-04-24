@@ -36,6 +36,7 @@ public final class ProtocolFormatter {
     private ProtocolFormatter() {
     }
 
+    // TODO:  add coments
     public static String buildValueResponse(String value) {
         return String.format("%s%s%s", VALUE_PREFIX, value, DELIM);
     }

@@ -62,6 +62,13 @@
             <version>1.49</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Some Util classes like Pair<K, V> -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>22-ea+11</version>
+        </dependency>
     </dependencies>
 
     <build>

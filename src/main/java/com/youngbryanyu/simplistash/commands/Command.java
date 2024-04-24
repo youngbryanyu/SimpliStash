@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.protocol;
+package com.youngbryanyu.simplistash.commands;
 
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 

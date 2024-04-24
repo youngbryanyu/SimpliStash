@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.protocol;
+package com.youngbryanyu.simplistash.commands;
 
 /**
  * Class containing protocol specifications and methods to help with building

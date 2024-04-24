@@ -15,10 +15,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
+import com.youngbryanyu.simplistash.commands.Command;
+import com.youngbryanyu.simplistash.commands.CommandHandler;
+import com.youngbryanyu.simplistash.commands.ProtocolFormatter;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
-import com.youngbryanyu.simplistash.protocol.Command;
-import com.youngbryanyu.simplistash.protocol.CommandHandler;
-import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
 
 /**
  * The server handler which handles all communication with clients. Runs on a

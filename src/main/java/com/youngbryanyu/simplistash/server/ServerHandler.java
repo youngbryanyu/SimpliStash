@@ -153,7 +153,7 @@ public class ServerHandler {
             System.out.printf("[LOG] Received from client (%s): %s", clientChannel.getRemoteAddress(), input);
 
             /* Parse and handle command from data */
-            String response = CommandHandler.handleCommand(input, cache, clientBuffer);
+            String response = CommandHandler.handleCommands(input, cache, clientBuffer);
 
              /* Respond to client if a command was handled */
             if (response != null) {

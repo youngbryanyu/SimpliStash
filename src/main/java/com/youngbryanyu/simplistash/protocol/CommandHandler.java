@@ -4,8 +4,8 @@ import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
 /**
- * Class containing methods to parse commands and handle them by applying them
- * to the cache.
+ * Class containing methods to parse the client's input into tokens, and handle
+ * any commands by applying them to the cache.
  */
 public class CommandHandler {
     /**
@@ -30,7 +30,7 @@ public class CommandHandler {
      * @return The response to be sent back to the client, or null if no command was
      *         handled and executed.
      */
-    public static String handleCommand(String input, InMemoryCache cache, StringBuilder buffer) {
+    public static String handleCommands(String input, InMemoryCache cache, StringBuilder buffer) {
         String delim = ProtocolFormatter.getDelim();
         int delimLength = delim.length();
         int token1End;
@@ -101,9 +101,7 @@ public class CommandHandler {
                     response.append(handleDeleteCommand(token2, cache));
                     break;
                 default:
-                    /*
-                     * This segment shouldn't ever be reached since invalid commands are discarded
-                     */
+                    /* This code shouldn't be reached since invalid commands are discarded */
                     return ProtocolFormatter.buildErrorResponse("Invalid command: " + token1);
             }
 

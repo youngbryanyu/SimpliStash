@@ -5,8 +5,6 @@ import java.util.Deque;
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
-import javafx.util.Pair;
-
 /**
  * Class containing methods to help parse the client's input from their buffer
  * into tokens, and handle any commands by applying them to the cache provided.
@@ -19,49 +17,23 @@ public class CommandHandler {
     }
 
     /**
-     * Parses tokens based on the delimiter from the client's current buffer, then
-     * applies any full valid command to the in-memory cache. Returns the response
-     * to be sent back to the client. Returns null if no command was parsed from the
-     * input at all and there is nothing to send back to the client.
+     * Applies any full valid command from the parsed tokens to the in-memory cache.
+     * Returns the response to be sent back to the client. Returns null if no
+     * command was parsed from the input at all and there is nothing to send back to
+     * the client.
      * 
-     * The parsing stops once a full command cannot be reached, or once there are no
-     * delimiters left.
+     * The parsing stops once a full command cannot be reached.
      * 
-     * @param input           The input string to be processed.
-     * @param cache           The in-memory cache.
-     * @param bufferAndTokens Contains a StringBuilder holding data that hasn't been
-     *                        processed into tokens yet, as well as a Deque of
-     *                        tokens to process.
+     * @param cache  The in-memory cache.
+     * @param tokens The tokens parsed from the client's input buffer.
      * @return The response to be sent back to the client, or `null` if no command
      *         was handled and executed to indicate to the caller that no response
      *         is needed.
      */
-    public static String handleCommands(String input, InMemoryCache cache,
-            Pair<StringBuilder, Deque<String>> bufferAndTokens) {
-        String delim = ProtocolFormatter.getDelim();
-        int delimLength = delim.length();
-
-        StringBuilder buffer = bufferAndTokens.getKey();
-        Deque<String> tokens = bufferAndTokens.getValue();
-
-        /*
-         * Add all delimited values to the deque, then remove them from the buffer's
-         * StringBuilder.
-         */
-        int delimIdx = -1;
-        while ((delimIdx = buffer.indexOf(delim)) != -1) {
-            String newToken = buffer.substring(0, delimIdx);
-            tokens.addLast(newToken);
-            buffer.delete(0, delimIdx + delimLength);
-        }
-
-        /*
-         * Execute sequences of full commands in the deque, append the response to
-         * the result, then remove the tokens. Once there are no more full command
-         * sequences then break.
-         */
+    public static String handleCommands(InMemoryCache cache, Deque<String> tokens) {
         StringBuilder response = new StringBuilder();
         boolean moreFullCommandsLeft = true;
+
         while (moreFullCommandsLeft && !tokens.isEmpty()) {
             /* Get the first token, but discard it if it's not a valid command */
             String token1 = tokens.peekFirst();

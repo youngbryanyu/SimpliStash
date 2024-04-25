@@ -55,19 +55,11 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JMockit (To help with mocking System.exit) -->
+        <!-- Netty Server -->
         <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>1.49</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Some Util classes like Pair<K, V> -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>22-ea+11</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.109.Final</version>
         </dependency>
     </dependencies>
 
@@ -102,7 +94,8 @@
 
                         <!-- Must prepend argLine with ${argLine} or else JaCoCo will not work -->
                         <argLine>
-                            ${argLine} -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.49/jmockit-1.49.jar
+                            ${argLine}
+                            -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/1.49/jmockit-1.49.jar
                         </argLine>
                     </configuration>
                 </plugin>

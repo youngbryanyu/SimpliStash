@@ -1,58 +1,70 @@
 package com.youngbryanyu.simplistash.server;
 
-import java.io.IOException;
-
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
-import com.youngbryanyu.simplistash.cache.InMemoryCacheFactory;
+
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 /**
- * The class running the server to communicate with clients.
+ * The server which listens for incoming client connections.
  */
 public class Server {
     /**
-     * Port to use for the server.
+     * The port that the server should listen on.
      */
-    private static final int PORT = 3000;
+    private final int port;
+    /**
+     * The in-memory cache that clients may write to.
+     */
+    private final InMemoryCache cache;
 
     /**
-     * Main method which runs the server startup script.
+     * Constructor for the server.
+     * 
+     * @param port  The port to listen on.
+     * @param cache The in-memory cache to store data to.
      */
-    public static void main(String[] args) {
-        try {
-            start();
-        } catch (Exception e) {
-            /*
-             * We let most runtime exceptions bubble up to `main`, while catching and
-             * handling most checked exceptions.
-             */
-            System.out.println("Error occurred while running server:");
-            e.printStackTrace();
-
-            /*
-             * This line will not be covered due to using workarounds with JMockit to mock
-             * System.exit during unit tests.
-             */
-            System.exit(1);
-        }
+    public Server(int port, InMemoryCache cache) {
+        this.port = port;
+        this.cache = cache;
     }
 
     /**
-     * Server startup script that runs all necessary setup and logic to start up and
-     * run the server.
+     * Starts the server. Creates boss threads to accept incoming connections and
+     * worker threads to handle I/O from connected clients. Each worker thread runs
+     * an event loop that handles I/O in a non-blocking fashion.
      * 
-     * @throws IOException if an I/O exception was thrown while instantiating
-     *                     {@link SeverHandler}.
+     * @throws Exception If the server fails to start.
      */
-    public static void start() throws IOException {
-        InMemoryCache cache = InMemoryCacheFactory.createInMemoryCache();
-        ServerHandler serverHandler = ServerHandlerFactory.createServerHandler(PORT, cache);
+    public void start() throws Exception {
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        /* Set up server cleanup */
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            serverHandler.stopServer();
-        }));
-
-        /* Run server on the main thread */
-        serverHandler.startServer();
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel channel) throws Exception {
+                            channel.pipeline().addLast(
+                                    new StringDecoder(CharsetUtil.UTF_8),
+                                    new StringEncoder(CharsetUtil.UTF_8),
+                                    new ClientHandler(cache));
+                        }
+                    });
+            
+            ChannelFuture f = bootstrap.bind(port).sync(); /* Bind to port and listen for connections */ 
+            f.channel().closeFuture().sync(); /* Wait until the server is closed. */ 
+        } finally {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+        }
     }
 }

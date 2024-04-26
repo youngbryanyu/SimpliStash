@@ -1,9 +1,11 @@
 package com.youngbryanyu.simplistash.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
+import com.youngbryanyu.simplistash.commands.CommandHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -24,22 +26,20 @@ public class Server {
     /**
      * The port that the server should listen on.
      */
-    private final int port;
+    private static final int PORT = 3000;
     /**
-     * The in-memory cache that clients may write to.
+     * The instance of the command handler used to dispatch commands.
      */
-    private final InMemoryCache cache; // TODO: replace with stash manager
+    private CommandHandler commandHandler;
 
     /**
      * Constructor for the server.
      * 
-     * @param port  The port to listen on.
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public Server(InMemoryCache cache) {
-        this.port = 3000; // TODO: inject port 
-        this.cache = cache;
+    public Server(CommandHandler commandHandler) {
+        this.commandHandler = commandHandler;
     }
 
     /**
@@ -64,13 +64,13 @@ public class Server {
                             channel.pipeline().addLast(
                                     new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
                                     new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-                                    new ClientHandler(cache)); /* Spin up a client handler for each connection */
+                                    new ClientHandler(commandHandler));
                         }
                     });
 
             /* Bind to port and listen for connections, then wait until server is closed */
-            ChannelFuture f = bootstrap.bind(port).sync();
-            System.out.println("Server started on port: " + port);
+            ChannelFuture f = bootstrap.bind(PORT).sync();
+            System.out.println("Server started on port: " + PORT);
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();

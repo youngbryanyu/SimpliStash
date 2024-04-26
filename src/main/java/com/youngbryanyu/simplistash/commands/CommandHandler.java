@@ -2,6 +2,9 @@ package com.youngbryanyu.simplistash.commands;
 
 import java.util.Deque;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
@@ -11,15 +14,17 @@ import com.youngbryanyu.simplistash.stash.Stash;
  * Class containing methods to help parse the client's input from their buffer
  * into tokens, and handle any commands by applying them to the cache provided.
  */
+@Component
 public class CommandHandler {
-
-    // TODO: make singleton and inject
+    private final InMemoryCache cache;
     
     /**
      * Private constructor to prevent instantiation.
      */
-    private CommandHandler() {
-    }
+    @Autowired
+    public CommandHandler(InMemoryCache cache) {
+        this.cache = cache;
+    }   
 
     /**
      * Applies any full valid command from the parsed tokens to the in-memory cache.
@@ -37,7 +42,7 @@ public class CommandHandler {
      * @throws ValueTooLargeException If the user attempts to set a key or value to
      *                                a value that's over the limit.
      */
-    public static String handleCommands(InMemoryCache cache, Deque<String> tokens) {
+    public String handleCommands(Deque<String> tokens) {
         StringBuilder response = new StringBuilder();
         boolean moreFullCommandsLeft = true;
 

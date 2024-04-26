@@ -7,7 +7,7 @@ import org.mapdb.Serializer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
-// import com.youngbryanyu.simplistash.config.AppConfig;
+import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
 
 /**
@@ -26,9 +26,8 @@ public class Main {
      */
     public static void main(String[] args) {        
         /* Bootstrap Spring Context */
-        // AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-
-        InMemoryCache cache = new InMemoryCache();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        Server server = context.getBean(Server.class);
 
         // TODO: create DB
         DB db = DBMaker.memoryDirectDB()
@@ -50,7 +49,7 @@ public class Main {
         }));
 
         try {
-            new Server(cache).start();
+            server.start();
         } catch (Exception e) {
             System.out.println("The server failed to start:");
             e.printStackTrace();

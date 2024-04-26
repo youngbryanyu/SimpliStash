@@ -11,10 +11,12 @@ import com.youngbryanyu.simplistash.util.ConsoleColors;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.DefaultMaxBytesRecvByteBufAllocator;
 
 /**
  * Class that handles communication between the server and client. A new
- * independent client handler is spun up for each connection to the server.
+ * independent client handler is spun up for each connection to the server. The
+ * client handler will run on one of the NIO worker threads.
  */
 class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
@@ -55,7 +57,15 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * to the client's buffer, parses tokens from the buffer, then handles any valid
      * commands formed by the tokens.
      * 
-     * @throws Exception
+     * The maximum number of bytes that can be read in a single call to channelRead
+     * is 65536, which is set in the class
+     * {@link DefaultMaxBytesRecvByteBufAllocator}. This size helps ensure that no
+     * client takes up too much memory when sending data, and that processing and
+     * buffer size checking in {@link TokenParser#parseTokens} will be done at most
+     * bytes.
+     * 
+     * @throws Exception If an exception occurs while reading or performing any
+     *                   processing from this method.
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -72,10 +82,14 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Called when the client disconnects and their channel is closed.
+     * 
+     * @throws exception If any exception is thrown while closing the client
+     *                   channel.
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.printf("[%sINFO%s] Client disconnected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET, ctx.channel());
+        System.out.printf("[%sINFO%s] Client disconnected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET,
+                ctx.channel());
         super.channelInactive(ctx);
     }
 
@@ -86,7 +100,8 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        System.out.printf("[%sERROR%s] Error occurred in channel (%s): %s\n", ConsoleColors.RED, ConsoleColors.RESET, ctx.channel(), cause.getMessage());
+        System.out.printf("[%sERROR%s] Error occurred in channel (%s): %s\n", ConsoleColors.RED, ConsoleColors.RESET,
+                ctx.channel(), cause.getMessage());
         ctx.writeAndFlush(ProtocolFormatter.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }

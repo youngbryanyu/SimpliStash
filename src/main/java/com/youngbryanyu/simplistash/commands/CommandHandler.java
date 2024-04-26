@@ -11,6 +11,7 @@ import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
  * into tokens, and handle any commands by applying them to the cache provided.
  */
 public class CommandHandler {
+    
     /**
      * Private constructor to prevent instantiation.
      */

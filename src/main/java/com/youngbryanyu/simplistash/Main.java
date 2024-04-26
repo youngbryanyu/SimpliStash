@@ -19,7 +19,7 @@ public class Main {
      */
     public static void main(String[] args) {        
         InMemoryCache cache = new InMemoryCache();
-        
+
         try {
             new Server(PORT, cache).start();
         } catch (Exception e) {

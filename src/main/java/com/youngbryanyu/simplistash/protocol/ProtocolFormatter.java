@@ -10,25 +10,21 @@ public final class ProtocolFormatter {
      */
     private static final String DELIM = "\r\n";
     /**
-     * The null response. Prefixed with * for distinction.
+     * The null response.
      */
     private static final String NULL_RESPONSE = "*NULL";
     /**
-     * The OK response. Prefixed with + for distinction.
+     * The OK response.
      */
-    private static final String OK_RESPONSE = "+OK";
+    private static final String OK_RESPONSE = "OK";
     /**
-     * The PONG response to a PING command. Prefixed with + for distinction.
+     * The PONG response to a PING command.
      */
-    private static final String PONG_RESPONSE = "+PONG";
+    private static final String PONG_RESPONSE = "PONG";
     /**
-     * Prefix of all error responses.
+     * The token that prefixes all error messages
      */
-    private static final String ERROR_PREFIX = "-ERROR: ";
-    /**
-     * Prefix of all string values send to the client retrieved from the cache.
-     */
-    private static final char STRING_PREFIX = '!';
+    private static final String ERROR_PREFIX = "ERROR";
 
     /* Private constructor to prevent instantiation */
     private ProtocolFormatter() {
@@ -41,18 +37,19 @@ public final class ProtocolFormatter {
      * @return The formatted value to send to the client.
      */
     public static String buildValueResponse(String value) {
-        return String.format("%s%s%s", STRING_PREFIX, value, DELIM);
+        return protocolize(value);
     }
 
     /**
      * Builds a response containing an error message to send back to the client.
      * 
-     * @param error The error message to send to the client.
+     * Errors are sent as two string tokens: ERROR <message>
+     * 
+     * @param errorMsg The error message to send to the client.
      * @return The formatted error message to send to the client.
      */
-    public static String buildErrorResponse(String error) {
-        String message = String.format("%s%s%s", ERROR_PREFIX, error, DELIM);
-        return protocolize(message);
+    public static String buildErrorResponse(String message) {
+        return protocolize(ERROR_PREFIX) + protocolize(message);
     }
 
     /**
@@ -84,7 +81,7 @@ public final class ProtocolFormatter {
     }
 
     /**
-     * Converts an input string token into a response that follows the protocol.
+     * Converts an input string token into a chunk that follows the protocol.
      * 
      * The protocol follows the format: <num_bytes><delimiter><token>
      * 

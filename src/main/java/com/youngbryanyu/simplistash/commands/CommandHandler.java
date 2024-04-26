@@ -5,13 +5,14 @@ import java.util.Deque;
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
+import com.youngbryanyu.simplistash.stash.Stash;
 
 /**
  * Class containing methods to help parse the client's input from their buffer
  * into tokens, and handle any commands by applying them to the cache provided.
  */
 public class CommandHandler {
-    
+
     /**
      * Private constructor to prevent instantiation.
      */
@@ -31,6 +32,8 @@ public class CommandHandler {
      * @return The response to be sent back to the client, or `null` if no command
      *         was handled and executed to indicate to the caller that no response
      *         is needed.
+     * @throws ValueTooLargeException If the user attempts to set a key or value to
+     *                                a value that's over the limit.
      */
     public static String handleCommands(InMemoryCache cache, Deque<String> tokens) {
         StringBuilder response = new StringBuilder();
@@ -119,8 +122,18 @@ public class CommandHandler {
      * @param tokens The tokens parsed from the client's input.
      * @param cache  The cache to store values into.
      * @return Returns an OK response.
+     * @throws ValueTooLargeException
      */
     private static String handleSetCommand(String key, String value, InMemoryCache cache) {
+        /* Check if the key or value is too large */
+        if (key.length() > Stash.getMaxKeySize()) {
+            return ProtocolFormatter.buildErrorResponse("The key exceeds the size limit.");
+        }
+
+        if (value.length() > Stash.getMaxValueSize()) {
+            return ProtocolFormatter.buildErrorResponse("The value exceeds the size limit.");
+        }
+
         cache.set(key, value);
         System.out.printf("[SET] %s --> %s\n", key, value);
         return ProtocolFormatter.buildOkResponse();
@@ -141,6 +154,7 @@ public class CommandHandler {
 
     /**
      * Handles the PING command.
+     * 
      * @return The "pong" response.
      */
     private static String handlePingCommand() {

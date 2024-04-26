@@ -22,6 +22,6 @@ public class BrokenProtocolException extends Exception {
      * @param cause   The throwable cause.
      */
     public BrokenProtocolException(String message, Throwable cause) {
-        super(message, cause);
+        super(String.format("Protocol error: %s", message), cause);
     }
 }

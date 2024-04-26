@@ -11,6 +11,10 @@ import com.youngbryanyu.simplistash.stash.Stash;
  * based protocol.
  */
 public class TokenParser {
+    /* Private constructor to prevent instantiation */
+    private TokenParser() {
+    }
+
     /**
      * Parses tokens from the input buffer and stores them in the token deque. The
      * algorithm works in a length-prefixed fashion by finding the delimiter,
@@ -72,9 +76,8 @@ public class TokenParser {
 
     /**
      * Returns the max buffer size each client can have. This is to prevent the
-     * client from
-     * eating up too much memory. If the max buffer size is reached for a client,
-     * they will be disconnected.
+     * client from using up too much memory. If the max buffer size is reached for a
+     * client, they will be disconnected.
      * 
      * The number of bytes in the longest command is approximately:
      * - longest_command = <command> + <max_key_size> + <max_value_size> + <args>

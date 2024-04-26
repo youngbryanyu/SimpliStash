@@ -1,5 +1,8 @@
 package com.youngbryanyu.simplistash.server;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -16,6 +19,7 @@ import io.netty.util.CharsetUtil;
 /**
  * The server which listens for incoming client connections.
  */
+@Component
 public class Server {
     /**
      * The port that the server should listen on.
@@ -24,7 +28,7 @@ public class Server {
     /**
      * The in-memory cache that clients may write to.
      */
-    private final InMemoryCache cache;
+    private final InMemoryCache cache; // TODO: replace with stash manager
 
     /**
      * Constructor for the server.
@@ -32,8 +36,9 @@ public class Server {
      * @param port  The port to listen on.
      * @param cache The in-memory cache to store data to.
      */
-    public Server(int port, InMemoryCache cache) {
-        this.port = port;
+    @Autowired
+    public Server(InMemoryCache cache) {
+        this.port = 3000; // TODO: inject port 
         this.cache = cache;
     }
 

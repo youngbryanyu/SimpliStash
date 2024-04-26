@@ -1,6 +1,13 @@
 package com.youngbryanyu.simplistash;
 
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
+// import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
 
 /**
@@ -18,10 +25,32 @@ public class Main {
      * @throws Exception
      */
     public static void main(String[] args) {        
+        /* Bootstrap Spring Context */
+        // AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
         InMemoryCache cache = new InMemoryCache();
 
+        // TODO: create DB
+        DB db = DBMaker.memoryDirectDB()
+            .transactionEnable()
+            .make();
+
+        // TODO: load backups from disk
+
+        // TODO: load WAL from disk
+
+        // TODO: create executor for periodic snapshot
+        
+        // TODO: create shudown hood to close db and sut down executor
+
+        /* Add shutdown hook to clean up resources after exit */
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            db.close();
+            // context.close();
+        }));
+
         try {
-            new Server(PORT, cache).start();
+            new Server(cache).start();
         } catch (Exception e) {
             System.out.println("The server failed to start:");
             e.printStackTrace();

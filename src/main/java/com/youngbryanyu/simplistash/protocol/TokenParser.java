@@ -10,6 +10,8 @@ import com.youngbryanyu.simplistash.stash.Stash;
  * Class that helps parse tokens from input received by clients through the TCP
  * based protocol.
  */
+
+// TODO: make singleton and inject
 public class TokenParser {
     /* Private constructor to prevent instantiation */
     private TokenParser() {

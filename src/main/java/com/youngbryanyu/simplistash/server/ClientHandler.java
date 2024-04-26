@@ -74,7 +74,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
         buffer.append(input);
         TokenParser.parseTokens(buffer, tokens);
         String response = CommandHandler.handleCommands(cache, tokens);
-
+        
         if (response != null) {
             ctx.writeAndFlush(response);
         }

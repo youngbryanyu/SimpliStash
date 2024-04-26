@@ -13,6 +13,8 @@ import com.youngbryanyu.simplistash.stash.Stash;
  */
 public class CommandHandler {
 
+    // TODO: make singleton and inject
+    
     /**
      * Private constructor to prevent instantiation.
      */

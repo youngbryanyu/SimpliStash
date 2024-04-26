@@ -68,6 +68,13 @@
             <artifactId>mapdb</artifactId>
             <version>3.1.0</version>
         </dependency>
+
+        <!-- Spring Context (for dependency injection) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.6</version>
+        </dependency>
     </dependencies>
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may bemoved

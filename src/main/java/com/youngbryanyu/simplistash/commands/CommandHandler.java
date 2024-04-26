@@ -4,6 +4,7 @@ import java.util.Deque;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
+import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
 
 /**
  * Class containing methods to help parse the client's input from their buffer
@@ -35,20 +36,29 @@ public class CommandHandler {
         boolean moreFullCommandsLeft = true;
 
         while (moreFullCommandsLeft && !tokens.isEmpty()) {
-            /* Get the first token, but discard it if it's not a valid command */
+            /* Get the command token to execute */
             String token1 = tokens.peekFirst();
             Command command;
             try {
                 command = Command.fromString(token1);
             } catch (InvalidCommandException e) {
-                tokens.pollFirst();
+                tokens.pollFirst(); /* Discard token if not a valid command */
                 continue;
             }
 
-            /* Execute the command if there are enough tokens for arguments */
+            /* Execute the command if there are enough tokens */
             String token2;
             String token3;
             switch (command) {
+                case PING:
+                    if (tokens.size() < 1) {
+                        moreFullCommandsLeft = false;
+                        break;
+                    }
+
+                    tokens.pollFirst(); /* Remove command token */
+                    response.append(handlePingCommand());
+                    break;
                 case SET:
                     if (tokens.size() < 3) {
                         moreFullCommandsLeft = false;
@@ -111,6 +121,7 @@ public class CommandHandler {
      */
     private static String handleSetCommand(String key, String value, InMemoryCache cache) {
         cache.set(key, value);
+        System.out.printf("[SET] %s --> %s\n", key, value);
         return ProtocolFormatter.buildOkResponse();
     }
 
@@ -123,11 +134,16 @@ public class CommandHandler {
      */
     private static String handleDeleteCommand(String key, InMemoryCache cache) {
         cache.delete(key);
+        System.out.printf("[DELETE] %s\n", key);
         return ProtocolFormatter.buildOkResponse();
     }
 
+    /**
+     * Handles the PING command.
+     * @return The "pong" response.
+     */
     private static String handlePingCommand() {
-        // TODO: implement
-        return null;
+        System.out.println("[PING]");
+        return ProtocolFormatter.buildPongResponse();
     }
 }

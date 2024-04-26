@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
+import com.youngbryanyu.simplistash.protocol.TokenParser;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -51,17 +52,17 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * Called when input data is received from the client's channel. Adds the data
      * to the client's buffer, parses tokens from the buffer, then handles any valid
      * commands formed by the tokens.
+     * 
+     * @throws Exception
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String input = (String) msg;
-        System.out.printf("Client input (%s): %s\n", ctx.channel(), input);
 
         buffer.append(input);
         TokenParser.parseTokens(buffer, tokens);
         String response = CommandHandler.handleCommands(cache, tokens);
 
-        System.out.printf("Server response (%s): %s\n", ctx.channel(), response);
         if (response != null) {
             ctx.writeAndFlush(response);
         }
@@ -78,13 +79,14 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Called when an exception is thrown in the channel and bubbles up to this
-     * level in the call stack. Prints the stack trace of the exception then closes
-     * the client's channel.
+     * level in the call stack. Prints the stack trace of the exception, sends the
+     * error message to the client, then closes the client's channel.
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         System.out.printf("Error occurred in channel (%s)\n", ctx.channel());
         cause.printStackTrace();
+        ctx.writeAndFlush(cause.getMessage()); // TODO: format errors in sendable form to client
         ctx.close();
     }
 }

@@ -38,7 +38,8 @@ public class Server {
     /**
      * Starts the server. Creates boss threads to accept incoming connections and
      * worker threads to handle I/O from connected clients. Each worker thread runs
-     * an event loop that handles I/O in a non-blocking fashion.
+     * an event loop that handles I/O in a non-blocking fashion. Sets up the
+     * pipeline of handlers for each client channel.
      * 
      * @throws Exception If the server fails to start.
      */
@@ -54,14 +55,16 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline().addLast(
-                                    new StringDecoder(CharsetUtil.UTF_8),
-                                    new StringEncoder(CharsetUtil.UTF_8),
-                                    new ClientHandler(cache));
+                                    new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
+                                    new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
+                                    new ClientHandler(cache)); /* Spin up a client handler for each connection */
                         }
                     });
-            
-            ChannelFuture f = bootstrap.bind(port).sync(); /* Bind to port and listen for connections */ 
-            f.channel().closeFuture().sync(); /* Wait until the server is closed. */ 
+
+            /* Bind to port and listen for connections, then wait until server is closed */
+            ChannelFuture f = bootstrap.bind(port).sync();
+            System.out.println("Server started on port: " + port);
+            f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

@@ -2,6 +2,7 @@ package com.youngbryanyu.simplistash.cache;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+// TODO: switch to HTreeMap from MapDB for off-heap storage.
 /**
  * The in-memory key-value store.
  */

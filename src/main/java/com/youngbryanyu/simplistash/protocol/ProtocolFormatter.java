@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.protocol;
 
 /**
  * Class containing protocol specifications and methods to help with building
@@ -10,21 +10,25 @@ public final class ProtocolFormatter {
      */
     private static final String DELIM = "\r\n";
     /**
-     * The null response.
+     * The null response. Prefixed with * for distinction.
      */
     private static final String NULL_RESPONSE = "*NULL";
     /**
-     * The OK response. Prefixed with +.
+     * The OK response. Prefixed with + for distinction.
      */
     private static final String OK_RESPONSE = "+OK";
+    /**
+     * The PONG response to a PING command. Prefixed with + for distinction.
+     */
+    private static final String PONG_RESPONSE = "+PONG";
     /**
      * Prefix of all error responses.
      */
     private static final String ERROR_PREFIX = "-";
     /**
-     * Prefix of all values send to the client retrieved from the cache.
+     * Prefix of all string values send to the client retrieved from the cache.
      */
-    private static final String VALUE_PREFIX = "$";
+    private static final char STRING_PREFIX = '!';
 
     /* Private constructor to prevent instantiation */
     private ProtocolFormatter() {
@@ -37,7 +41,7 @@ public final class ProtocolFormatter {
      * @return The formatted value to send to the client.
      */
     public static String buildValueResponse(String value) {
-        return String.format("%s%s%s", VALUE_PREFIX, value, DELIM);
+        return String.format("%s%s%s", STRING_PREFIX, value, DELIM);
     }
 
     /**
@@ -69,11 +73,31 @@ public final class ProtocolFormatter {
     }
 
     /**
+     * Builds an "pong" response to the client indicating that their "ping" was
+     * received.
+     * 
+     * @return The formatted "pong" response.
+     */
+    public static String buildPongResponse() {
+        return String.format("%s%s", PONG_RESPONSE, DELIM);
+    }
+
+    /**
      * Returns the delimiter used in the protocol to communicate with clients.
      * 
      * @return The protocol delimiter.
      */
     public static String getDelim() {
         return DELIM;
+    }
+
+    /**
+     * Returns the string value prefix used in the protocol to mark the start of a
+     * string that is length-prefixed.
+     * 
+     * @return The string delimiter.
+     */
+    public static char getStringPrefix() {
+        return STRING_PREFIX;
     }
 }

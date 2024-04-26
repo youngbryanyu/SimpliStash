@@ -17,14 +17,14 @@ public class Main {
      * @param args Command line arguments.
      * @throws Exception
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {        
         InMemoryCache cache = new InMemoryCache();
-
+        
         try {
             new Server(PORT, cache).start();
         } catch (Exception e) {
             System.out.println("The server failed to start:");
             e.printStackTrace();
-        }
+        } 
     }
 }

@@ -9,7 +9,9 @@ public enum Command {
     SET,
     GET,
     DELETE,
-    PING;
+    PING,
+    CREATE_TABLE
+    ;
 
     /**
      * Gets the enum value matching an input string. Throws an

@@ -24,7 +24,7 @@ public final class ProtocolFormatter {
     /**
      * Prefix of all error responses.
      */
-    private static final String ERROR_PREFIX = "-";
+    private static final String ERROR_PREFIX = "-ERROR: ";
     /**
      * Prefix of all string values send to the client retrieved from the cache.
      */
@@ -51,7 +51,8 @@ public final class ProtocolFormatter {
      * @return The formatted error message to send to the client.
      */
     public static String buildErrorResponse(String error) {
-        return String.format("%s%s%s", ERROR_PREFIX, error, DELIM);
+        String message = String.format("%s%s%s", ERROR_PREFIX, error, DELIM);
+        return protocolize(message);
     }
 
     /**
@@ -60,7 +61,7 @@ public final class ProtocolFormatter {
      * @return The formatted "ok" response.
      */
     public static String buildOkResponse() {
-        return String.format("%s%s", OK_RESPONSE, DELIM);
+        return protocolize(OK_RESPONSE);
     }
 
     /**
@@ -69,7 +70,7 @@ public final class ProtocolFormatter {
      * @return The formatted `null` response.
      */
     public static String buildNullResponse() {
-        return String.format("%s%s", NULL_RESPONSE, DELIM);
+        return protocolize(NULL_RESPONSE);
     }
 
     /**
@@ -79,7 +80,19 @@ public final class ProtocolFormatter {
      * @return The formatted "pong" response.
      */
     public static String buildPongResponse() {
-        return String.format("%s%s", PONG_RESPONSE, DELIM);
+        return protocolize(PONG_RESPONSE);
+    }
+
+    /**
+     * Converts an input string token into a response that follows the protocol.
+     * 
+     * The protocol follows the format: <num_bytes><delimiter><token>
+     * 
+     * @param token The token to send to the client.
+     * @return The token after converting it to protocol format.
+     */
+    public static String protocolize(String token) {
+        return String.format("%s%s%s", token.length(), DELIM, token);
     }
 
     /**
@@ -89,15 +102,5 @@ public final class ProtocolFormatter {
      */
     public static String getDelim() {
         return DELIM;
-    }
-
-    /**
-     * Returns the string value prefix used in the protocol to mark the start of a
-     * string that is length-prefixed.
-     * 
-     * @return The string delimiter.
-     */
-    public static char getStringPrefix() {
-        return STRING_PREFIX;
     }
 }

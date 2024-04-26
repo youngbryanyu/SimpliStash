@@ -5,7 +5,9 @@ import java.util.LinkedList;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
+import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
 import com.youngbryanyu.simplistash.protocol.TokenParser;
+import com.youngbryanyu.simplistash.util.ConsoleColors;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -44,7 +46,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client connected: " + ctx.channel());
+        System.out.printf("[%sINFO%s] Client connected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET, ctx.channel());
         super.channelActive(ctx);
     }
 
@@ -73,7 +75,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client disconnected: " + ctx.channel());
+        System.out.printf("[%sINFO%s] Client disconnected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET, ctx.channel());
         super.channelInactive(ctx);
     }
 
@@ -84,9 +86,8 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        System.out.printf("Error occurred in channel (%s)\n", ctx.channel());
-        cause.printStackTrace();
-        ctx.writeAndFlush(cause.getMessage()); // TODO: format errors in sendable form to client
+        System.out.printf("[%sERROR%s] Error occurred in channel (%s): %s\n", ConsoleColors.RED, ConsoleColors.RESET, ctx.channel(), cause.getMessage());
+        ctx.writeAndFlush(ProtocolFormatter.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }
 }

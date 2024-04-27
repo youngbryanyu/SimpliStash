@@ -15,11 +15,11 @@ public class Stash {
     /**
      * The max key size allowed in the stash
      */
-    private static final int MAX_KEY_SIZE = 256;
+    public static final int MAX_KEY_SIZE = 256;
     /**
      * The max value size allowed in the stash
      */
-    private static final int MAX_VALUE_SIZE = 65536;
+    public static final int MAX_VALUE_SIZE = 65536;
     /**
      * The in-memory cache to store data. Stores data off-heap.
      */
@@ -59,23 +59,5 @@ public class Stash {
      */
     public void delete(String key) {
         cache.remove(key);
-    }
-
-    /**
-     * Returns the max key size allowed in bytes.
-     * 
-     * @return The max key size allowed.
-     */
-    public static int getMaxKeySize() {
-        return MAX_KEY_SIZE;
-    }
-
-    /**
-     * Returns the max value size allowed in bytes.
-     * 
-     * @return The max value size allowed.
-     */
-    public static int getMaxValueSize() {
-        return MAX_VALUE_SIZE;
     }
 }

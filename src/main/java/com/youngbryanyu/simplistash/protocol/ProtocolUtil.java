@@ -8,7 +8,7 @@ public final class ProtocolUtil {
     /**
      * Delimiter in the protocol separating arguments.
      */
-    private static final String DELIM = "\r\n";
+    public static final String DELIM = "\r\n";
     /**
      * The null response.
      */
@@ -37,7 +37,7 @@ public final class ProtocolUtil {
      * @return The formatted value to send to the client.
      */
     public static String buildValueResponse(String value) {
-        return protocolize(value);
+        return encode(value);
     }
 
     /**
@@ -49,7 +49,7 @@ public final class ProtocolUtil {
      * @return The formatted error message to send to the client.
      */
     public static String buildErrorResponse(String message) {
-        return protocolize(ERROR_PREFIX) + protocolize(message);
+        return encode(ERROR_PREFIX) + encode(message);
     }
 
     /**
@@ -58,7 +58,7 @@ public final class ProtocolUtil {
      * @return The formatted "ok" response.
      */
     public static String buildOkResponse() {
-        return protocolize(OK_RESPONSE);
+        return encode(OK_RESPONSE);
     }
 
     /**
@@ -67,7 +67,7 @@ public final class ProtocolUtil {
      * @return The formatted `null` response.
      */
     public static String buildNullResponse() {
-        return protocolize(NULL_RESPONSE);
+        return encode(NULL_RESPONSE);
     }
 
     /**
@@ -77,27 +77,19 @@ public final class ProtocolUtil {
      * @return The formatted "pong" response.
      */
     public static String buildPongResponse() {
-        return protocolize(PONG_RESPONSE);
+        return encode(PONG_RESPONSE);
     }
 
     /**
-     * Converts an input string token into a chunk that follows the protocol.
+     * Encodes an input string into a lenght-prefixed string that follows the
+     * protocol.
      * 
      * The protocol follows the format: <num_bytes><delimiter><token>
      * 
      * @param token The token to send to the client.
      * @return The token after converting it to protocol format.
      */
-    public static String protocolize(String token) {
+    public static String encode(String token) {
         return String.format("%s%s%s", token.length(), DELIM, token);
-    }
-
-    /**
-     * Returns the delimiter used in the protocol to communicate with clients.
-     * 
-     * @return The protocol delimiter.
-     */
-    public static String getDelim() {
-        return DELIM;
     }
 }

@@ -137,7 +137,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
             throw new BufferOverflowException("Input buffer has overflowed");
         }
 
-        String delim = ProtocolUtil.getDelim();
+        String delim = ProtocolUtil.DELIM;
         int delimLength = delim.length();
         int delimIdx = -1;
 
@@ -193,6 +193,6 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * @return The max buffer size a client can have.
      */
     private static int getMaxBufferSize() {
-        return 3 * (Stash.getMaxKeySize() + Stash.getMaxValueSize());
+        return 3 * (Stash.MAX_KEY_SIZE + Stash.MAX_VALUE_SIZE);
     }
 }

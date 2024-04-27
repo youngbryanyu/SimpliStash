@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
-import com.youngbryanyu.simplistash.server.ProtocolUtil;
+import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.InMemoryCache;
 import com.youngbryanyu.simplistash.stash.Stash;
 
@@ -140,11 +140,11 @@ public class CommandHandler {
      */
     private String handleSetCommand(String key, String value, InMemoryCache cache) {
         /* Check if the key or value is too large */
-        if (key.length() > Stash.getMaxKeySize()) {
+        if (key.length() > Stash.MAX_KEY_SIZE) {
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 
-        if (value.length() > Stash.getMaxValueSize()) {
+        if (value.length() > Stash.MAX_VALUE_SIZE) {
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 

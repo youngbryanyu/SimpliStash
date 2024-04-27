@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.cache;
+package com.youngbryanyu.simplistash.stash;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class InMemoryCache {
+    // TODO: delete and replace with stash
     /**
      * The concurrent hash map containing all key-value pairs in-memory
      */

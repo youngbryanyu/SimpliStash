@@ -31,20 +31,4 @@ public enum Command {
 
         throw new InvalidCommandException(s);
     }
-
-    /**
-     * Returns whether an input string matches one of the command enums.
-     * 
-     * @param s String input command string.
-     * @return Returns whether the input string matches an enum.
-     */
-    public static boolean contains(String s) {
-        for (Command command : Command.values()) {
-            if (command.name().equalsIgnoreCase(s)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

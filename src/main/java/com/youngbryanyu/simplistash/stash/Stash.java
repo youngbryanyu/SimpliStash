@@ -24,19 +24,12 @@ public class Stash {
      * The in-memory cache to store data. Stores data off-heap.
      */
     private final HTreeMap<String, String> cache;
-    /**
-     * Returns the singleton instance of the DB instance. Each DB has its own
-     * transaction session.
-     */
-    private static DB dbInstance;
 
     /**
      * Constructor for a stash.
      */
     public Stash(String name) {
-        // TODO: redo this, depend on stash manager
-        DB db = getDBInstance();
-        cache = db.hashMap(name, Serializer.STRING, Serializer.STRING).createOrOpen();
+        cache = null;
     }
 
     /**
@@ -84,17 +77,5 @@ public class Stash {
      */
     public static int getMaxValueSize() {
         return MAX_VALUE_SIZE;
-    }
-
-    /**
-     * Returns the singleton instance of the DB.
-     * 
-     * @return The DB.
-     */
-    public static DB getDBInstance() {
-        if (dbInstance == null) {
-            dbInstance = DBMaker.memoryDirectDB().make();
-        }
-        return dbInstance;
     }
 }

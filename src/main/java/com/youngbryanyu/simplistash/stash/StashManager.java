@@ -16,10 +16,6 @@ public class StashManager {
      */
     private static final String DEFAULT_STASH_NAME = "default";
     /**
-     * The singleton instance of the stash manager
-     */
-    private static StashManager instance;
-    /**
      * Returns the the DB instance. Each DB has its own transaction session.
      */
     private DB dbInstance;
@@ -32,19 +28,6 @@ public class StashManager {
     private StashManager() {
         dbInstance = DBMaker.memoryDirectDB().make();
         stashes = new HashMap<>();
-    }
-
-    public static StashManager getInstance() {
-        if (instance == null) {
-            initialize();
-        }
-        return instance;
-    }
-
-    public static void initialize() {
-        if (instance == null) {
-            instance = new StashManager();
-        }
     }
 
     public static String getDefaultStashName() {

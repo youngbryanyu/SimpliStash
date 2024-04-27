@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
-import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
+import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -111,7 +111,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.info(String.format("Error occurred in channel (%s): %s", ctx.channel(), cause.getMessage()));
-        ctx.writeAndFlush(ProtocolFormatter.buildErrorResponse(cause.getMessage()));
+        ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }
 
@@ -137,7 +137,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
             throw new BufferOverflowException("Input buffer has overflowed");
         }
 
-        String delim = ProtocolFormatter.getDelim();
+        String delim = ProtocolUtil.getDelim();
         int delimLength = delim.length();
         int delimIdx = -1;
 

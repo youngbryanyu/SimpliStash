@@ -1,10 +1,10 @@
 package com.youngbryanyu.simplistash.protocol;
 
 /**
- * Class containing protocol specifications and methods to help with building
+ * Class containing protocol constants and methods to help with building
  * protocol responses.
  */
-public final class ProtocolFormatter {
+public final class ProtocolUtil {
     /**
      * Delimiter in the protocol separating arguments.
      */
@@ -27,7 +27,7 @@ public final class ProtocolFormatter {
     private static final String ERROR_PREFIX = "ERROR";
 
     /* Private constructor to prevent instantiation */
-    private ProtocolFormatter() {
+    private ProtocolUtil() {
     }
 
     /**

@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
+import com.youngbryanyu.simplistash.stash.InMemoryCache;
 
 /**
  * The entry point to the application.

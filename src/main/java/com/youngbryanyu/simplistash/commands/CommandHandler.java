@@ -6,10 +6,11 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
-import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
+import com.youngbryanyu.simplistash.server.ProtocolUtil;
+import com.youngbryanyu.simplistash.stash.InMemoryCache;
 import com.youngbryanyu.simplistash.stash.Stash;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
@@ -108,7 +109,7 @@ public class CommandHandler {
                     break;
                 default:
                     /* This code shouldn't be reached since invalid commands are discarded */
-                    return ProtocolFormatter.buildErrorResponse("Invalid command: " + token1);
+                    return ProtocolUtil.buildErrorResponse("Invalid command: " + token1);
             }
         }
 
@@ -125,8 +126,8 @@ public class CommandHandler {
     private String handleGetCommand(String key, InMemoryCache cache) {
         String value = cache.get(key);
         return (value == null)
-                ? ProtocolFormatter.buildNullResponse()
-                : ProtocolFormatter.buildValueResponse(value);
+                ? ProtocolUtil.buildNullResponse()
+                : ProtocolUtil.buildValueResponse(value);
     }
 
     /**
@@ -140,16 +141,16 @@ public class CommandHandler {
     private String handleSetCommand(String key, String value, InMemoryCache cache) {
         /* Check if the key or value is too large */
         if (key.length() > Stash.getMaxKeySize()) {
-            return ProtocolFormatter.buildErrorResponse("The key exceeds the size limit.");
+            return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 
         if (value.length() > Stash.getMaxValueSize()) {
-            return ProtocolFormatter.buildErrorResponse("The value exceeds the size limit.");
+            return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
         cache.set(key, value);
         logger.info(String.format("SET %s --> %s\n", key, value));
-        return ProtocolFormatter.buildOkResponse();
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**
@@ -162,7 +163,7 @@ public class CommandHandler {
     private String handleDeleteCommand(String key, InMemoryCache cache) {
         cache.delete(key);
         logger.info(String.format("DELETE %s\n", key));
-        return ProtocolFormatter.buildOkResponse();
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**
@@ -172,6 +173,6 @@ public class CommandHandler {
      */
     private String handlePingCommand() {
         logger.info("PING");
-        return ProtocolFormatter.buildPongResponse();
+        return ProtocolUtil.buildPongResponse();
     }
 }

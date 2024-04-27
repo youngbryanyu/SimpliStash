@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- We log to file using more verbose output than in the console. We also stick with "info" as the
+lowest logging level. We can temporarily set the level to "debug" to show debug level logs for
+debugging -->
+
+<Configuration status="WARN"> <!-- Set internal logging level to warn for logging system messages -->
+    <Appenders>
+        <!-- Rotated file output -->
+        <RollingFile name="RollingFile" fileName="logs/app.log"
+            filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}: %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 MB" /> <!-- Rotate log after 100 MB -->
+            </Policies>
+            <DefaultRolloverStrategy max="20" /> <!-- Keep 20 archived logs max -->
+        </RollingFile>
+
+        <!-- Console output -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [ %-5level]: %msg%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- The lowest log level to show -->
+        <Root level="info">
+            <AppenderRef ref="RollingFile" />
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>

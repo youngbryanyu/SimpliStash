@@ -1,11 +1,11 @@
 package com.youngbryanyu.simplistash.server;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.cache.InMemoryCache;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -23,7 +23,7 @@ import io.netty.util.CharsetUtil;
  * The server which listens for incoming client connections.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class Server {
     /**
      * The port that the server should listen on.
@@ -32,7 +32,9 @@ public class Server {
     /**
      * The instance of the command handler used to dispatch commands.
      */
-    private CommandHandler commandHandler;
+    private final CommandHandler commandHandler;
+
+    private final Logger logger;
 
     /**
      * Constructor for the server.
@@ -40,8 +42,9 @@ public class Server {
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public Server(CommandHandler commandHandler) {
+    public Server(CommandHandler commandHandler, Logger logger) {
         this.commandHandler = commandHandler;
+        this.logger = logger;
     }
 
     /**
@@ -66,13 +69,13 @@ public class Server {
                             channel.pipeline().addLast(
                                     new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
                                     new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-                                    new ClientHandler(commandHandler));
+                                    new ClientHandler(commandHandler, logger));
                         }
                     });
 
             /* Bind to port and listen for connections, then wait until server is closed */
             ChannelFuture f = bootstrap.bind(PORT).sync();
-            System.out.println("Server started on port: " + PORT);
+            logger.info("Server started on port: " + PORT);
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();

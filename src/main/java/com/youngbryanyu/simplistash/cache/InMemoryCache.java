@@ -3,12 +3,15 @@ package com.youngbryanyu.simplistash.cache;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * The in-memory key-value store.
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class InMemoryCache {
     /**
      * The concurrent hash map containing all key-value pairs in-memory
@@ -42,5 +45,5 @@ public class InMemoryCache {
      */
     public void delete(String key) {
         store.remove(key);
-    } 
+    }
 }

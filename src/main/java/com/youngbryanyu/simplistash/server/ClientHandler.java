@@ -3,6 +3,7 @@ package com.youngbryanyu.simplistash.server;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +12,12 @@ import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
 import com.youngbryanyu.simplistash.protocol.ProtocolFormatter;
 import com.youngbryanyu.simplistash.stash.Stash;
-import com.youngbryanyu.simplistash.util.ConsoleColors;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultMaxBytesRecvByteBufAllocator;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 /**
  * Class that handles communication between the server and client. A new
@@ -23,6 +25,7 @@ import io.netty.channel.DefaultMaxBytesRecvByteBufAllocator;
  * client handler will run on one of the NIO worker threads.
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * The buffer holding all unprocessed data sent by the client.
@@ -36,16 +39,19 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     // singleton command handler
     private CommandHandler commandHandler;
 
+    private Logger logger;
+
     /**
      * Constructor for the client handler.
      * 
      * @param cache The in memory cache instance to store data in.
      */
     @Autowired
-    public ClientHandler(CommandHandler commandHandler) {
+    public ClientHandler(CommandHandler commandHandler, Logger logger) {
         this.commandHandler = commandHandler;
         buffer = new StringBuilder();
         tokens = new LinkedList<>();
+        this.logger = logger;
     }
 
     /**
@@ -53,7 +59,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.printf("[%sINFO%s] Client connected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET, ctx.channel());
+        logger.info(String.format("Client connected: %s", ctx.channel()));
         super.channelActive(ctx);
     }
 
@@ -79,7 +85,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
         buffer.append(input);
         parseTokens();
         String response = commandHandler.handleCommands(tokens);
-        
+
         if (response != null) {
             ctx.writeAndFlush(response);
         }
@@ -93,8 +99,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.printf("[%sINFO%s] Client disconnected: %s\n", ConsoleColors.BLUE, ConsoleColors.RESET,
-                ctx.channel());
+        logger.info(String.format("Client disconnected: %s", ctx.channel()));
         super.channelInactive(ctx);
     }
 
@@ -105,13 +110,12 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        System.out.printf("[%sERROR%s] Error occurred in channel (%s): %s\n", ConsoleColors.RED, ConsoleColors.RESET,
-                ctx.channel(), cause.getMessage());
+        logger.info(String.format("Error occurred in channel (%s): %s", ctx.channel(), cause.getMessage()));
         ctx.writeAndFlush(ProtocolFormatter.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }
 
-   /**
+    /**
      * Parses tokens from the input buffer and stores them in the token deque. The
      * algorithm works in a length-prefixed fashion by finding the delimiter,
      * getting the size of the token to read, then reading that exact many bytes.

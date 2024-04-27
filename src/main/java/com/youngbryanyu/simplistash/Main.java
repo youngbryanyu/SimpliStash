@@ -4,6 +4,8 @@ import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.youngbryanyu.simplistash.cache.InMemoryCache;
@@ -21,38 +23,25 @@ public class Main {
 
     /**
      * The main method which starts the server.
+     * 
      * @param args Command line arguments.
-     * @throws Exception
      */
-    public static void main(String[] args) {        
+    public static void main(String[] args) {
         /* Bootstrap Spring Context */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
         Server server = context.getBean(Server.class);
+        Logger logger = context.getBean(Logger.class);
 
-        // TODO: create DB
-        DB db = DBMaker.memoryDirectDB()
-            .transactionEnable()
-            .make();
-
-        // TODO: load backups from disk
-
-        // TODO: load WAL from disk
-
-        // TODO: create executor for periodic snapshot
-        
-        // TODO: create shudown hood to close db and sut down executor
-
-        /* Add shutdown hook to clean up resources after exit */
+        /* Cleanup resources on shutdown */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            db.close();
-            // context.close();
+            context.close();
         }));
 
         try {
             server.start();
         } catch (Exception e) {
-            System.out.println("The server failed to start:");
+            logger.error("The server failed while running:");
             e.printStackTrace();
-        } 
+        }
     }
 }

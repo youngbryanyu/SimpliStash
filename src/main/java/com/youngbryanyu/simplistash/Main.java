@@ -1,19 +1,10 @@
 package com.youngbryanyu.simplistash;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
-import com.youngbryanyu.simplistash.stash.InMemoryCache;
-import com.youngbryanyu.simplistash.stash.Stash;
-import com.youngbryanyu.simplistash.stash.StashFactory;
 
 /**
  * The entry point to the application.

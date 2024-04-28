@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.InMemoryCache;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 

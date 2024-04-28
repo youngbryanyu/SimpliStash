@@ -1,16 +1,19 @@
 package com.youngbryanyu.simplistash.stash;
 
-import java.util.Map;
-
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Class representing a "stash" which serves as a single table of key-value
  * pairs
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class Stash {
     /**
      * The max key size allowed in the stash
@@ -21,15 +24,29 @@ public class Stash {
      */
     public static final int MAX_VALUE_SIZE = 65536;
     /**
-     * The in-memory cache to store data. Stores data off-heap.
+     * Name of the primary cache
      */
-    private final HTreeMap<String, String> cache;
+    private static final String PRIMARY_CACHE_NAME = "primary";
+    /**
+     * A single DB store instance tied to the stash.
+     */
+    private DB db;
+    /**
+     * The primary cache provide O(1) direct access to values by key.
+     */
+    private HTreeMap<String, String> cache;
+
+    @Autowired
+    public Stash(DB db) {
+        this.db = db;
+        createPrimaryCache();
+    }
 
     /**
-     * Constructor for a stash.
+     * Creates the primary cache for O(1) access to fields directly.
      */
-    public Stash(String name) {
-        cache = null;
+    private void createPrimaryCache() {
+        cache = db.hashMap(PRIMARY_CACHE_NAME, Serializer.STRING, Serializer.STRING).create();
     }
 
     /**

@@ -32,7 +32,7 @@ public class AppConfig {
     }
 
     /**
-     * Creates an off-heap in-memory database session.
+     * Creates a new instance of an off-heap in-memory database session.
      * 
      * @return An off-heap in-memory database session.
      */

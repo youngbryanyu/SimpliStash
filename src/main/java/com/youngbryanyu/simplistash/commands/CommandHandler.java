@@ -10,6 +10,7 @@ import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.InMemoryCache;
 import com.youngbryanyu.simplistash.stash.Stash;
+import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
  * Class containing methods to help parse the client's input from their buffer
@@ -17,15 +18,15 @@ import com.youngbryanyu.simplistash.stash.Stash;
  */
 @Component
 public class CommandHandler {
-    private final InMemoryCache cache;
+    private final StashManager stashManager;
     private final Logger logger;
 
     /**
      * Private constructor to prevent instantiation.
      */
     @Autowired
-    public CommandHandler(InMemoryCache cache, Logger logger) {
-        this.cache = cache;
+    public CommandHandler(StashManager stashManager, Logger logger) {
+        this.stashManager = stashManager;
         this.logger = logger;
     }
 
@@ -82,7 +83,7 @@ public class CommandHandler {
                     tokens.pollFirst(); /* Remove command token */
                     token2 = tokens.pollFirst();
                     token3 = tokens.pollFirst();
-                    response.append(handleSetCommand(token2, token3, cache));
+                    response.append(handleSetCommand(token2, token3));
                     break;
                 case GET:
                     if (tokens.size() < 2) {
@@ -92,7 +93,7 @@ public class CommandHandler {
 
                     tokens.pollFirst(); /* Remove command token */
                     token2 = tokens.pollFirst();
-                    response.append(handleGetCommand(token2, cache));
+                    response.append(handleGetCommand(token2));
                     break;
                 case DELETE:
                     if (tokens.size() < 2) {
@@ -101,7 +102,7 @@ public class CommandHandler {
                     }
                     tokens.pollFirst(); /* Remove command token */
                     token2 = tokens.pollFirst();
-                    response.append(handleDeleteCommand(token2, cache));
+                    response.append(handleDeleteCommand(token2));
                     break;
                 default:
                     /* This code shouldn't be reached since invalid commands are discarded */
@@ -119,8 +120,9 @@ public class CommandHandler {
      * @param cache  The cache to get values from.
      * @return Returns an OK response.
      */
-    private String handleGetCommand(String key, InMemoryCache cache) {
-        String value = cache.get(key);
+    private String handleGetCommand(String key) {
+        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
+        String value = stash.get(key);
         return (value == null)
                 ? ProtocolUtil.buildNullResponse()
                 : ProtocolUtil.buildValueResponse(value);
@@ -134,7 +136,7 @@ public class CommandHandler {
      * @return Returns an OK response.
      * @throws ValueTooLargeException
      */
-    private String handleSetCommand(String key, String value, InMemoryCache cache) {
+    private String handleSetCommand(String key, String value) {
         /* Check if the key or value is too large */
         if (key.length() > Stash.MAX_KEY_SIZE) {
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
@@ -144,7 +146,8 @@ public class CommandHandler {
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        cache.set(key, value);
+        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
+        stash.set(key, value);
         logger.info(String.format("SET %s --> %s\n", key, value));
         return ProtocolUtil.buildOkResponse();
     }
@@ -156,8 +159,9 @@ public class CommandHandler {
      * @param cache  The cache to delete values from.
      * @return Returns an OK response.
      */
-    private String handleDeleteCommand(String key, InMemoryCache cache) {
-        cache.delete(key);
+    private String handleDeleteCommand(String key) {
+        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
+        stash.delete(key);
         logger.info(String.format("DELETE %s\n", key));
         return ProtocolUtil.buildOkResponse();
     }

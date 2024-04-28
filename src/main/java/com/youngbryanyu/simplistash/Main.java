@@ -12,16 +12,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
 import com.youngbryanyu.simplistash.stash.InMemoryCache;
+import com.youngbryanyu.simplistash.stash.Stash;
+import com.youngbryanyu.simplistash.stash.StashFactory;
 
 /**
  * The entry point to the application.
  */
 public class Main {
-    /**
-     * The port that the server listens on.
-     */
-    private static final int PORT = 3000;
-
     /**
      * The main method which starts the server.
      * 

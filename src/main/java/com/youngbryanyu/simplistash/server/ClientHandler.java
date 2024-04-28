@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Scope;
  * client handler will run on one of the NIO worker threads.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * The buffer holding all unprocessed data sent by the client.
@@ -35,10 +35,13 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * Tokens parsed from the buffer.
      */
     private final Deque<String> tokens;
-
-    // singleton command handler
+    /**
+     * The command handler used to execute commands sent by the client.
+     */
     private CommandHandler commandHandler;
-
+    /**
+     * The application logger.
+     */
     private Logger logger;
 
     /**

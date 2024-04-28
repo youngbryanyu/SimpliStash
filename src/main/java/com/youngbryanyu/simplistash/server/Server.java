@@ -1,12 +1,11 @@
 package com.youngbryanyu.simplistash.server;
 
 import org.slf4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.youngbryanyu.simplistash.commands.CommandHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -29,10 +28,8 @@ public class Server {
      * The port that the server should listen on.
      */
     private static final int PORT = 3000;
-    /**
-     * The instance of the command handler used to dispatch commands.
-     */
-    private final CommandHandler commandHandler;
+
+    private final ClientHandlerFactory clientHandlerFactory;
 
     private final Logger logger;
 
@@ -42,8 +39,8 @@ public class Server {
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public Server(CommandHandler commandHandler, Logger logger) {
-        this.commandHandler = commandHandler;
+    public Server(ClientHandlerFactory clientHandlerFactory, Logger logger) {
+        this.clientHandlerFactory = clientHandlerFactory;
         this.logger = logger;
     }
 
@@ -69,7 +66,7 @@ public class Server {
                             channel.pipeline().addLast(
                                     new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
                                     new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-                                    new ClientHandler(commandHandler, logger));
+                                    clientHandlerFactory.createClientHandler());
                         }
                     });
 

@@ -10,24 +10,21 @@ import org.springframework.context.annotation.Scope;
 
 /**
  * Dependency injection configuration class. We should stick with annotations,
- * unless multiple named versions of the same dependency need to be injected. In
- * that case we can combined @Bean(name=<name>) in this class with
- * the @Qualifier("<name>") annotation to get the specific instance. Things set
- * in this file with @Configuration will override things set by annotations. We
- * should also stick to injecting the constructor with @Wired, instead of
- * individual fields.
+ * unless multiple named versions of the same dependency need to be injected in
+ * which we can use @Bean(name=<name>) with @Qualifier("<name>"). Things set in
+ * this config file will override annotations.
  * 
- * Also, DI doesn't seem to be very good for when the cardinality and lifetime
- * of an object is not well-known (like our server which creates an arbitrary
- * amount of transient client handlers).
- * 
- * It's also worth noting that @Wired isn't needed anymore for @Component
- * classes with only 1 constructor.
+ * The application context (IoC container) is automatically injectable
+ * wherever @Wired needs it.
  */
 @Configuration
 @ComponentScan(basePackages = "com.youngbryanyu.simplistash")
 public class AppConfig {
-    /* SLF4J logger */
+    /**
+     * Creates a bean for the logger.
+     * 
+     * @return The logger to use.
+     */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public Logger logger() {

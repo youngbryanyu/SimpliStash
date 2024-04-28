@@ -6,12 +6,17 @@ import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
  * Commands used in the protocol.
  */
 public enum Command {
+    PING,
     SET,
     GET,
     DELETE,
-    PING,
-    CREATE_TABLE
-    ;
+
+    /* To operate on specific stashes */
+    CREATE,
+    DESTROY,
+    SET_S,
+    GET_S,
+    DELETE_S;
 
     /**
      * Gets the enum value matching an input string. Throws an

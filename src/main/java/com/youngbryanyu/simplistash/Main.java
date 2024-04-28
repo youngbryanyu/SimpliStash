@@ -6,6 +6,7 @@ import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.youngbryanyu.simplistash.config.AppConfig;
@@ -29,6 +30,7 @@ public class Main {
     public static void main(String[] args) {
         /* Bootstrap Spring Context */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
         Server server = context.getBean(Server.class);
         Logger logger = context.getBean(Logger.class);
 

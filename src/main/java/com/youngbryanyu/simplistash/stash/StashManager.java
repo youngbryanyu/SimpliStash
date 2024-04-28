@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * A class to manage all the stashes.
  */
+@Component
 public class StashManager {
     /**
      * The name of the default stash used if none is specified by the client.
@@ -18,15 +20,15 @@ public class StashManager {
     /**
      * Returns the the DB instance. Each DB has its own transaction session.
      */
-    private DB dbInstance;
+    private DB db;
     /**
      * Mapping of each stash's name to its cache.
      */
     private Map<String, HTreeMap<String, String>> stashes;
 
     /* Private constructor for singleton access */
-    private StashManager() {
-        dbInstance = DBMaker.memoryDirectDB().make();
+    @Autowired
+    private StashManager(DB db) {
         stashes = new HashMap<>();
     }
 

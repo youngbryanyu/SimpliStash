@@ -3,15 +3,12 @@ package com.youngbryanyu.simplistash.stash;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * The in-memory key-value store.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class InMemoryCache {
     // TODO: delete and replace with stash
     /**

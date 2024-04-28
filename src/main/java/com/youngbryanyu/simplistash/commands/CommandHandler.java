@@ -11,15 +11,11 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.InMemoryCache;
 import com.youngbryanyu.simplistash.stash.Stash;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-
 /**
  * Class containing methods to help parse the client's input from their buffer
  * into tokens, and handle any commands by applying them to the cache provided.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CommandHandler {
     private final InMemoryCache cache;
     private final Logger logger;

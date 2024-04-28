@@ -2,15 +2,12 @@ package com.youngbryanyu.simplistash.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * The client handler factory used to create client handler objects.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ClientHandlerFactory {
     /**
      * The spring IoC container holding all beans.

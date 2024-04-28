@@ -47,7 +47,8 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * Constructor for the client handler.
      * 
-     * @param cache The in memory cache instance to store data in.
+     * @param cache  The in memory cache instance to store data in.
+     * @param logger The application logger to use.
      */
     @Autowired
     public ClientHandler(CommandHandler commandHandler, Logger logger) {
@@ -73,10 +74,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * 
      * The maximum number of bytes that can be read in a single call to channelRead
      * is 65536, which is set in the class
-     * {@link DefaultMaxBytesRecvByteBufAllocator}. This size helps ensure that no
-     * client takes up too much memory when sending data, and that processing and
-     * buffer size checking in {@link TokenParser#parseTokens} will be done at most
-     * bytes.
+     * {@link DefaultMaxBytesRecvByteBufAllocator}.
      * 
      * @throws Exception If an exception occurs while reading or performing any
      *                   processing from this method.

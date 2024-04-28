@@ -22,7 +22,6 @@ import io.netty.util.CharsetUtil;
  * The server which listens for incoming client connections.
  */
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class Server {
     /**
      * The port that the server should listen on.

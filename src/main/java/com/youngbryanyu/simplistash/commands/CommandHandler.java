@@ -17,16 +17,17 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  */
 @Component
 public class CommandHandler {
-    private final StashManager stashManager;
-    private final Logger logger;
+    /**
+     * The command factory to get commands.
+     */
+    private final CommandFactory commandFactory;
 
     /**
      * Private constructor to prevent instantiation.
      */
     @Autowired
-    public CommandHandler(StashManager stashManager, Logger logger) {
-        this.stashManager = stashManager;
-        this.logger = logger;
+    public CommandHandler(CommandFactory commandFactory) {
+        this.commandFactory = commandFactory;
     }
 
     /**
@@ -47,131 +48,25 @@ public class CommandHandler {
      */
     public String handleCommands(Deque<String> tokens) {
         StringBuilder response = new StringBuilder();
-        boolean moreFullCommandsLeft = true;
 
-        while (moreFullCommandsLeft && !tokens.isEmpty()) {
-            /* Get the command token to execute */
-            String token1 = tokens.peekFirst();
-            Command command;
+        while (!tokens.isEmpty()) {
             try {
-                command = Command.fromString(token1);
+                String commandName = tokens.peekFirst(); /* Peek since we might not have all args necessary */
+                Command command = commandFactory.getCommand(commandName);
+                String result = command.execute(tokens);
+
+                /* Null indicates not enough tokens left so we break */
+                if (result == null) {
+                    break;
+                }
+
+                response.append(result);
             } catch (InvalidCommandException e) {
-                tokens.pollFirst(); /* Discard token if not a valid command */
+                tokens.pollFirst(); /* Discard invalid command token */
                 continue;
-            }
-
-            /* Execute the command if there are enough tokens */
-            String token2;
-            String token3;
-            switch (command) {
-                case PING:
-                    if (tokens.size() < 1) {
-                        moreFullCommandsLeft = false;
-                        break;
-                    }
-
-                    tokens.pollFirst(); /* Remove command token */
-                    response.append(handlePingCommand());
-                    break;
-                case SET:
-                    if (tokens.size() < 3) {
-                        moreFullCommandsLeft = false;
-                        break;
-                    }
-
-                    tokens.pollFirst(); /* Remove command token */
-                    token2 = tokens.pollFirst();
-                    token3 = tokens.pollFirst();
-                    response.append(handleSetCommand(token2, token3));
-                    break;
-                case GET:
-                    if (tokens.size() < 2) {
-                        moreFullCommandsLeft = false;
-                        break;
-                    }
-
-                    tokens.pollFirst(); /* Remove command token */
-                    token2 = tokens.pollFirst();
-                    response.append(handleGetCommand(token2));
-                    break;
-                case DELETE:
-                    if (tokens.size() < 2) {
-                        moreFullCommandsLeft = false;
-                        break;
-                    }
-                    tokens.pollFirst(); /* Remove command token */
-                    token2 = tokens.pollFirst();
-                    response.append(handleDeleteCommand(token2));
-                    break;
-                default:
-                    /* This code shouldn't be reached since invalid commands are discarded */
-                    return ProtocolUtil.buildErrorResponse("Invalid command: " + token1);
             }
         }
 
         return response.isEmpty() ? null : response.toString();
-    }
-
-    /**
-     * Handles the GET command.
-     * 
-     * @param tokens The tokens parsed from the client's input.
-     * @param cache  The cache to get values from.
-     * @return Returns an OK response.
-     */
-    private String handleGetCommand(String key) {
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        String value = stash.get(key);
-        return (value == null)
-                ? ProtocolUtil.buildNullResponse()
-                : ProtocolUtil.buildValueResponse(value);
-    }
-
-    /**
-     * Handles the SET command.
-     * 
-     * @param tokens The tokens parsed from the client's input.
-     * @param cache  The cache to store values into.
-     * @return Returns an OK response.
-     * @throws ValueTooLargeException
-     */
-    private String handleSetCommand(String key, String value) {
-        /* Check if the key or value is too large */
-        if (key.length() > Stash.MAX_KEY_SIZE) {
-            return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
-        }
-
-        if (value.length() > Stash.MAX_VALUE_SIZE) {
-            return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
-        }
-
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        stash.set(key, value);
-        logger.info(String.format("SET %s --> %s\n", key, value));
-        return ProtocolUtil.buildOkResponse();
-    }
-
-    /**
-     * Handles the DELETE command.
-     * 
-     * @param tokens The tokens parsed from the client's input.
-     * @param cache  The cache to delete values from.
-     * @return Returns an OK response.
-     */
-    private String handleDeleteCommand(String key) {
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        stash.delete(key);
-        logger.info(String.format("DELETE %s\n", key));
-        return ProtocolUtil.buildOkResponse();
-    }
-
-    /**
-     * Handles the PING command.
-     * 
-     * @return The "pong" response.
-     */
-    private String handlePingCommand() {
-        logger.info("PING");
-        return ProtocolUtil.buildPongResponse();
     }
 }

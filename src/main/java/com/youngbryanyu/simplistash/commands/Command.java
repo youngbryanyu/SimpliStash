@@ -1,39 +1,23 @@
 package com.youngbryanyu.simplistash.commands;
 
-import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
+import java.util.Deque;
 
 /**
- * Commands used in the protocol.
+ * Interface for a command.
  */
-public enum Command {
-    PING,
-    SET,
-    GET,
-    DELETE,
-
-    /* To operate on specific stashes */
-    CREATE,
-    DESTROY,
-    SET_S,
-    GET_S,
-    DELETE_S;
+public interface Command {
+    /**
+     * Executes a command.
+     * 
+     * @param tokens The client's tokens
+     * @return The response to send to the client.
+     */
+    public String execute(Deque<String> tokens);
 
     /**
-     * Gets the enum value matching an input string. Throws an
-     * {@link InvalidCommandException} if the command doesn't exist in the set of
-     * enums. The commands are non-case-sensitive.
+     * Returns the name of the command.
      * 
-     * @param s String input command string.
-     * @return Returns the matching command enum.
-     * @throws InvalidCommandException If the input command is invalid.
+     * @return The command's name.
      */
-    public static Command fromString(String s) throws InvalidCommandException {
-        for (Command command : Command.values()) {
-            if (command.name().equalsIgnoreCase(s)) {
-                return command;
-            }
-        }
-
-        throw new InvalidCommandException(s);
-    }
+    public String getName();
 }

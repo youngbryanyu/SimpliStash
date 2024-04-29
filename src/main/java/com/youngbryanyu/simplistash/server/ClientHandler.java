@@ -87,6 +87,8 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
         parseTokens();
         String response = commandHandler.handleCommands(tokens);
 
+        // TODO: think about guarding case when client's output buffer gets too big (similar to input buffer) 
+
         if (response != null) {
             ctx.writeAndFlush(response);
         }

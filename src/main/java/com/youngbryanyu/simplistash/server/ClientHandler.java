@@ -113,7 +113,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.info(String.format("Error occurred in channel (%s): %s", ctx.channel(), cause.getMessage()));
+        logger.info(String.format("Error occurred in channel, disconnecting client (%s): %s", ctx.channel(), cause.getMessage()));
         ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }
@@ -133,7 +133,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * @throws BrokenProtocolException If the client's input doesn't follow the
      *                                 protocol.
      */
-    public void parseTokens()
+    private void parseTokens()
             throws BufferOverflowException, BrokenProtocolException {
         /* Check if the buffer's size has exceeded the allowable limit */
         if (buffer.length() > getMaxBufferSize()) {
@@ -150,12 +150,12 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
             try {
                 size = Integer.parseInt(buffer.substring(0, delimIdx));
             } catch (NumberFormatException e) {
-                throw new BrokenProtocolException("The token size is not a valid integer", e);
+                throw new BrokenProtocolException("The token size is not a valid integer. Disconnecting...", e);
             }
 
             /* Ensure the size of the token is at least 1 */
             if (size < 1) {
-                throw new BrokenProtocolException("The token size must be at least 1", null);
+                throw new BrokenProtocolException("The token size must be at least 1. Disconnecting...", null);
             }
 
             /* Get the start and end indices of the token */

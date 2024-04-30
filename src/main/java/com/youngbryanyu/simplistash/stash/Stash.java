@@ -3,10 +3,13 @@ package com.youngbryanyu.simplistash.stash;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
  * Class representing a "stash" which serves as a single table of key-value
@@ -32,6 +35,10 @@ public class Stash {
      */
     private static final String PRIMARY_CACHE_NAME = "primary";
     /**
+     * Error message when attempting to access a closed HTreeMap/DB.
+     */
+    private static final String DB_CLOSED_ERROR = "The specified stash doesn't exist";
+    /**
      * A single DB store instance tied to the stash.
      */
     private DB db;
@@ -40,14 +47,14 @@ public class Stash {
      */
     private HTreeMap<String, String> cache;
     /**
-     * Whether or not the stash has flagged for delete.
+     * The application logger.
      */
-    private volatile boolean isTombstoned;
+    private final Logger logger;
 
     @Autowired
-    public Stash(DB db) {
+    public Stash(DB db, Logger logger) {
         this.db = db;
-        isTombstoned = false;
+        this.logger = logger;
         createPrimaryCache();
     }
 
@@ -59,15 +66,22 @@ public class Stash {
     }
 
     /**
-     * Sets a key value pair in the stash. Overwrites existing pairs.
+     * Sets a key value pair in the stash. Overwrites existing pairs. Returns the OK
+     * response.
      * 
      * @param key   The unique key.
      * @param value The value to map to the key.
      */
-    public void set(String key, String value) {
-        if (!isDropped()) {
+    public String set(String key, String value) {
+        try {
             cache.put(key, value);
+        } catch (NullPointerException | IllegalAccessError e) {
+            /* Thrown in cases where accessing a closed DB */
+            logger.debug("Stash set failed, stash doesn't exist");
+            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
         }
+
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**
@@ -77,22 +91,30 @@ public class Stash {
      * @return The value matching the key.
      */
     public String get(String key) {
-        if (isDropped()) {
-            return null;
+        try {
+            return cache.get(key);
+        } catch (NullPointerException | IllegalAccessError e) {
+            /* Thrown in cases where accessing a closed DB */
+            logger.debug("Stash get failed, stash doesn't exist");
+            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
         }
-
-        return cache.get(key);
     }
 
     /**
-     * Deletes a key from the stash.
+     * Deletes a key from the stash. Returns the OK response.
      * 
      * @param key The key to delete.
      */
-    public void delete(String key) {
-        if (!isDropped()) {
+    public String delete(String key) {
+        try {
             cache.remove(key);
+        } catch (NullPointerException | IllegalAccessError e) {
+            /* Thrown in cases where accessing a closed DB */
+            logger.debug("Stash delete failed, stash doesn't exist");
+            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
         }
+
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**
@@ -100,18 +122,6 @@ public class Stash {
      * the db.
      */
     public void drop() {
-        isTombstoned = true;
-        cache.close();
         db.close();
-    }
-
-    /**
-     * Returns whether the stash is dropped. If it's tombstoned, or either the cache
-     * or db are closed, then the stash is considered dropped.
-     * 
-     * @return True if the stash is dropped, false otherwise.
-     */
-    public boolean isDropped() {
-        return isTombstoned || db.isClosed() || cache.isClosed();
     }
 }

@@ -114,6 +114,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.debug(String.format("Error occurred in channel, disconnecting client (%s) --> %s", ctx.channel(), cause.getMessage()));
+        logger.error("Error stack trace: ", cause);
         ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }

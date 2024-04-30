@@ -63,13 +63,7 @@ public class StashManager {
      * @return Returns the stash corresponding to the name.
      */
     public Stash getStash(String name) {
-        Stash stash = stashes.get(name);
-
-        if (stash == null || stash.isDropped()) {
-            return null;
-        }
-
-        return stash;
+        return stashes.get(name);
     }
 
     /**
@@ -79,8 +73,7 @@ public class StashManager {
      * @return True if a stash with the given name exists, false otherwise.
      */
     public boolean containsStash(String name) {
-        Stash stash = stashes.get(name);
-        return stash != null && !stash.isDropped();
+       return stashes.containsKey(name);
     }
 
     /**
@@ -91,8 +84,8 @@ public class StashManager {
     public void dropStash(String name) {
         Stash stash = getStash(name);
 
-        if (stash != null && !stash.isDropped()) {
-            stashes.remove(name); /* Remove from map first to prevent further access */
+        if (stash != null) {
+            stashes.remove(name); // TODO: comment about how once we remove, other threads will get null which means stash DNE. In the worst case, the try catch in Stash.java will handle
             stash.drop();
         }
     }

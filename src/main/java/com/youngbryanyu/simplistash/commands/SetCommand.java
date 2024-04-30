@@ -75,10 +75,10 @@ public class SetCommand implements Command {
         }
 
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        stash.set(key, value);
+        String response = stash.set(key, value);
 
         logger.debug(String.format("SET %s --> %s", key, value));
-        return ProtocolUtil.buildOkResponse();
+        return response;
     }
 
     /**

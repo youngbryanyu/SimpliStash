@@ -14,7 +14,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The SGET command. Gets a key's value from the specified stash.
  */
 @Component
-public class SGetCommand implements Command{
+public class SGetCommand implements Command {
     /**
      * The command's name
      */
@@ -51,7 +51,8 @@ public class SGetCommand implements Command{
     /**
      * Executes the SGET command. Returns null if there aren't enough tokens.
      * Responds with the value if the key exists, or the encoded null string if the
-     * key doesn't exist. Returns an error message if the specified stash doesn't exist.
+     * key doesn't exist. Returns an error message if the specified stash doesn't
+     * exist.
      * 
      * Format: SGET <name> <key>
      */
@@ -63,13 +64,14 @@ public class SGetCommand implements Command{
         tokens.pollFirst(); /* Remove command token */
 
         String name = tokens.pollFirst();
-        if (!stashManager.containsStash(name)) {
-            logger.debug(String.format("SGET {%s} * (failed, stash doesn't exist)", name));
-            return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist."); 
-        }
-        
-        String key = tokens.pollFirst();
         Stash stash = stashManager.getStash(name);
+        if (stash == null) { // TODO: comment about how stash can be null from other threads
+            logger.debug(String.format("SGET {%s} * (failed, stash doesn't exist)", name));
+            return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist.");
+        }
+
+        String key = tokens.pollFirst();
+
         String value = stash.get(key);
 
         logger.debug(String.format("SGET {%s} %s", name, key));

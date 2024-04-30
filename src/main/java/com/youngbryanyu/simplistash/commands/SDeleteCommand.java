@@ -63,17 +63,18 @@ public class SDeleteCommand implements Command {
         tokens.pollFirst(); /* Remove command token */
 
         String name = tokens.pollFirst();
-        if (!stashManager.containsStash(name)) {
+        Stash stash = stashManager.getStash(name);
+        if (stash == null) {
             logger.debug(String.format("SDELETE {%s} * (failed, stash doesn't exist)", name));
-            return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist."); 
+            return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist.");
         }
 
         String key = tokens.pollFirst();
-        Stash stash = stashManager.getStash(name);
-        stash.delete(key);
+       
+        String response = stash.delete(key);
 
         logger.debug(String.format("SDELETE %s", key));
-        return ProtocolUtil.buildOkResponse();
+        return response;
     }
 
     /**

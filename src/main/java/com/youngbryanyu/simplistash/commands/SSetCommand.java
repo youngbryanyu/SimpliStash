@@ -62,11 +62,12 @@ public class SSetCommand implements Command {
         }
 
         tokens.pollFirst(); /* Remove command token */
-
+        
         String name = tokens.pollFirst();
-        if (!stashManager.containsStash(name)) {
+        Stash stash = stashManager.getStash(name);
+        if (stash == null) {
             logger.debug(String.format("SSET {%s} * --> * (failed, stash doesn't exist)", name));
-            return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist."); 
+            return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist.");
         }
 
         String key = tokens.pollFirst();
@@ -81,11 +82,10 @@ public class SSetCommand implements Command {
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        Stash stash = stashManager.getStash(name);
-        stash.set(key, value);
+        String response = stash.set(key, value);
 
         logger.debug(String.format("SSET {%s} %s --> %s", name, key, value));
-        return ProtocolUtil.buildOkResponse();
+        return response;
     }
 
     /**

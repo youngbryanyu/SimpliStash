@@ -49,6 +49,9 @@ public final class ProtocolUtil {
      * @return The formatted error message to send to the client.
      */
     public static String buildErrorResponse(String message) {
+        if (message == null) {
+            return encode(ERROR_PREFIX) + encode("unknown error occurred.");
+        }
         return encode(ERROR_PREFIX) + encode(message);
     }
 

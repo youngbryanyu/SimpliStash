@@ -62,10 +62,10 @@ public class DeleteCommand implements Command {
 
         String key = tokens.pollFirst();
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        stash.delete(key);
+        String response = stash.delete(key);
 
         logger.debug(String.format("DELETE %s", key));
-        return ProtocolUtil.buildOkResponse();
+        return response;
     }
 
     /**

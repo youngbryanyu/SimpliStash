@@ -11,18 +11,18 @@ import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The SET command. Sets a key's value in the default stash.
+ * The SSET command. Sets a key's value in the specified stash.
  */
 @Component
-public class SetCommand implements Command {
+public class SSetCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "SET";
+    private static final String NAME = "SSET";
     /**
      * The base format of the command
      */
-    private static final String FORMAT = "SET <key> <value>";
+    private static final String FORMAT = "SSET <name> <key> <value>";
     /**
      * The minimum number of required arguments.
      */
@@ -37,47 +37,54 @@ public class SetCommand implements Command {
     private final Logger logger;
 
     /**
-     * Constructor for the SET command.
+     * Constructor for the SSET command.
      * 
      * @param stashManager The stash manager.
      * @param logger       The logger.
      */
     @Autowired
-    public SetCommand(StashManager stashManager, Logger logger) {
+    public SSetCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
     }
 
     /**
-     * Executes the SET command. Stores the key value pair in the default stash.
+     * Executes the SSET command. Stores the key value pair in the specified stash.
      * Returns null if there aren't enough tokens. Returns an error response if the
-     * key or value length are too big. Responds with OK.
+     * key or value length are too big, or if the stash doesn't exist. Responds with
+     * OK.
      * 
-     * Format: SET <key> <value>
+     * Format: SSET <name> <key> <value>
      */
     public String execute(Deque<String> tokens) {
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst();  /* Remove command token */
-        
+        tokens.pollFirst(); /* Remove command token */
+
+        String name = tokens.pollFirst();
+        if (!stashManager.containsStash(name)) {
+            logger.debug(String.format("SSET {%s} * --> * (failed, stash doesn't exist)", name));
+            return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist."); 
+        }
+
         String key = tokens.pollFirst();
         if (key.length() > Stash.MAX_KEY_SIZE) {
-            logger.debug(String.format("SET %s --> * (failed, key is too big)", key));
+            logger.debug(String.format("SSET {%s} %s --> * (failed, key is too big)", name, key));
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 
         String value = tokens.pollFirst();
         if (value.length() > Stash.MAX_VALUE_SIZE) {
-            logger.debug(String.format("SET %s --> %s (failed, value is too big)", key));
+            logger.debug(String.format("SSET {%s} %s --> %s (failed, value is too big)", name, key, value));
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
+        Stash stash = stashManager.getStash(name);
         stash.set(key, value);
 
-        logger.debug(String.format("SET %s --> %s", key, value));
+        logger.debug(String.format("SSET {%s} %s --> %s", name, key, value));
         return ProtocolUtil.buildOkResponse();
     }
 

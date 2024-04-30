@@ -7,22 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The CREATE command. Creates a new stash.
+ * The DROP command. Deletes an entire stash.
  */
 @Component
-public class CreateCommand implements Command {
+public class DropCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "CREATE";
+    private static final String NAME = "DROP";
     /**
      * The base format of the command
      */
-    private static final String FORMAT = "CREATE <name>";
+    private static final String FORMAT = "DROP <name>";
     /**
      * The minimum number of required arguments.
      */
@@ -37,23 +36,23 @@ public class CreateCommand implements Command {
     private final Logger logger;
 
     /**
-     * Constructor for the CREATE command.
+     * Constructor for the DROP command.
      * 
      * @param stashManager The stash manager.
      * @param logger       The logger.
      */
     @Autowired
-    public CreateCommand(StashManager stashManager, Logger logger) {
+    public DropCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
     }
 
     /**
-     * Executes the CREATE command. Creates a new stash. Returns null if there aren't
-     * enough tokens. Returns an error response if the stash name is too long or if
-     * the stash's name is already taken. Responds with OK.
+     * Executes the DROP command. Deletes a stash. Returns null if there aren't
+     * enough tokens. Returns an error response if attempting to drop the "default"
+     * stash. Responds with OK.
      * 
-     * Format: CREATE <name>
+     * Format: DROP <name>
      */
     public String execute(Deque<String> tokens) {
         if (tokens.size() < MIN_REQUIRED_ARGS) {
@@ -63,25 +62,17 @@ public class CreateCommand implements Command {
         tokens.pollFirst(); /* Remove command token */
 
         String name = tokens.pollFirst();
-        if (name.length() > Stash.MAX_NAME_SIZE) {
-            logger.debug(String.format("CREATE %s (failed, name exceeds size limit)", name));
-            return ProtocolUtil.buildErrorResponse("The name exceeds the size limit.");
+        if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
+            logger.debug("DROP %s (failed, cannot drop default stash)");
+            return ProtocolUtil.buildErrorResponse("Cannot drop the default stash.");
         }
 
-        if (stashManager.containsStash(name)) {
-            logger.debug(String.format("CREATE %s (failed, name already taken)", name));
-            return ProtocolUtil.buildErrorResponse("The stash name is already taken.");
-        }
+        stashManager.dropStash(name);
 
-        stashManager.createStash(name);
-        
-        logger.debug(String.format("CREATE %s", name));
+        logger.debug(String.format("DROP %s", name));
         return ProtocolUtil.buildOkResponse();
     }
 
-    /**
-     * Returns the command name.
-     */
     public String getName() {
         return NAME;
     }

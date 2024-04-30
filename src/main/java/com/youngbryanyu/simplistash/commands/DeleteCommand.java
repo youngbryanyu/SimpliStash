@@ -11,22 +11,30 @@ import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The DELETE command.
+ * The DELETE command. Deletes a key from the default stash.
  */
 @Component
 public class DeleteCommand implements Command {
     /**
      * The command's name.
      */
-    public static final String NAME = "DELETE";
+    private static final String NAME = "DELETE";
+    /**
+     * The base format of the command
+     */
+    private static final String FORMAT = "DELETE <key>";
+    /**
+     * The minimum number of required arguments.
+     */
+    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
     /**
      * The stash manager.
      */
-    private StashManager stashManager;
+    private final StashManager stashManager;
     /**
      * The application logger.
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * Constructor for the DELETE command.
@@ -42,18 +50,21 @@ public class DeleteCommand implements Command {
 
     /**
      * Executes the DELETE command. Returns null if there aren't enough tokens. Responds with OK.
+     * 
+     * Format: DELETE <key>
      */
     public String execute(Deque<String> tokens) {
-        if (tokens.size() < 2) {
+        if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
         tokens.pollFirst(); /* Remove command token */
+
         String key = tokens.pollFirst();
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
         stash.delete(key);
 
-        logger.info(String.format("Command: DELETE %s", key));
+        logger.debug(String.format("DELETE %s", key));
         return ProtocolUtil.buildOkResponse();
     }
 

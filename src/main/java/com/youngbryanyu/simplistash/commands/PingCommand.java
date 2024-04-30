@@ -9,18 +9,26 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * The PING command.
+ * The PING command. Replies with a PONG.
  */
 @Component
 public class PingCommand implements Command {
     /**
      * Name of the command.
      */
-    public static final String NAME = "PING";
+    private static final String NAME = "PING";
+    /**
+     * The base format of the command
+     */
+    private static final String FORMAT = "PING";
+    /**
+     * The minimum number of required arguments.
+     */
+    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
     /**
      * The application logger.
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * Constructor for the PING command.
@@ -36,15 +44,17 @@ public class PingCommand implements Command {
      * Executes the PING command. The token size check shouldn't matter since there
      * would have to be 1 token for this method to be invoked in the first place,
      * but it's here to be defensive.
+     * 
+     * Format: PING
      */
     public String execute(Deque<String> tokens) {
-        if (tokens.size() < 1) {
+        if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
-
+        
         tokens.pollFirst(); /* Remove command token */
 
-        logger.info("Command: PING");
+        logger.info("PING");
         return ProtocolUtil.buildPongResponse();
     }
 

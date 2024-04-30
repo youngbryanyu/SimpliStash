@@ -63,7 +63,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info(String.format("Client connected: %s", ctx.channel()));
+        logger.debug(String.format("Client connected: %s", ctx.channel()));
         super.channelActive(ctx);
     }
 
@@ -102,7 +102,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info(String.format("Client disconnected: %s", ctx.channel()));
+        logger.debug(String.format("Client disconnected: %s", ctx.channel()));
         super.channelInactive(ctx);
     }
 
@@ -113,7 +113,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.info(String.format("Error occurred in channel, disconnecting client (%s): %s", ctx.channel(), cause.getMessage()));
+        logger.debug(String.format("Error occurred in channel, disconnecting client (%s) --> %s", ctx.channel(), cause.getMessage()));
         ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }

@@ -24,6 +24,10 @@ public class Stash {
      */
     public static final int MAX_VALUE_SIZE = 65536;
     /**
+     * The max size of a stash's name.
+     */
+    public static final int MAX_NAME_SIZE = 64;
+    /**
      * Name of the primary cache
      */
     private static final String PRIMARY_CACHE_NAME = "primary";
@@ -35,10 +39,15 @@ public class Stash {
      * The primary cache provide O(1) direct access to values by key.
      */
     private HTreeMap<String, String> cache;
+    /**
+     * Whether or not the stash has flagged for delete.
+     */
+    private volatile boolean isTombstoned;
 
     @Autowired
     public Stash(DB db) {
         this.db = db;
+        isTombstoned = false;
         createPrimaryCache();
     }
 
@@ -56,7 +65,9 @@ public class Stash {
      * @param value The value to map to the key.
      */
     public void set(String key, String value) {
-        cache.put(key, value);
+        if (!isDropped()) {
+            cache.put(key, value);
+        }
     }
 
     /**
@@ -66,6 +77,10 @@ public class Stash {
      * @return The value matching the key.
      */
     public String get(String key) {
+        if (isDropped()) {
+            return null;
+        }
+
         return cache.get(key);
     }
 
@@ -75,6 +90,28 @@ public class Stash {
      * @param key The key to delete.
      */
     public void delete(String key) {
-        cache.remove(key);
+        if (!isDropped()) {
+            cache.remove(key);
+        }
+    }
+
+    /**
+     * Closes the stash. Marks it as tombstoned, then closes the cache, then closes
+     * the db.
+     */
+    public void drop() {
+        isTombstoned = true;
+        cache.close();
+        db.close();
+    }
+
+    /**
+     * Returns whether the stash is dropped. If it's tombstoned, or either the cache
+     * or db are closed, then the stash is considered dropped.
+     * 
+     * @return True if the stash is dropped, false otherwise.
+     */
+    public boolean isDropped() {
+        return isTombstoned || db.isClosed() || cache.isClosed();
     }
 }

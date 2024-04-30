@@ -11,18 +11,18 @@ import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The CREATE command. Creates a new stash.
+ * The SDELETE command. Deletes a key from the default stash.
  */
 @Component
-public class CreateCommand implements Command {
+public class SDeleteCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "CREATE";
+    private static final String NAME = "SDELETE";
     /**
      * The base format of the command
      */
-    private static final String FORMAT = "CREATE <name>";
+    private static final String FORMAT = "SDELETE <name> <key> <value>";
     /**
      * The minimum number of required arguments.
      */
@@ -37,23 +37,23 @@ public class CreateCommand implements Command {
     private final Logger logger;
 
     /**
-     * Constructor for the CREATE command.
+     * Constructor for the SDELETE command.
      * 
      * @param stashManager The stash manager.
      * @param logger       The logger.
      */
     @Autowired
-    public CreateCommand(StashManager stashManager, Logger logger) {
+    public SDeleteCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
     }
 
     /**
-     * Executes the CREATE command. Creates a new stash. Returns null if there aren't
-     * enough tokens. Returns an error response if the stash name is too long or if
-     * the stash's name is already taken. Responds with OK.
+     * Executes the SDELETE command. Returns null if there aren't enough tokens.
+     * Returns an error message if the specified stash doesn't exist. Responds with
+     * OK.
      * 
-     * Format: CREATE <name>
+     * Format: SDELETE <name> <key>
      */
     public String execute(Deque<String> tokens) {
         if (tokens.size() < MIN_REQUIRED_ARGS) {
@@ -63,24 +63,21 @@ public class CreateCommand implements Command {
         tokens.pollFirst(); /* Remove command token */
 
         String name = tokens.pollFirst();
-        if (name.length() > Stash.MAX_NAME_SIZE) {
-            logger.debug(String.format("CREATE %s (failed, name exceeds size limit)", name));
-            return ProtocolUtil.buildErrorResponse("The name exceeds the size limit.");
+        if (!stashManager.containsStash(name)) {
+            logger.debug(String.format("SDELETE {%s} * (failed, stash doesn't exist)", name));
+            return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist."); 
         }
 
-        if (stashManager.containsStash(name)) {
-            logger.debug(String.format("CREATE %s (failed, name already taken)", name));
-            return ProtocolUtil.buildErrorResponse("The stash name is already taken.");
-        }
+        String key = tokens.pollFirst();
+        Stash stash = stashManager.getStash(name);
+        stash.delete(key);
 
-        stashManager.createStash(name);
-        
-        logger.debug(String.format("CREATE %s", name));
+        logger.debug(String.format("SDELETE %s", key));
         return ProtocolUtil.buildOkResponse();
     }
 
     /**
-     * Returns the command name.
+     * Returns the command's name.
      */
     public String getName() {
         return NAME;

@@ -48,11 +48,12 @@ public class StashManager {
 
     /**
      * Creates a new stash with the given name and stores it in the stashes map.
+     * Does nothing if the stash name is already taken.
      * 
      * @param name The name of the stash.
      */
     public void createStash(String name) {
-        stashes.put(name, stashFactory.createStash());
+        stashes.putIfAbsent(name, stashFactory.createStash());
     }
 
     /**
@@ -62,6 +63,37 @@ public class StashManager {
      * @return Returns the stash corresponding to the name.
      */
     public Stash getStash(String name) {
-        return stashes.get(name);
+        Stash stash = stashes.get(name);
+
+        if (stash == null || stash.isDropped()) {
+            return null;
+        }
+
+        return stash;
+    }
+
+    /**
+     * Returns whether or not a stash with the given name exists.
+     * 
+     * @param name The stash name.
+     * @return True if a stash with the given name exists, false otherwise.
+     */
+    public boolean containsStash(String name) {
+        Stash stash = stashes.get(name);
+        return stash != null && !stash.isDropped();
+    }
+
+    /**
+     * Drops a stash. Does nothing if the stash has already been dropped.
+     * 
+     * @param name The name of the stash to delete.
+     */
+    public void dropStash(String name) {
+        Stash stash = getStash(name);
+
+        if (stash != null && !stash.isDropped()) {
+            stashes.remove(name); /* Remove from map first to prevent further access */
+            stash.drop();
+        }
     }
 }

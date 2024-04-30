@@ -21,12 +21,12 @@ debugging -->
 
         <!-- Console output -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [ %-5level]: %msg%n" />
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level]: %msg%n" />
         </Console>
     </Appenders>
     <Loggers>
         <!-- The lowest log level to show -->
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="RollingFile" />
             <AppenderRef ref="Console" />
         </Root>

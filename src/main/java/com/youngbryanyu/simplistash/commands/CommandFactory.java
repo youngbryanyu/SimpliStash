@@ -15,7 +15,7 @@ public class CommandFactory {
      * Immutable map containing all commands. Do not need to use concurrent hash map
      * since it is immutable.
      */
-    private Map<String, Command> commands;
+    private final Map<String, Command> commands;
 
     /**
      * Constructor for the command factory. Maps all command names to their

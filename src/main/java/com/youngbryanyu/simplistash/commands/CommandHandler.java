@@ -2,15 +2,10 @@ package com.youngbryanyu.simplistash.commands;
 
 import java.util.Deque;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
-import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.Stash;
-import com.youngbryanyu.simplistash.stash.StashManager;
-
 /**
  * Class containing methods to help parse the client's input from their buffer
  * into tokens, and handle any commands by applying them to the cache provided.
@@ -38,7 +33,6 @@ public class CommandHandler {
      * 
      * The parsing stops once a full command cannot be reached.
      * 
-     * @param cache  The in-memory cache.
      * @param tokens The tokens parsed from the client's input buffer.
      * @return The response to be sent back to the client, or `null` if no command
      *         was handled and executed to indicate to the caller that no response

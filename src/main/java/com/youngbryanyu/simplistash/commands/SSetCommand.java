@@ -62,9 +62,14 @@ public class SSetCommand implements Command {
         }
 
         tokens.pollFirst(); /* Remove command token */
-        
+
         String name = tokens.pollFirst();
         Stash stash = stashManager.getStash(name);
+
+        /**
+         * We need to make this null check since another client may have concurrently
+         * dropped the stash, causing stashManager.getStash() to return null.
+         */
         if (stash == null) {
             logger.debug(String.format("SSET {%s} * --> * (failed, stash doesn't exist)", name));
             return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist.");
@@ -82,7 +87,11 @@ public class SSetCommand implements Command {
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        String response = stash.set(key, value);
+        /**
+         * In the edge case that the stash's DB is being closed concurrently or is
+         * already closed, stash.set() will catch the exceptions/errors.
+         */
+        String response = stash.set(key, value); /* Set a new value */
 
         logger.debug(String.format("SSET {%s} %s --> %s", name, key, value));
         return response;

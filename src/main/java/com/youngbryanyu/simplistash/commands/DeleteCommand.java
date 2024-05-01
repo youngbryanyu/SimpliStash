@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
@@ -59,10 +58,10 @@ public class DeleteCommand implements Command {
         }
 
         tokens.pollFirst(); /* Remove command token */
-
         String key = tokens.pollFirst();
+
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        String response = stash.delete(key);
+        String response = stash.delete(key); /* Delete the key */
 
         logger.debug(String.format("DELETE %s", key));
         return response;

@@ -65,14 +65,23 @@ public class SGetCommand implements Command {
 
         String name = tokens.pollFirst();
         Stash stash = stashManager.getStash(name);
-        if (stash == null) { // TODO: comment about how stash can be null from other threads
+
+        /**
+         * We need to make this null check since another client may have concurrently
+         * dropped the stash, causing stashManager.getStash() to return null.
+         */
+        if (stash == null) {
             logger.debug(String.format("SGET {%s} * (failed, stash doesn't exist)", name));
             return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist.");
         }
 
         String key = tokens.pollFirst();
 
-        String value = stash.get(key);
+        /**
+         * In the edge case that the stash's DB is being closed concurrently or is
+         * already closed, stash.get() will catch the exceptions/errors.
+         */
+        String value = stash.get(key); /* Get the value */
 
         logger.debug(String.format("SGET {%s} %s", name, key));
         return (value == null)

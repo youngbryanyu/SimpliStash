@@ -9,18 +9,21 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
+/**
+ * The factory class to retrieve concrete command classes that implement the
+ * command interface.
+ */
 @Component
 public class CommandFactory {
     /**
-     * Immutable map containing all commands. Do not need to use concurrent hash map
-     * since it is immutable.
+     * Immutable map that maps command names to their object. Command names are case
+     * sensitive. Do not need to be a concurrent hash map since it is immutable.
      */
     private final Map<String, Command> commands;
 
     /**
-     * Constructor for the command factory. Maps all command names to their
-     * instance. The names are case sensitive. Spring will automatically inject all
-     * commands into the List collection.
+     * Constructor for the command factory. Spring will automatically inject all
+     * commands.
      * 
      * @param commandList The list of all commands.
      */
@@ -33,10 +36,10 @@ public class CommandFactory {
     }
 
     /**
-     * Retrieves the command instance matching the command name.
+     * Retrieves the command object matching the command name.
      * 
      * @param name The command's name.
-     * @return The command object instance.
+     * @return The command object.
      * @throws InvalidCommandException If the command name doesn't correspond to a
      *                                 valid command.
      */

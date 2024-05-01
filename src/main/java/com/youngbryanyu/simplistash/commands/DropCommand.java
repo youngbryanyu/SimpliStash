@@ -67,7 +67,7 @@ public class DropCommand implements Command {
             return ProtocolUtil.buildErrorResponse("Cannot drop the default stash.");
         }
 
-        stashManager.dropStash(name);
+        stashManager.dropStash(name); /* Drop the stash */
 
         logger.debug(String.format("DROP %s", name));
         return ProtocolUtil.buildOkResponse();

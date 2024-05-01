@@ -75,7 +75,7 @@ public class SetCommand implements Command {
         }
 
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        String response = stash.set(key, value);
+        String response = stash.set(key, value); /* Set a new value */
 
         logger.debug(String.format("SET %s --> %s", key, value));
         return response;

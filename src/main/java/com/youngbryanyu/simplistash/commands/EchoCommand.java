@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * The PING command. Replies with a PONG.
+ * The ECHO command. Replies by echoing the input back.
  */
 @Component
-public class PingCommand implements Command {
+public class EchoCommand implements Command {
     /**
      * Name of the command.
      */
-    private static final String NAME = "PING";
+    private static final String NAME = "ECHO";
     /**
      * The base format of the command
      */
-    private static final String FORMAT = "PING";
+    private static final String FORMAT = "ECHO <text>";
     /**
      * The minimum number of required arguments.
      */
@@ -31,31 +31,30 @@ public class PingCommand implements Command {
     private final Logger logger;
 
     /**
-     * Constructor for the PING command.
+     * Constructor for the ECHO command.
      * 
      * @param logger The application logger.
      */
     @Autowired
-    public PingCommand(Logger logger) {
+    public EchoCommand(Logger logger) {
         this.logger = logger;
     }
 
     /**
-     * Executes the PING command. The token size check shouldn't matter since there
-     * would have to be 1 token for this method to be invoked in the first place,
-     * but it's here to be defensive.
+     * Executes the ECHO command. Echos the input sent by the client back.
      * 
-     * Format: PING
+     * Format: ECHO <text>
      */
     public String execute(Deque<String> tokens) {
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
-        
-        tokens.pollFirst(); /* Remove command token */
 
-        logger.info("PING");
-        return ProtocolUtil.buildPongResponse(); /* Respone with PONG */
+        tokens.pollFirst(); /* Remove command token */
+        String text = tokens.pollFirst();
+
+        logger.info(String.format("ECHO %s", text));
+        return ProtocolUtil.buildValueResponse(text); /* Echo the text back */
     }
 
     /**

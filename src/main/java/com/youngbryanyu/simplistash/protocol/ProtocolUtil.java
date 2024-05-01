@@ -43,10 +43,10 @@ public final class ProtocolUtil {
     /**
      * Builds a response containing an error message to send back to the client.
      * 
-     * Errors are sent as two string tokens: ERROR <message>
+     * Errors are sent in the format: ERROR <message>
      * 
-     * @param errorMsg The error message to send to the client.
-     * @return The formatted error message to send to the client.
+     * @param message The error message to send to the client.
+     * @return The encoded error message to send to the client.
      */
     public static String buildErrorResponse(String message) {
         if (message == null) {
@@ -56,18 +56,18 @@ public final class ProtocolUtil {
     }
 
     /**
-     * Builds an "ok" response to the client indicating a successful operation.
+     * Builds an OK response to the client indicating a successful operation.
      * 
-     * @return The formatted "ok" response.
+     * @return The encoded OK response.
      */
     public static String buildOkResponse() {
         return encode(OK_RESPONSE);
     }
 
     /**
-     * Builds an `null` response to the client indicating a value is `null`.
+     * Builds a null response to the client indicating a value is null.
      * 
-     * @return The formatted `null` response.
+     * @return The encoded null response.
      */
     public static String buildNullResponse() {
         return encode(NULL_RESPONSE);
@@ -84,7 +84,7 @@ public final class ProtocolUtil {
     }
 
     /**
-     * Encodes an input string into a lenght-prefixed string that follows the
+     * Encodes an input string into a length-prefixed string that follows the
      * protocol.
      * 
      * The protocol follows the format: <num_bytes><delimiter><token>

@@ -64,7 +64,7 @@ public class GetCommand implements Command{
         
         String key = tokens.pollFirst();
         Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        String value = stash.get(key);
+        String value = stash.get(key); /* Get the value */
 
         logger.debug(String.format("GET %s", key, value));
         return (value == null)

@@ -32,6 +32,8 @@ public class Main {
         /* Cleanup resources on shutdown */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             context.close();
+            // TODO: add all DBs to runtime shutdown hook
+            /* All stashes have their own shutdown hook set in */
         }));
 
         try {

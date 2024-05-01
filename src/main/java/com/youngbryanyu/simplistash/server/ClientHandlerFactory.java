@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
- * The client handler factory used to create client handler objects.
+ * The factory used to create client handler objects.
  */
 @Component
 public class ClientHandlerFactory {

@@ -64,14 +64,23 @@ public class SDeleteCommand implements Command {
 
         String name = tokens.pollFirst();
         Stash stash = stashManager.getStash(name);
+
+        /**
+         * We need to make this null check since another client may have concurrently
+         * dropped the stash, causing stashManager.getStash() to return null.
+         */
         if (stash == null) {
             logger.debug(String.format("SDELETE {%s} * (failed, stash doesn't exist)", name));
             return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist.");
         }
 
         String key = tokens.pollFirst();
-       
-        String response = stash.delete(key);
+
+        /**
+         * In the edge case that the stash's DB is being closed concurrently or is
+         * already closed, stash.delete() will catch the exceptions/errors.
+         */
+        String response = stash.delete(key); /* Delete the key */
 
         logger.debug(String.format("SDELETE %s", key));
         return response;

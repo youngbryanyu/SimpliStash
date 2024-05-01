@@ -73,7 +73,7 @@ public class CreateCommand implements Command {
             return ProtocolUtil.buildErrorResponse("The stash name is already taken.");
         }
 
-        stashManager.createStash(name);
+        stashManager.createStash(name); /* Create the stash */
         
         logger.debug(String.format("CREATE %s", name));
         return ProtocolUtil.buildOkResponse();

@@ -25,9 +25,13 @@ public class Server {
      * The port that the server should listen on.
      */
     private static final int PORT = 3000;
-
+    /**
+     * The client handler factory.
+     */
     private final ClientHandlerFactory clientHandlerFactory;
-
+    /**
+     * The application logger.
+     */
     private final Logger logger;
 
     /**
@@ -63,7 +67,7 @@ public class Server {
                             channel.pipeline().addLast(
                                     new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
                                     new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-                                    clientHandlerFactory.createClientHandler());
+                                    clientHandlerFactory.createClientHandler()); /* Create new client handler */
                         }
                     });
 

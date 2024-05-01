@@ -6,6 +6,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.SDeleteCommand;
+import com.youngbryanyu.simplistash.commands.SGetCommand;
+import com.youngbryanyu.simplistash.commands.SSetCommand;
+
 /**
  * A class to manage all the stashes.
  */
@@ -20,8 +24,8 @@ public class StashManager {
      */
     private final StashFactory stashFactory;
     /**
-     * Mapping of each stash's name to its instance. Needs to be thread-safe since
-     * we can have multiple NIO worker threads on the server.
+     * Mapping of each stash's name to its instance. Needs to be a concurrent hash
+     * map since we can have multiple NIO worker threads on the server.
      */
     private final Map<String, Stash> stashes;
 
@@ -73,11 +77,20 @@ public class StashManager {
      * @return True if a stash with the given name exists, false otherwise.
      */
     public boolean containsStash(String name) {
-       return stashes.containsKey(name);
+        return stashes.containsKey(name);
     }
 
     /**
      * Drops a stash. Does nothing if the stash has already been dropped.
+     * 
+     * Commands like {@link SGetCommand}, {@link SSetCommand},
+     * {@link SDeleteCommand} that access non-default stashes must guard against
+     * race conditions where the stash has been removed from the map.
+     * 
+     * The stash class's methods {@link Stash#get}, {@link Stash#set},
+     * {@link Stash#delete}) must guard against race conditions where the stash's DB
+     * is being concurrently closed while another thread is attempting to operate on
+     * it (or if it has been fully closed already).
      * 
      * @param name The name of the stash to delete.
      */
@@ -85,7 +98,7 @@ public class StashManager {
         Stash stash = getStash(name);
 
         if (stash != null) {
-            stashes.remove(name); // TODO: comment about how once we remove, other threads will get null which means stash DNE. In the worst case, the try catch in Stash.java will handle
+            stashes.remove(name);
             stash.drop();
         }
     }

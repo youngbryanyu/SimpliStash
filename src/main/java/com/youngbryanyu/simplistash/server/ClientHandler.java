@@ -20,9 +20,10 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 /**
- * Class that handles communication between the server and client. A new
- * independent client handler is spun up for each connection to the server. The
- * client handler will run on one of the NIO worker threads.
+ * Class that handles communication between the server and client, and maintains
+ * state for each client. A new client handler instance is created for each
+ * connection to the server. The client handler will run on one of the NIO
+ * worker threads.
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -47,15 +48,15 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * Constructor for the client handler.
      * 
-     * @param cache  The in memory cache instance to store data in.
-     * @param logger The application logger to use.
+     * @param commandHandler The command handler used to execute commands.
+     * @param logger         The application logger to use.
      */
     @Autowired
     public ClientHandler(CommandHandler commandHandler, Logger logger) {
         this.commandHandler = commandHandler;
+        this.logger = logger;
         buffer = new StringBuilder();
         tokens = new LinkedList<>();
-        this.logger = logger;
     }
 
     /**
@@ -87,7 +88,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
         parseTokens();
         String response = commandHandler.handleCommands(tokens);
 
-        // TODO: think about guarding case when client's output buffer gets too big (similar to input buffer) 
+        // TODO: think about guarding case when client's output buffer gets too big
 
         if (response != null) {
             ctx.writeAndFlush(response);
@@ -107,13 +108,14 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Called when an exception is thrown in the channel and bubbles up to this
+     * Called when an exception is thrown in the channel and it bubbles up to this
      * level in the call stack. Prints the stack trace of the exception, sends the
      * error message to the client, then closes the client's channel.
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.debug(String.format("Error occurred in channel, disconnecting client (%s) --> %s", ctx.channel(), cause.getMessage()));
+        logger.debug(String.format("Error occurred in channel, disconnecting client (%s) --> %s", ctx.channel(),
+                cause.getMessage()));
         logger.error("Error stack trace: ", cause);
         ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
@@ -125,7 +127,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * getting the size of the token to read, then reading that exact many bytes.
      * Everything in the DB is treated as a string.
      * 
-     * The format of each input should be like: <num_bytes><delimiter><token>
+     * The format of each token should be like: <num_bytes><delimiter><token>
      * 
      * @param buffer The buffer holding unprocessed data from a client.
      * @param tokens The tokens that have been parsed from the client's buffer.
@@ -136,7 +138,7 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     private void parseTokens()
             throws BufferOverflowException, BrokenProtocolException {
-        /* Check if the buffer's size has exceeded the allowable limit */
+        /* Throw exception if buffer's size has exceeded the allowable limit */
         if (buffer.length() > getMaxBufferSize()) {
             throw new BufferOverflowException("Input buffer has overflowed");
         }
@@ -190,9 +192,9 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * longest_command size. In the edge case that 90% of command 1 is sent, then
      * 100% of command 2 is sent, command 1 won't be processed until the data from
      * command 2 is read into the buffer. We don't want to exit with an buffer
-     * overflow error here since this is perfectly valid. Thus we should allocated 2
-     * times the size of longest_command. As a generous cushion, we allocate 3 times
-     * the size of longest_command to account for other arguments.
+     * overflow error here since this is valid. Thus we should allocated 2 times the
+     * size of longest_command. As a generous cushion, we allocate 3 times the size
+     * of longest_command to account for other arguments.
      * 
      * @return The max buffer size a client can have.
      */

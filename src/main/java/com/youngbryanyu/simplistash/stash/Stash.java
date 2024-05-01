@@ -61,6 +61,7 @@ public class Stash {
         this.db = db;
         this.logger = logger;
         createPrimaryCache();
+        addShutDownHook();
     }
 
     /**
@@ -173,9 +174,19 @@ public class Stash {
     }
 
     /**
-     * Closes the stash by closing its DB.
+     * Drops the stash by closing its DB.
      */
     public void drop() {
         db.close();
+    }
+
+    /**
+     * Add a shutdown hook to close DB and clean up resources when the application
+     * is stopped.
+     */
+    private void addShutDownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            db.close();
+        }));
     }
 }

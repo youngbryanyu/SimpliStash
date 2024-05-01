@@ -1,12 +1,5 @@
 package com.youngbryanyu.simplistash;
 
-import java.util.concurrent.TimeUnit;
-
-import org.mapdb.DB;
-import org.mapdb.DBException;
-import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.QueueLong.Node.SERIALIZER;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -32,8 +25,8 @@ public class Main {
         /* Cleanup resources on shutdown */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             context.close();
-            // TODO: add all DBs to runtime shutdown hook
-            /* All stashes have their own shutdown hook set in */
+
+            /* DBs within each stash have their own shutdown hook set when created */
         }));
 
         try {

@@ -39,11 +39,11 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * The command handler used to execute commands sent by the client.
      */
-    private CommandHandler commandHandler;
+    private final CommandHandler commandHandler;
     /**
      * The application logger.
      */
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * Constructor for the client handler.

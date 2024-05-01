@@ -40,11 +40,11 @@ public class Stash {
     /**
      * A single DB store instance tied to the stash.
      */
-    private DB db;
+    private final DB db;
     /**
      * The primary cache provide O(1) direct access to values by key.
      */
-    private HTreeMap<String, String> cache;
+    private final HTreeMap<String, String> cache;
     /**
      * The application logger.
      */
@@ -60,15 +60,15 @@ public class Stash {
     public Stash(DB db, Logger logger) {
         this.db = db;
         this.logger = logger;
-        createPrimaryCache();
+        cache = createPrimaryCache();
         addShutDownHook();
     }
 
     /**
      * Creates the primary cache for O(1) access to fields directly.
      */
-    private void createPrimaryCache() {
-        cache = db.hashMap(PRIMARY_CACHE_NAME, Serializer.STRING, Serializer.STRING).create();
+    private HTreeMap<String, String> createPrimaryCache() {
+        return db.hashMap(PRIMARY_CACHE_NAME, Serializer.STRING, Serializer.STRING).create();
     }
 
     /**

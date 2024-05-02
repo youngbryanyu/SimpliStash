@@ -1,7 +1,5 @@
 package com.youngbryanyu.simplistash;
 
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -15,7 +13,6 @@ import com.youngbryanyu.simplistash.server.WriteableServer;
  * The entry point to the application.
  */
 public class Main {
-    static Random random;
     /**
      * The main method which starts the server.
      * 

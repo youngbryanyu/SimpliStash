@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
 
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -14,7 +15,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The SDELETE command. Deletes a key from the default stash.
  */
 @Component
-public class SDeleteCommand implements Command {
+public class SDeleteCommand implements WriteCommand {
     /**
      * The command's name.
      */
@@ -49,45 +50,46 @@ public class SDeleteCommand implements Command {
     }
 
     /**
-     * Executes the SDELETE command. Returns null if there aren't enough tokens.
-     * Returns an error message if the specified stash doesn't exist. Responds with
-     * OK.
+     * Executes the SDELETE command. Responds with OK.
      * 
      * Format: SDELETE <name> <key>
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
-    public String execute(Deque<String> tokens) {
+    public String execute(Deque<String> tokens, boolean readOnly) {
+        /* Return null if not enough arguments */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst(); /* Remove command token */
-
-        String name = tokens.pollFirst();
-        Stash stash = stashManager.getStash(name);
-
-        /**
-         * We need to make this null check since another client may have concurrently
-         * dropped the stash, causing stashManager.getStash() to return null.
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
          */
-        if (stash == null) {
-            logger.debug(String.format("SDELETE {%s} * (failed, stash doesn't exist)", name));
-            return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist.");
-        }
-
+        tokens.pollFirst();
+        String name = tokens.pollFirst();
         String key = tokens.pollFirst();
 
-        /**
-         * In the edge case that the stash's DB is being closed concurrently or is
-         * already closed, stash.delete() will catch the exceptions/errors.
-         */
-        String response = stash.delete(key); /* Delete the key */
+        /* Return error if client is in read-only mode */
+        if (readOnly) {
+            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+        }
 
+        /* Delete the key */
+        Stash stash = stashManager.getStash(name);
+        stash.delete(key);
+
+        /* Return OK */
         logger.debug(String.format("SDELETE %s", key));
-        return response;
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**
      * Returns the command's name.
+     * 
+     * @return The command name.
      */
     public String getName() {
         return NAME;

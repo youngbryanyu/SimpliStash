@@ -50,7 +50,6 @@ public class Stash {
      */
     private final Logger logger;
 
-
     /**
      * Constructor for the stash.
      * 
@@ -73,44 +72,22 @@ public class Stash {
     }
 
     /**
-     * Sets a key value pair in the stash. Overwrites existing pairs. Returns the OK
-     * response. Returns an error message if the DB is being closed or has already
-     * been closed by another concurrent client.
+     * Sets a key value pair in the stash.
+     * 
+     * There cannot be parallel writes operations since there is only one thread
+     * which handles writes.
      * 
      * @param key   The unique key.
      * @param value The value to map to the key.
      */
-    public String set(String key, String value) {
-        try {
-            cache.put(key, value);
-        } catch (NullPointerException e) {
-            /*
-             * The below exception can be thrown when the DB is being closed by another
-             * thread:
-             * 
-             * java.lang.NullPointerException: Cannot read the array length because "slices"
-             * is null
-             */
-            logger.debug("Stash set failed, stash doesn't exist (NullPointerException)");
-            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
-        } catch (IllegalAccessError e) {
-            /*
-             * The below exception can be thrown when the DB has been closed by another
-             * thread:
-             * 
-             * java.lang.IllegalAccessError: Store was closed
-             */
-            logger.debug("Stash set failed, stash doesn't exist (IllegalAccessError)");
-            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
-        }
-
-        return ProtocolUtil.buildOkResponse();
+    public void set(String key, String value) {
+        cache.put(key, value);
     }
 
     /**
      * Retrieves a value from the stash matching the key. Returns an error message
      * if the DB is being closed or has already been closed by another concurrent
-     * client.
+     * client, since multiple threads can perform read operations.
      * 
      * @param key The key of the value to get.
      * @return The value matching the key.
@@ -141,41 +118,24 @@ public class Stash {
     }
 
     /**
-     * Deletes a key from the stash. Returns the OK response. Returns an error
-     * message if the DB is being closed or has already been closed by another
-     * concurrent client.
+     * Deletes a key from the stash. Returns the OK response.
+     * 
+     * There cannot be parallel write operations since there is only one thread
+     * which handles writes.
      * 
      * @param key The key to delete.
      */
-    public String delete(String key) {
-        try {
-            cache.remove(key);
-        } catch (NullPointerException e) {
-            /*
-             * The below exception can be thrown when the DB is being closed by another
-             * thread:
-             * 
-             * java.lang.NullPointerException: Cannot read the array length because "slices"
-             * is null
-             */
-            logger.debug("Stash delete failed, stash doesn't exist (NullPointerException)");
-            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
-        } catch (IllegalAccessError e) {
-            /*
-             * The below exception can be thrown when the DB has been closed by another
-             * thread:
-             * 
-             * java.lang.IllegalAccessError: Store was closed
-             */
-            logger.debug("Stash delete failed, stash doesn't exist (IllegalAccessError)");
-            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
-        }
-
-        return ProtocolUtil.buildOkResponse();
+    public void delete(String key) {
+        cache.remove(key);
     }
 
     /**
      * Drops the stash by closing its DB.
+     * 
+     * This is a blocking operation, so nothing can concurrently write to the db
+     * while it's being closed since only 1 thread can perform writes. However,
+     * since multiple threads can perform reads, the case of reading from a closed
+     * DB needs to be handled.
      */
     public void drop() {
         db.close();

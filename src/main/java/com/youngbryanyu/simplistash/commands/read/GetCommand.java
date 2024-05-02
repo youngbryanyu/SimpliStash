@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.read;
 
 import java.util.Deque;
 
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -14,7 +15,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The GET command. Gets a key's value from the default stash.
  */
 @Component
-public class GetCommand implements Command{
+public class GetCommand implements ReadCommand {
     /**
      * The command's name
      */
@@ -49,23 +50,34 @@ public class GetCommand implements Command{
     }
 
     /**
-     * Executes the GET command. Returns null if there aren't enough tokens.
-     * Responds with the value if the key exists, or the encoded null string if the
+     * Executes the GET command. Responds with the value corresponding to the key
+     * in the default stash if the key exists, or the encoded null string if the
      * key doesn't exist.
      * 
      * Format: GET <key>
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
     public String execute(Deque<String> tokens) {
+        /* Return null if not enough arguments */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst(); /* Remove command token */
-        
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
+         */
+        tokens.pollFirst();
         String key = tokens.pollFirst();
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
-        String value = stash.get(key); /* Get the value */
 
+        /* Get the value */
+        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
+        String value = stash.get(key);
+
+        /* Return the value, or the null string if null */
         logger.debug(String.format("GET %s", key, value));
         return (value == null)
                 ? ProtocolUtil.buildNullResponse()
@@ -74,6 +86,8 @@ public class GetCommand implements Command{
 
     /**
      * Returns the command's name.
+     * 
+     * @return The command's name.
      */
     public String getName() {
         return NAME;

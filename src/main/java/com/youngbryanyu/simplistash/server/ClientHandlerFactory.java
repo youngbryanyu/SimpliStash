@@ -41,6 +41,6 @@ public class ClientHandlerFactory {
      * @return A client handler.
      */
     public ClientHandler createReadOnlyClientHandler() {
-        return context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
+        return context.getBean(AppConfig.READ_ONLY_CLIENT_HANDLER, ClientHandler.class);
     }
 }

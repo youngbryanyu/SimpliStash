@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
 
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -14,7 +15,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The SSET command. Sets a key's value in the specified stash.
  */
 @Component
-public class SSetCommand implements Command {
+public class SSetCommand implements WriteCommand {
     /**
      * The command's name.
      */
@@ -55,46 +56,49 @@ public class SSetCommand implements Command {
      * OK.
      * 
      * Format: SSET <name> <key> <value>
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
-    public String execute(Deque<String> tokens) {
+    public String execute(Deque<String> tokens, boolean readOnly) {
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst(); /* Remove command token */
-
-        String name = tokens.pollFirst();
-        Stash stash = stashManager.getStash(name);
-
-        /**
-         * We need to make this null check since another client may have concurrently
-         * dropped the stash, causing stashManager.getStash() to return null.
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
          */
-        if (stash == null) {
-            logger.debug(String.format("SSET {%s} * --> * (failed, stash doesn't exist)", name));
-            return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist.");
-        }
-
+        tokens.pollFirst(); 
+        String name = tokens.pollFirst();
         String key = tokens.pollFirst();
+        String value = tokens.pollFirst();
+
+        /* Return error if client is in read-only mode */
+        if (readOnly) {
+            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+        }
+        
+        /* Return error if key is too big */
         if (key.length() > Stash.MAX_KEY_SIZE) {
             logger.debug(String.format("SSET {%s} %s --> * (failed, key is too big)", name, key));
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 
-        String value = tokens.pollFirst();
+         /* Return error if value is too big */
         if (value.length() > Stash.MAX_VALUE_SIZE) {
             logger.debug(String.format("SSET {%s} %s --> %s (failed, value is too big)", name, key, value));
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        /**
-         * In the edge case that the stash's DB is being closed concurrently or is
-         * already closed, stash.set() will catch the exceptions/errors.
-         */
-        String response = stash.set(key, value); /* Set a new value */
+        /* Set a new value */
+        Stash stash = stashManager.getStash(name);
+        stash.set(key, value); 
 
+        /* Return OK */
         logger.debug(String.format("SSET {%s} %s --> %s", name, key, value));
-        return response;
+        return ProtocolUtil.buildOkResponse();
     }
 
     /**

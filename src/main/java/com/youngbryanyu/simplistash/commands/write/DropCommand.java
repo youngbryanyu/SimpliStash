@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
 
@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
@@ -13,7 +14,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The DROP command. Deletes an entire stash.
  */
 @Component
-public class DropCommand implements Command {
+public class DropCommand implements WriteCommand {
     /**
      * The command's name.
      */
@@ -48,31 +49,51 @@ public class DropCommand implements Command {
     }
 
     /**
-     * Executes the DROP command. Deletes a stash. Returns null if there aren't
-     * enough tokens. Returns an error response if attempting to drop the "default"
-     * stash. Responds with OK.
+     * Executes the DROP command. Deletes a stash. Responds with OK.
      * 
      * Format: DROP <name>
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
-    public String execute(Deque<String> tokens) {
+    public String execute(Deque<String> tokens, boolean readOnly) {
+        /* Return null if not enough arguments */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst(); /* Remove command token */
-
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
+         */
+        tokens.pollFirst();
         String name = tokens.pollFirst();
+
+        /* Return error if client is in read-only mode */
+        if (readOnly) {
+            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+        }
+
+        /* Return error if attempting to drop the default stash */
         if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
             logger.debug("DROP %s (failed, cannot drop default stash)");
             return ProtocolUtil.buildErrorResponse("Cannot drop the default stash.");
         }
 
-        stashManager.dropStash(name); /* Drop the stash */
+        /* Drop the stash */
+        stashManager.dropStash(name); 
 
+        /* Return OK */
         logger.debug(String.format("DROP %s", name));
         return ProtocolUtil.buildOkResponse();
     }
 
+    /**
+     * Returns the command's name.
+     * 
+     * @return The command's name.
+     */
     public String getName() {
         return NAME;
     }

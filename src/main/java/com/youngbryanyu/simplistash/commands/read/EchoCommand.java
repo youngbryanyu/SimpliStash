@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.read;
 
 import java.util.Deque;
 
@@ -6,13 +6,14 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
  * The ECHO command. Replies by echoing the input back.
  */
 @Component
-public class EchoCommand implements Command {
+public class EchoCommand implements ReadCommand {
     /**
      * Name of the command.
      */
@@ -44,21 +45,33 @@ public class EchoCommand implements Command {
      * Executes the ECHO command. Echos the input sent by the client back.
      * 
      * Format: ECHO <text>
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
     public String execute(Deque<String> tokens) {
+        /* Return null if not enough arguments */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
 
-        tokens.pollFirst(); /* Remove command token */
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
+         */
+        tokens.pollFirst();
         String text = tokens.pollFirst();
 
+        /* Build value response */
         logger.debug(String.format("ECHO %s", text));
-        return ProtocolUtil.buildValueResponse(text); /* Echo the text back */
+        return ProtocolUtil.buildValueResponse(text);
     }
 
     /**
      * Returns the command's name.
+     * 
+     * @return The command's name.
      */
     public String getName() {
         return NAME;

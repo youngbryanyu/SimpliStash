@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.commands;
+package com.youngbryanyu.simplistash.commands.read;
 
 import java.util.Deque;
 
@@ -6,13 +6,14 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
  * The PING command. Replies with a PONG.
  */
 @Component
-public class PingCommand implements Command {
+public class PingCommand implements ReadCommand {
     /**
      * Name of the command.
      */
@@ -41,25 +42,35 @@ public class PingCommand implements Command {
     }
 
     /**
-     * Executes the PING command. The token size check shouldn't matter since there
-     * would have to be 1 token for this method to be invoked in the first place,
-     * but it's here to be defensive.
+     * Executes the PING command. Returns PONG.
      * 
      * Format: PING
+     * 
+     * @param tokens The client's tokens.
+     * @return The response to the client.
      */
     public String execute(Deque<String> tokens) {
+        /* Return null if not enough arguments */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }
-        
-        tokens.pollFirst(); /* Remove command token */
 
+        /*
+         * Remove all tokens associated with the command. This should be done at the
+         * start in order to not pollute future command execution in case the command
+         * exits early due to an error.
+         */
+        tokens.pollFirst();
+
+        /* Respond with PONG */
         logger.debug("PING");
-        return ProtocolUtil.buildPongResponse(); /* Respone with PONG */
+        return ProtocolUtil.buildPongResponse();
     }
 
     /**
      * Returns the command's name.
+     * 
+     * @return The command name.
      */
     public String getName() {
         return NAME;

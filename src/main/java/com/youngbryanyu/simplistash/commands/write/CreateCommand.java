@@ -74,6 +74,7 @@ public class CreateCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
+            logger.debug(String.format("CREATE %s (failed, read-only mode)", name));
             return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
         }
         

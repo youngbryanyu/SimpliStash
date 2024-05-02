@@ -77,12 +77,13 @@ public class SSetCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
+            logger.debug(String.format("SSET {%s} %s --> %s (failed, read-only mode)", name, key, value));
             return ProtocolUtil.buildErrorResponse("Cannot SSET in read-only mode");
         }
 
         /* Return error if key is too big */
         if (key.length() > Stash.MAX_KEY_SIZE) {
-            logger.debug(String.format("SSET {%s} %s --> * (failed, key is too big)", name, key));
+            logger.debug(String.format("SSET {%s} %s --> %s (failed, key is too big)", name, key, value));
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 

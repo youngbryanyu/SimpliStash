@@ -72,6 +72,7 @@ public class DropCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
+            logger.debug(String.format("DROP %s (failed, read-only mode)", name));
             return ProtocolUtil.buildErrorResponse("Cannot DROP in read-only mode");
         }
 

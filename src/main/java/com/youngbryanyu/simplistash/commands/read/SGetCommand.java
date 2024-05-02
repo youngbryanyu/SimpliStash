@@ -77,7 +77,7 @@ public class SGetCommand implements ReadCommand {
         /* Get the stash. Return an error if the stash doesn't exist. */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            logger.debug(String.format("SGET {%s} * (failed, stash doesn't exist)", name));
+            logger.debug(String.format("SGET {%s} %s (failed, stash doesn't exist)", name, key));
             return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist.");
         }
 

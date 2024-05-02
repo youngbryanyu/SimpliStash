@@ -74,7 +74,7 @@ public class DeleteCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+            return ProtocolUtil.buildErrorResponse("Cannot DELETE in read-only mode");
         }
 
         /* Delete the key */

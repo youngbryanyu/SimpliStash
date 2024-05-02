@@ -72,7 +72,7 @@ public class DropCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+            return ProtocolUtil.buildErrorResponse("Cannot DROP in read-only mode");
         }
 
         /* Return error if attempting to drop the default stash */

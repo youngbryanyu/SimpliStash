@@ -74,11 +74,7 @@ public class SGetCommand implements ReadCommand {
         String name = tokens.pollFirst();
         String key = tokens.pollFirst();
 
-        /**
-         * Get the stash. We need to make a null check since another client may have
-         * concurrently dropped the stash on the writeable server thread, causing
-         * stashManager.getStash() to return null.
-         */
+        /* Get the stash. Return an error if the stash doesn't exist. */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
             logger.debug(String.format("SGET {%s} * (failed, stash doesn't exist)", name));

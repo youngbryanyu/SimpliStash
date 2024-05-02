@@ -74,11 +74,17 @@ public class SDeleteCommand implements WriteCommand {
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+            return ProtocolUtil.buildErrorResponse("Cannot SDELETE in read-only mode");
+        }
+
+        /* Get the stash. Return an error if the stash doesn't exist. */
+        Stash stash = stashManager.getStash(name);
+        if (stash == null) {
+            logger.debug(String.format("SDELETE {%s} * (failed, stash doesn't exist)", name));
+            return ProtocolUtil.buildErrorResponse("SDELETE failed, stash doesn't exist.");
         }
 
         /* Delete the key */
-        Stash stash = stashManager.getStash(name);
         stash.delete(key);
 
         /* Return OK */

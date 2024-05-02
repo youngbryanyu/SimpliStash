@@ -70,31 +70,37 @@ public class SSetCommand implements WriteCommand {
          * start in order to not pollute future command execution in case the command
          * exits early due to an error.
          */
-        tokens.pollFirst(); 
+        tokens.pollFirst();
         String name = tokens.pollFirst();
         String key = tokens.pollFirst();
         String value = tokens.pollFirst();
 
         /* Return error if client is in read-only mode */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+            return ProtocolUtil.buildErrorResponse("Cannot SSET in read-only mode");
         }
-        
+
         /* Return error if key is too big */
         if (key.length() > Stash.MAX_KEY_SIZE) {
             logger.debug(String.format("SSET {%s} %s --> * (failed, key is too big)", name, key));
             return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
         }
 
-         /* Return error if value is too big */
+        /* Return error if value is too big */
         if (value.length() > Stash.MAX_VALUE_SIZE) {
             logger.debug(String.format("SSET {%s} %s --> %s (failed, value is too big)", name, key, value));
             return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
-        /* Set a new value */
+        /* Get the stash. Return an error if the stash doesn't exist. */
         Stash stash = stashManager.getStash(name);
-        stash.set(key, value); 
+        if (stash == null) {
+            logger.debug(String.format("SSET {%s} * (failed, stash doesn't exist)", name));
+            return ProtocolUtil.buildErrorResponse("SSET failed, stash doesn't exist.");
+        }
+
+        /* Set a new value */
+        stash.set(key, value);
 
         /* Return OK */
         logger.debug(String.format("SSET {%s} %s --> %s", name, key, value));

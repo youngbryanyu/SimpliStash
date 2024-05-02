@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.config.AppConfig;
+
 /**
  * The factory used to create client handler objects.
  */
@@ -25,11 +27,20 @@ public class ClientHandlerFactory {
     }
 
     /**
-     * Creates a new instance of a client handler.
+     * Creates a new instance of a client handler that has write-permissions.
      * 
      * @return A client handler.
      */
-    public ClientHandler createClientHandler() {
-        return context.getBean(ClientHandler.class);
+    public ClientHandler createWriteableClientHandler() {
+        return context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
+    }
+
+    /**
+     * Creates a new instance of a client handler that is read-only.
+     * 
+     * @return A client handler.
+     */
+    public ClientHandler createReadOnlyClientHandler() {
+        return context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
     }
 }

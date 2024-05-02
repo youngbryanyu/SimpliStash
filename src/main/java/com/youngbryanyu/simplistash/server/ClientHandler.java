@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Scope;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class ClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * The buffer holding all unprocessed data sent by the client.
      */
@@ -44,6 +44,10 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * The application logger.
      */
     private final Logger logger;
+    /**
+     * Whether the client is read-only and can only perform read-only actions.
+     */
+    private final boolean readOnly;
 
     /**
      * Constructor for the client handler.
@@ -52,9 +56,10 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      * @param logger         The application logger to use.
      */
     @Autowired
-    public ClientHandler(CommandHandler commandHandler, Logger logger) {
+    public ClientHandler(CommandHandler commandHandler, Logger logger, boolean readOnly) {
         this.commandHandler = commandHandler;
         this.logger = logger;
+        this.readOnly = readOnly;
         buffer = new StringBuilder();
         tokens = new LinkedList<>();
     }
@@ -200,5 +205,15 @@ class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     private static int getMaxBufferSize() {
         return 3 * (Stash.MAX_KEY_SIZE + Stash.MAX_VALUE_SIZE);
+    }
+
+    /**
+     * Returns whether or not the client handler is can only perform read
+     * operations.
+     * 
+     * @return True if the client is read-only, false otherwise.
+     */
+    public boolean isReadOnly() {
+        return readOnly;
     }
 }

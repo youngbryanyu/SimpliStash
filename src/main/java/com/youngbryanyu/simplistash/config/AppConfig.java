@@ -10,6 +10,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.youngbryanyu.simplistash.commands.CommandHandler;
+import com.youngbryanyu.simplistash.server.ClientHandler;
+
 /**
  * Dependency injection configuration class. We should stick with annotations,
  * unless multiple versions of the same exact dependency need to be injected. In
@@ -40,5 +43,41 @@ public class AppConfig {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public DB db() {
         return DBMaker.memoryDirectDB().make();
+    }
+
+    /**
+     * Name of the read only client handler beans
+     */
+    public static final String READ_ONLY_CLIENT_HANDLER = "readOnlyClientHandler";
+
+    /**
+     * Creates an instance of a client handler with read-only permissions.
+     * 
+     * @param commandHandler The command handler.
+     * @param logger         The application logger.
+     * @return A new instance of a client handler.
+     */
+    @Bean(READ_ONLY_CLIENT_HANDLER)
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ClientHandler readOnlyClientHandler(CommandHandler commandHandler, Logger logger) {
+        return new ClientHandler(commandHandler, logger, true);
+    }
+
+    /**
+     * Name of the writeable client handler beans
+     */
+    public static final String WRITEABLE_CLIENT_HANDLER = "writeableClientHandler";
+
+    /**
+     * Creates an instance of a client handler with both read and write permissions.
+     * 
+     * @param commandHandler The command handler.
+     * @param logger         The application logger.
+     * @return A new instance of a client handler.
+     */
+    @Bean(WRITEABLE_CLIENT_HANDLER)
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ClientHandler writeableclientHandler(CommandHandler commandHandler, Logger logger) {
+        return new ClientHandler(commandHandler, logger, false);
     }
 }

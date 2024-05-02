@@ -54,7 +54,7 @@ public class PingCommand implements Command {
         
         tokens.pollFirst(); /* Remove command token */
 
-        logger.info("PING");
+        logger.debug("PING");
         return ProtocolUtil.buildPongResponse(); /* Respone with PONG */
     }
 

@@ -53,7 +53,7 @@ public class EchoCommand implements Command {
         tokens.pollFirst(); /* Remove command token */
         String text = tokens.pollFirst();
 
-        logger.info(String.format("ECHO %s", text));
+        logger.debug(String.format("ECHO %s", text));
         return ProtocolUtil.buildValueResponse(text); /* Echo the text back */
     }
 

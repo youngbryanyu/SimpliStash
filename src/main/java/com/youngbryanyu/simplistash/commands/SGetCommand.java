@@ -75,6 +75,7 @@ public class SGetCommand implements Command {
             return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist.");
         }
 
+        // HTreeMap<String, String> map = 
         String key = tokens.pollFirst();
 
         /**

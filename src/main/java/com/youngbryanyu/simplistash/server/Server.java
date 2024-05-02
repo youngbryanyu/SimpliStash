@@ -26,6 +26,11 @@ public class Server {
      */
     private static final int PORT = 3000;
     /**
+     * Number of worker threads to use to handle commands. We use a single thread
+     * (similar to Redis).
+     */
+    private static final int NUM_WORKER_THREADS = 1;
+    /**
      * The client handler factory.
      */
     private final ClientHandlerFactory clientHandlerFactory;
@@ -55,7 +60,7 @@ public class Server {
      */
     public void start() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS);
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -77,7 +82,7 @@ public class Server {
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            // bossGroup.shutdownGracefully();
         }
     }
 }

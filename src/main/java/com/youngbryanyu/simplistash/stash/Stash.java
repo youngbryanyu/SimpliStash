@@ -50,6 +50,7 @@ public class Stash {
      */
     private final Logger logger;
 
+
     /**
      * Constructor for the stash.
      * 

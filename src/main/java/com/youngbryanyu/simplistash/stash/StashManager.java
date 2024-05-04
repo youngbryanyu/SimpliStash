@@ -26,7 +26,7 @@ public class StashManager {
     /**
      * The TTL active expiration interval.
      */
-    private static final long TTL_EXPIRE_INTERVAL = 10_000;
+    private static final long TTL_EXPIRE_INTERVAL = 1000;
     /**
      * The factory used to create new stash instances.
      */

@@ -59,7 +59,7 @@ public class CreateCommand implements WriteCommand {
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough tokens, indicating not enough arguments */
+        /* Return null if not enough args */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
         }

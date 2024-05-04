@@ -7,6 +7,11 @@ import java.util.Arrays;
  */
 public interface Command {
     /**
+     * The maximum allowed TTL in milliseconds
+     */
+    public static final long MAX_TTL = 157_784_630_000L;
+
+    /**
      * Returns the name of the command.
      * 
      * @return The command's name.

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -51,17 +50,12 @@ public class TTLTimeWheel {
      * to the next if the current bucket is empty and there are more keys to expire.
      */
     private int currentBucketIndex;
-    /**
-     * The application logger
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the TTL time wheel.
      */
     @Autowired
-    public TTLTimeWheel(Logger logger) {
-        this.logger = logger;
+    public TTLTimeWheel() {
         ttlMap = new HashMap<>();
         buckets = new ArrayList<>();
 
@@ -85,11 +79,18 @@ public class TTLTimeWheel {
         return (int) (ticksFromEpoch % NUM_BUCKETS);
     }
 
+    /**
+     * Adds a key to the TTL time wheel. Removes the existing key's TTL if it
+     * already had one.
+     * 
+     * @param key They key.
+     * @param ttl The ttl.
+     */
     public void add(String key, long ttl) {
         /* Delete the key if it already exists */
         remove(key);
 
-        long expirationTime = System.currentTimeMillis() - ttl;
+        long expirationTime = System.currentTimeMillis() + ttl;
 
         /* 1. Insert into key expiration map */
         ttlMap.put(key, expirationTime);
@@ -132,13 +133,19 @@ public class TTLTimeWheel {
             return false;
         }
 
-        return System.currentTimeMillis() >= ttlMap.get(key) ;
+        return System.currentTimeMillis() >= ttlMap.get(key);
     }
 
+    /**
+     * Expires a batch of keys up to the max expire limit.
+     * 
+     * @return The list of keys that were expired.
+     */
     public List<String> expireKeys() {
         List<String> expiredKeys = new ArrayList<>();
         long currentTime = System.currentTimeMillis();
         int numExpired = 0;
+        int startBucketIndex = currentBucketIndex;
 
         /* Expire up to the max expire limit */
         while (!ttlMap.isEmpty() && numExpired < MAX_EXPIRE_LIMIT) {
@@ -148,7 +155,7 @@ public class TTLTimeWheel {
                 Map.Entry<String, Long> entry = bucket.firstEntry();
 
                 /* No more expired keys from current bucket so break */
-                if (entry.getValue() < currentTime) {
+                if (entry.getValue() > currentTime) {
                     break;
                 }
 
@@ -169,7 +176,13 @@ public class TTLTimeWheel {
             if (currentBucketIndex >= buckets.size()) {
                 currentBucketIndex = 0;
             }
+
+            /* If we've iterated over every bucket and there's no new TTLs, break */
+            if (currentBucketIndex == startBucketIndex) {
+                break;
+            }
         }
+
         return expiredKeys;
     }
 }

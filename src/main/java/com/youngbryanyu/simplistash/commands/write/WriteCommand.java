@@ -15,5 +15,5 @@ public interface WriteCommand extends Command {
      * @param readOnly Whether or not the client is read-only.
      * @return The response to send to the client.
      */
-    public String execute(Deque<String> tokens, boolean readOnly);
+    public String execute(Deque<String> tokens, boolean readOnly) throws Exception;
 }

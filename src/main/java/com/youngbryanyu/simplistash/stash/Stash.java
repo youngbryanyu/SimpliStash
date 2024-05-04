@@ -114,6 +114,9 @@ public class Stash {
         try {
             if (ttlTimeWheel.isExpired(key)) {
                 ttlTimeWheel.remove(key);
+                cache.remove(key);
+
+                logger.debug(String.format("Lazy removed key from stash [%s]: %s", name, key));
                 return null;
             }
 
@@ -195,13 +198,13 @@ public class Stash {
      */
     public void expireTTLKeys() {
         List<String> expiredKeys = ttlTimeWheel.expireKeys();
-
+       
         for (String key : expiredKeys) {
             cache.remove(key);
         }
 
         if (!expiredKeys.isEmpty()) {
-            logger.debug(String.format("Expired keys from stash [%s]: ", name, expiredKeys));
+            logger.debug(String.format("Expired keys from stash [%s]: %s", name, expiredKeys));        
         }
     }
 }

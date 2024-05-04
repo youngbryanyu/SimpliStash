@@ -1,8 +1,5 @@
 package com.youngbryanyu.simplistash;
 
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -22,7 +19,6 @@ public class Main {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        /* Bootstrap Spring Context */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 
         Server writeableServer = context.getBean(WriteableServer.class);

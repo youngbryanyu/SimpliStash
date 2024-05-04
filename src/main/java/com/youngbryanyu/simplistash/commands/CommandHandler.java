@@ -47,7 +47,7 @@ public class CommandHandler {
      * @throws ValueTooLargeException If the user attempts to set a key or value to
      *                                a value that's over the limit.
      */
-    public String handleCommands(Deque<String> tokens, boolean readOnly) {
+    public String handleCommands(Deque<String> tokens, boolean readOnly) throws Exception {
         StringBuilder response = new StringBuilder();
 
         while (!tokens.isEmpty()) {

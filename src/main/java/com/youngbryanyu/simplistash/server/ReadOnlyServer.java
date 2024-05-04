@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.server;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,13 +49,14 @@ public class ReadOnlyServer implements Server {
      * Starts the server. Creates boss threads to accept incoming connections and
      * worker threads to handle commands from connected clients. Each worker thread
      * runs an event loop that handles I/O in a non-blocking fashion. Sets up the
-     * pipeline of handlers for each client channel.
+     * pipeline of handlers for each client channel. We use the default number of
+     * threads in each group.
      * 
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup(); /* Use default number of worker threads */
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -67,7 +70,7 @@ public class ReadOnlyServer implements Server {
                                     new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
 
                                     /* Create read-only client handler */
-                                    clientHandlerFactory.createReadOnlyClientHandler()); 
+                                    clientHandlerFactory.createReadOnlyClientHandler());
                         }
                     });
 

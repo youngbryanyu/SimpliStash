@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.config;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;

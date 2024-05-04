@@ -17,8 +17,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
-import net.openhft.affinity.AffinityStrategies;
-import net.openhft.affinity.AffinityThreadFactory;
 
 /**
  * The server with write permissions which listens for incoming client
@@ -57,18 +55,11 @@ public class WriteableServer implements Server {
      * thread runs an event loop that handles I/O in a non-blocking fashion. Sets up
      * the pipeline of handlers for each client channel.
      * 
-     * We bind the worker thread to a single CPU since the writable server's thread
-     * is high-priority and manages all the write operation throughput.
-     * 
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
-
-        /* Use single worker thread and pin thread to CPU */
-        ThreadFactory threadFactory;
-        threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS, threadFactory);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS);
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();

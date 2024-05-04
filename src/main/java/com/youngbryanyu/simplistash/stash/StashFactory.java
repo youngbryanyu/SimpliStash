@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.stash;
 
+import org.mapdb.DB;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -29,7 +31,11 @@ public class StashFactory {
      * 
      * @return A stash.
      */
-    public Stash createStash() {
-        return context.getBean(Stash.class);
+    public Stash createStash(String name) {
+        DB db = context.getBean(DB.class);
+        TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
+        Logger logger = context.getBean(Logger.class);
+
+        return context.getBean(Stash.class, db, ttlTimeWheel, logger, name);
     }
 }

@@ -12,6 +12,7 @@ import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
+import com.youngbryanyu.simplistash.stash.StashManager;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -41,6 +42,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     private final CommandHandler commandHandler;
     /**
+     * The stash manager.
+     */
+    private final StashManager stashManager;
+    /**
      * The application logger.
      */
     private final Logger logger;
@@ -53,11 +58,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * Constructor for the client handler.
      * 
      * @param commandHandler The command handler used to execute commands.
+     * @param stashManager   The stash manager.
      * @param logger         The application logger to use.
+     * @param readOnly       Whether or not the client is read-only.
      */
     @Autowired
-    public ClientHandler(CommandHandler commandHandler, Logger logger, boolean readOnly) {
+    public ClientHandler(CommandHandler commandHandler, StashManager stashManager, Logger logger, boolean readOnly) {
         this.commandHandler = commandHandler;
+        this.stashManager = stashManager;
         this.logger = logger;
         this.readOnly = readOnly;
         buffer = new StringBuilder();
@@ -88,16 +96,24 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         String input = (String) msg;
-
         buffer.append(input);
         parseTokens();
         String response = commandHandler.handleCommands(tokens, readOnly);
 
-        // TODO: think about guarding case when client's output buffer gets too big
+        // TODO: think about maybe guarding case when client's output buffer gets too big
 
         if (response != null) {
             ctx.writeAndFlush(response);
         }
+    }
+
+    /**
+     * Called after a batch of channelRead operations for a client. Flushes the
+     * output buffer, then actively expires a batch of TTLed keys from each stash.
+     */
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        stashManager.expireTTLKeys(); // TODO: ensure keys are expired even when there are 0 clients
     }
 
     /**
@@ -158,11 +174,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             try {
                 size = Integer.parseInt(buffer.substring(0, delimIdx));
             } catch (NumberFormatException e) {
+                /* Throw exception to disconnect the client */
                 throw new BrokenProtocolException("The token size is not a valid integer. Disconnecting...", e);
             }
 
             /* Ensure the size of the token is at least 1 */
             if (size < 1) {
+                /* Throw exception to disconnect the client */
                 throw new BrokenProtocolException("The token size must be at least 1. Disconnecting...", null);
             }
 

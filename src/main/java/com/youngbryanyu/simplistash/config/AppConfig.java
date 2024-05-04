@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Scope;
 
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.ClientHandler;
+import com.youngbryanyu.simplistash.stash.Stash;
+import com.youngbryanyu.simplistash.stash.StashManager;
+import com.youngbryanyu.simplistash.stash.TTLTimeWheel;
 
 /**
  * Dependency injection configuration class. We should stick with annotations,
@@ -54,13 +57,15 @@ public class AppConfig {
      * Creates an instance of a client handler with read-only permissions.
      * 
      * @param commandHandler The command handler.
+     * @param stashManager   The stash manager.
      * @param logger         The application logger.
      * @return A new instance of a client handler.
      */
     @Bean(READ_ONLY_CLIENT_HANDLER)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ClientHandler readOnlyClientHandler(CommandHandler commandHandler, Logger logger) {
-        return new ClientHandler(commandHandler, logger, true);
+    public ClientHandler readOnlyClientHandler(CommandHandler commandHandler, StashManager stashManager,
+            Logger logger) {
+        return new ClientHandler(commandHandler, stashManager, logger, true);
     }
 
     /**
@@ -72,12 +77,14 @@ public class AppConfig {
      * Creates an instance of a client handler with both read and write permissions.
      * 
      * @param commandHandler The command handler.
+     * @param stashManager   The stash manager.
      * @param logger         The application logger.
      * @return A new instance of a client handler.
      */
     @Bean(WRITEABLE_CLIENT_HANDLER)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ClientHandler writeableclientHandler(CommandHandler commandHandler, Logger logger) {
-        return new ClientHandler(commandHandler, logger, false);
+    public ClientHandler writeableclientHandler(CommandHandler commandHandler, StashManager stashManager,
+            Logger logger) {
+        return new ClientHandler(commandHandler, stashManager, logger, false);
     }
 }

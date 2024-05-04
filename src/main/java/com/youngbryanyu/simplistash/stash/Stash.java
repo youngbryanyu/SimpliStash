@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.util.List;
+
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
@@ -12,7 +14,8 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * Class representing a stash which serves as a single table of key-value pairs
+ * Class representing a stash which serves as a single table of key-value pairs.
+ * The actual key-value pairs are stored off-heap.
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -42,13 +45,25 @@ public class Stash {
      */
     private final DB db;
     /**
-     * The primary cache provide O(1) direct access to values by key.
+     * The primary cache providing O(1) direct access to values by key, and off-heap
+     * storage.
      */
     private final HTreeMap<String, String> cache;
+    /**
+     * Keys in the cache subject to TTL.
+     */
+    /**
+     * Time wheel structure used to actively expire TTLed keys.
+     */
+    private final TTLTimeWheel ttlTimeWheel;
     /**
      * The application logger.
      */
     private final Logger logger;
+    /**
+     * The name of the Stash.
+     */
+    private final String name;
 
     /**
      * Constructor for the stash.
@@ -57,9 +72,11 @@ public class Stash {
      * @param logger The application logger.
      */
     @Autowired
-    public Stash(DB db, Logger logger) {
+    public Stash(DB db, TTLTimeWheel ttlTimeWheel, Logger logger, String name) {
         this.db = db;
+        this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
+        this.name = name;
         cache = createPrimaryCache();
         addShutDownHook();
     }
@@ -72,7 +89,7 @@ public class Stash {
     }
 
     /**
-     * Sets a key value pair in the stash.
+     * Sets a key value pair in the stash. Does not remove existing TTLs on the key.
      * 
      * There cannot be parallel writes operations since there is only one thread
      * which handles writes.
@@ -87,13 +104,19 @@ public class Stash {
     /**
      * Retrieves a value from the stash matching the key. Returns an error message
      * if the DB is being closed or has already been closed by another concurrent
-     * client, since multiple threads can perform read operations.
+     * client, since multiple threads can perform read operations. Passively expires
+     * the key if it has expired.
      * 
      * @param key The key of the value to get.
      * @return The value matching the key.
      */
     public String get(String key) {
         try {
+            if (ttlTimeWheel.isExpired(key)) {
+                ttlTimeWheel.remove(key);
+                return null;
+            }
+
             return cache.get(key);
         } catch (NullPointerException e) {
             /*
@@ -118,7 +141,7 @@ public class Stash {
     }
 
     /**
-     * Deletes a key from the stash. Returns the OK response.
+     * Deletes a key from the stash and clears its TTL. Returns the OK response.
      * 
      * There cannot be parallel write operations since there is only one thread
      * which handles writes.
@@ -127,10 +150,26 @@ public class Stash {
      */
     public void delete(String key) {
         cache.remove(key);
+        ttlTimeWheel.remove(key);
     }
 
     /**
-     * Drops the stash by closing its DB.
+     * Sets a key value pair in the stash. Updates the key's TTL.
+     * 
+     * There cannot be parallel writes operations since there is only one thread
+     * which handles writes.
+     * 
+     * @param key   The unique key.
+     * @param value The value to map to the key.
+     * @param ttl   The ttl of the key.
+     */
+    public void setWithTTL(String key, String value, long ttl) {
+        cache.put(key, value);
+        ttlTimeWheel.add(key, ttl);
+    }
+
+    /**
+     * Drops the stash. Closes its DB.
      * 
      * This is a blocking operation, so nothing can concurrently write to the db
      * while it's being closed since only 1 thread can perform writes. However,
@@ -149,5 +188,20 @@ public class Stash {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             db.close();
         }));
+    }
+
+    /**
+     * Gets a batch of expired keys and removes them from the Stash's cache.
+     */
+    public void expireTTLKeys() {
+        List<String> expiredKeys = ttlTimeWheel.expireKeys();
+
+        for (String key : expiredKeys) {
+            cache.remove(key);
+        }
+
+        if (!expiredKeys.isEmpty()) {
+            logger.debug(String.format("Expired keys from stash [%s]: ", name, expiredKeys));
+        }
     }
 }

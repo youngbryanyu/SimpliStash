@@ -20,6 +20,14 @@ public class StashManager {
      */
     public static final String DEFAULT_STASH_NAME = "default";
     /**
+     * The maximum number of stashes that can be created.
+     */
+    private static final int MAX_NUM_STASHES = 100;
+    /**
+     * The TTL active expiration interval.
+     */
+    private static final long TTL_EXPIRE_INTERVAL = 10_000;
+    /**
      * The factory used to create new stash instances.
      */
     private final StashFactory stashFactory;
@@ -28,6 +36,10 @@ public class StashManager {
      * map since we can have multiple NIO worker threads on the server.
      */
     private final Map<String, Stash> stashes;
+    /**
+     * The last time active expiration was done for TTLed entries.
+     */
+    private long lastTTLExpirationTime;
 
     /**
      * Constructor for a stash manager.
@@ -38,10 +50,13 @@ public class StashManager {
     public StashManager(StashFactory stashFactory) {
         this.stashFactory = stashFactory;
         stashes = new ConcurrentHashMap<>();
+        lastTTLExpirationTime = System.currentTimeMillis();
 
         /* Create the default stash */
         createDefaultStash();
     }
+
+    // TODO: set limit of number of stashes to 100
 
     /**
      * Creates the default stash to be used.
@@ -57,7 +72,7 @@ public class StashManager {
      * @param name The name of the stash.
      */
     public void createStash(String name) {
-        stashes.putIfAbsent(name, stashFactory.createStash());
+        stashes.putIfAbsent(name, stashFactory.createStash(name));
     }
 
     /**
@@ -101,5 +116,25 @@ public class StashManager {
             stashes.remove(name);
             stash.drop();
         }
+    }
+
+    /**
+     * Loops through each stash's TTL timer wheel and expires any expired keys.
+     * Expires a batch of keys if it has been at least as long as the batch tick
+     * interval.
+     */
+    public void expireTTLKeys() {
+        /* Skip active expiration if not enough time passed */
+        if (System.currentTimeMillis() - lastTTLExpirationTime < TTL_EXPIRE_INTERVAL) {
+            return;
+        }
+
+        /* Attempt expiration from all stashes */
+        for (Stash stash : stashes.values()) {
+            stash.expireTTLKeys();
+        }
+
+        /* Update the last active expiration time */
+        lastTTLExpirationTime = System.currentTimeMillis();
     }
 }

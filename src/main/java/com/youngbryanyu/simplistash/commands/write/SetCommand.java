@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -26,7 +25,7 @@ public class SetCommand implements WriteCommand {
     /**
      * The base format of the command.
      */
-    private static final String FORMAT = "SET <key> <value> <num_args> [TTL]";
+    private static final String FORMAT = "SET <key> <value> <num_optional_args> [TTL]";
     /**
      * The minimum number of required arguments.
      */
@@ -64,9 +63,8 @@ public class SetCommand implements WriteCommand {
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.
-     * @throws BrokenProtocolException
      */
-    public String execute(Deque<String> tokens, boolean readOnly) throws Exception {
+    public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough args */
         if (tokens.size() < MIN_REQUIRED_ARGS) {
             return null;
@@ -80,12 +78,22 @@ public class SetCommand implements WriteCommand {
         tokens.pollFirst();
         String key = tokens.pollFirst();
         String value = tokens.pollFirst();
-        String numArgsStr = tokens.pollFirst();
+        String numOptionalArgsStr = tokens.pollFirst();
 
-        /* Re-add tokens and return null if not enough tokens for optional args */
-        int numArgs = getNumOptionalArgs(numArgsStr);
-        if (tokens.size() < numArgs) {
-            tokens.addFirst(numArgsStr);
+        /* Get number of optional args */
+        int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
+
+        /**
+         * Return error if num optional args is malformed.
+         */
+        if (numOptionalArgs == -1) {
+            logger.debug(String.format("SET %s --> %s (failed, invalid optional args count)", key, value));
+            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args count");
+        }
+
+        /* Re-add tokens and return null if not enough args */
+        if (tokens.size() < numOptionalArgs) {
+            tokens.addFirst(numOptionalArgsStr);
             tokens.addFirst(value);
             tokens.addFirst(key);
             tokens.addFirst(NAME);
@@ -93,7 +101,7 @@ public class SetCommand implements WriteCommand {
         }
 
         /* Process optional args */
-        Map<String, String> optionalArgVals = processOptionalArgs(tokens, numArgs);
+        Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
 
         /* Return error message if error occurred while processing optional args */
         if (optionalArgVals == null) {
@@ -109,7 +117,7 @@ public class SetCommand implements WriteCommand {
             } catch (NumberFormatException e) {
                 return ProtocolUtil.buildErrorResponse("TTL must be a valid long.");
             }
-            
+
             if (ttl <= 0 || ttl > Command.MAX_TTL) {
                 ProtocolUtil.buildErrorResponse("The TTL value must be in the range [1, 157,784,630,000]");
             }
@@ -140,25 +148,24 @@ public class SetCommand implements WriteCommand {
         } else {
             stash.setWithTTL(key, value, ttl); /* Set with TTL if specified */
         }
-        
+
         /* Return OK */
         logger.debug(String.format("SET %s --> %s", key, value));
         return ProtocolUtil.buildOkResponse();
     }
 
     /**
-     * Returns the number of optional arguments.
+     * Returns the number of optional arguments. Returns -1 if the input is
+     * malformed.
      * 
      * @param token The token representing the number of args.
      * @return The number of optional arguments.
-     * @throws BrokenProtocolException
      */
-    private int getNumOptionalArgs(String token) throws BrokenProtocolException {
+    private int getNumOptionalArgs(String token) {
         try {
             return Integer.parseInt(token);
         } catch (NumberFormatException e) {
-            /* Throw exception to disconnect the client */
-            throw new BrokenProtocolException("Number of args is not a valid integer. Disconnecting...", e);
+            return -1;
         }
     }
 

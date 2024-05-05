@@ -92,7 +92,13 @@ public class CreateCommand implements WriteCommand {
         }
 
         /* Create the stash */
-        stashManager.createStash(name); 
+        boolean createdSuccessfully = stashManager.createStash(name); 
+
+        /* Return error if couldn't create stash (too many existing already) */
+        if (!createdSuccessfully) {
+            logger.debug(String.format("CREATE %s (failed, max number of stashes reached)", name));
+            return ProtocolUtil.buildErrorResponse("The max number of stashes has been reached.");
+        }
 
         /* Return OK response */
         logger.debug(String.format("CREATE %s", name));

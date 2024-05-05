@@ -56,8 +56,6 @@ public class StashManager {
         createDefaultStash();
     }
 
-    // TODO: set limit of number of stashes to 100
-
     /**
      * Creates the default stash to be used.
      */
@@ -67,12 +65,20 @@ public class StashManager {
 
     /**
      * Creates a new stash with the given name and stores it in the stashes map.
-     * Does nothing if the stash name is already taken.
+     * Does nothing if the stash name is already taken. Fails if there are already
+     * the max number of stashes supported.
      * 
      * @param name The name of the stash.
+     * @return True if the stash was created successfully or already exists, false
+     *         otherwise.
      */
-    public void createStash(String name) {
+    public boolean createStash(String name) {
+        if (stashes.size() >= MAX_NUM_STASHES) {
+            return false;
+        }
+
         stashes.putIfAbsent(name, stashFactory.createStash(name));
+        return true;
     }
 
     /**

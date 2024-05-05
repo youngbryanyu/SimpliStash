@@ -33,7 +33,7 @@ public class SetCommand implements WriteCommand {
     /**
      * The name of the optional ttl arg.
      */
-    private static final String ARG_NAME_TTL = "TTL";
+    private static final String ARG_TTL = "TTL";
     /**
      * The stash manager.
      */
@@ -130,9 +130,9 @@ public class SetCommand implements WriteCommand {
 
         /* Set the TTL if specified */
         long ttl = -1;
-        if (optionalArgVals.containsKey(ARG_NAME_TTL)) {
+        if (optionalArgVals.containsKey(ARG_TTL)) {
             try {
-                ttl = Long.parseLong(optionalArgVals.get(ARG_NAME_TTL));
+                ttl = Long.parseLong(optionalArgVals.get(ARG_TTL));
             } catch (NumberFormatException e) {
                 return ProtocolUtil.buildErrorResponse("TTL must be a valid long.");
             }

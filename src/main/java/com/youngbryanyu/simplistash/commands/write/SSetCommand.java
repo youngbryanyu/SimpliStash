@@ -100,6 +100,7 @@ public class SSetCommand implements WriteCommand {
             tokens.addFirst(numOptionalArgsStr);
             tokens.addFirst(value);
             tokens.addFirst(key);
+            tokens.addFirst(name);
             tokens.addFirst(NAME);
             return null;
         }

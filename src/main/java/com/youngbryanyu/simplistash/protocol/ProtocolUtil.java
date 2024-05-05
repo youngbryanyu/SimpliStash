@@ -95,4 +95,6 @@ public final class ProtocolUtil {
     public static String encode(String token) {
         return String.format("%s%s%s", token.length(), DELIM, token);
     }
+
+    // TODO: add code to encode a list of tokens to string
 }

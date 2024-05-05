@@ -29,7 +29,7 @@ public class KeyExpirationManager {
     private StashManager stashManager;
 
     /**
-     * Constructor for the expiration manager.
+     * Constructor for the key expiration manager.
      */
     @Autowired
     public KeyExpirationManager(StashManager stashManager) {

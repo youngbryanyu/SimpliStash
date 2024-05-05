@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerMonitor {
     /**
-     * Whether or not any of the servers crashed.
+     * Whether any of the servers crashed.
      */
     private boolean serverCrashed;
 

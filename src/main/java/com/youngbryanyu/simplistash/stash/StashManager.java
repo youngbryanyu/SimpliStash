@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StashManager {
     /**
-     * The name of the default stash used if none is specified by the client.
+     * The name of the default stash used when none is specified by the client.
      */
     public static final String DEFAULT_STASH_NAME = "default";
     /**
@@ -24,8 +24,7 @@ public class StashManager {
      */
     private final StashFactory stashFactory;
     /**
-     * Mapping of each stash's name to its instance. Needs to be a concurrent hash
-     * map since we can have multiple NIO worker threads on the server.
+     * Mapping of each stash's name to its instance.
      */
     private final Map<String, Stash> stashes;
 
@@ -39,14 +38,7 @@ public class StashManager {
         this.stashFactory = stashFactory;
         stashes = new ConcurrentHashMap<>();
 
-        /* Create the default stash */
-        createDefaultStash();
-    }
-
-    /**
-     * Creates the default stash to be used.
-     */
-    private void createDefaultStash() {
+        /* Create default stash */
         createStash(DEFAULT_STASH_NAME);
     }
 
@@ -69,7 +61,7 @@ public class StashManager {
     }
 
     /**
-     * Gets a stash that matches the input name.
+     * Gets a stash that matches the given name.
      * 
      * @param name The name of the stash.
      * @return Returns the stash corresponding to the name.
@@ -90,11 +82,6 @@ public class StashManager {
 
     /**
      * Drops a stash. Does nothing if the stash has already been dropped.
-     * 
-     * The stash class's methods {@link Stash#get}, {@link Stash#set},
-     * {@link Stash#delete}) must guard against race conditions where the stash's DB
-     * is being concurrently closed while another thread is attempting to operate on
-     * it (or if it has been fully closed already).
      * 
      * @param name The name of the stash to delete.
      */

@@ -1,6 +1,5 @@
 package com.youngbryanyu.simplistash.server;
 
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -71,11 +70,14 @@ public class ReadOnlyServer implements Server {
                         }
                     });
 
-            /* Bind to port and listen for connections, then wait until server is closed */
+            /* Bind to port and listen for connections */
             ChannelFuture f = bootstrap.bind(Server.READ_ONLY_PORT).sync();
             logger.info("Read-only server started on port: " + Server.READ_ONLY_PORT);
+
+            /* Wait until server is closed */
             f.channel().closeFuture().sync();
         } finally {
+            /* Cleanup */
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }

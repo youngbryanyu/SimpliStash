@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.config.AppConfig;
 
 /**
- * The factory used to create client handler objects.
+ * The factory used to create client handlers.
  */
 @Component
 public class ClientHandlerFactory {
@@ -27,7 +27,7 @@ public class ClientHandlerFactory {
     }
 
     /**
-     * Creates a new instance of a client handler that has write-permissions.
+     * Creates a new instance of a client handler that has write permissions.
      * 
      * @return A client handler.
      */

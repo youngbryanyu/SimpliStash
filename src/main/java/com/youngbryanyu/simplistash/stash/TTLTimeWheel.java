@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * The TTL data structure used to manage active expiration of TTLed keys.
- * Doesn't have access to the actual data stored in memory, but keeps track of
- * keys that are currently TTLed.
+ * The TTL data structure used to manage expiration of TTLed keys. Doesn't have
+ * access to the actual data stored in memory, but keeps track of keys that are
+ * currently TTLed.
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -44,10 +44,9 @@ public class TTLTimeWheel {
      * - Keys must be inserted into `ttMap` before `buckets`
      * - Keys must be removed from `buckets` before `ttlMap`
      */
-    private final List<TreeMap<String, Long>> buckets;
+    private final TreeMap<String, Long>[] buckets;
     /**
-     * The current bucket to try expiring keys from. The current bucket will go on
-     * to the next if the current bucket is empty and there are more keys to expire.
+     * The current bucket to try expiring keys from.
      */
     private int currentBucketIndex;
 
@@ -55,14 +54,10 @@ public class TTLTimeWheel {
      * Constructor for the TTL time wheel.
      */
     @Autowired
+    @SuppressWarnings("unchecked")
     public TTLTimeWheel() {
         ttlMap = new HashMap<>();
-        buckets = new ArrayList<>();
-
-        for (int i = 0; i < NUM_BUCKETS; i++) {
-            buckets.add(new TreeMap<>((k1, k2) -> Long.compare(ttlMap.get(k1), ttlMap.get(k2))));
-        }
-
+        buckets = new TreeMap[NUM_BUCKETS];
         currentBucketIndex = 0;
     }
 
@@ -95,9 +90,14 @@ public class TTLTimeWheel {
         /* 1. Insert into key expiration map */
         ttlMap.put(key, expirationTime);
 
-        /* 2. Insert into buckets */
+        /* Get bucket */
         int bucketIndex = getBucketIndex(expirationTime);
-        buckets.get(bucketIndex).put(key, expirationTime);
+        if (buckets[bucketIndex] == null) { /* Lazy initialize bucket */
+            buckets[bucketIndex] = new TreeMap<>((k1, k2) -> Long.compare(ttlMap.get(k1), ttlMap.get(k2)));
+        }
+
+        /* 2. Insert into bucket */
+        buckets[bucketIndex].put(key, expirationTime);
     }
 
     /**
@@ -113,9 +113,14 @@ public class TTLTimeWheel {
 
         long expirationTime = ttlMap.get(key);
 
-        /* 1. Remove from buckets */
+        /* Get bucket */
         int bucketIndex = getBucketIndex(expirationTime);
-        buckets.get(bucketIndex).remove(key);
+        if (buckets[bucketIndex] == null) {
+            return;
+        }
+
+        /* 1. Remove from bucket */
+        buckets[bucketIndex].remove(key);
 
         /* 2. Remove from key expiration map */
         ttlMap.remove(key);
@@ -149,31 +154,33 @@ public class TTLTimeWheel {
 
         /* Expire up to the max expire limit */
         while (!ttlMap.isEmpty() && numExpired < MAX_EXPIRE_LIMIT) {
-            TreeMap<String, Long> bucket = buckets.get(currentBucketIndex);
+            TreeMap<String, Long> bucket = buckets[currentBucketIndex];
 
-            while (!bucket.isEmpty()) {
-                Map.Entry<String, Long> entry = bucket.firstEntry();
+            if (bucket != null) {
+                while (!bucket.isEmpty()) {
+                    Map.Entry<String, Long> entry = bucket.firstEntry();
 
-                /* No more expired keys from current bucket so break */
-                if (entry.getValue() > currentTime) {
-                    break;
-                }
+                    /* No more expired keys from current bucket so break */
+                    if (entry.getValue() > currentTime) {
+                        break;
+                    }
 
-                /* Add to expired key list and remove the key */
-                expiredKeys.add(entry.getKey());
-                remove(entry.getKey());
-                bucket.pollFirstEntry();
-                numExpired++;
+                    /* Add to expired key list and remove the key */
+                    expiredKeys.add(entry.getKey());
+                    remove(entry.getKey());
+                    bucket.pollFirstEntry();
+                    numExpired++;
 
-                /* Break if we've reached the expire limit */
-                if (numExpired >= MAX_EXPIRE_LIMIT) {
-                    break;
+                    /* Break if we've reached the expire limit */
+                    if (numExpired >= MAX_EXPIRE_LIMIT) {
+                        break;
+                    }
                 }
             }
 
             /* Go to next bucket */
             currentBucketIndex++;
-            if (currentBucketIndex >= buckets.size()) {
+            if (currentBucketIndex >= buckets.length) {
                 currentBucketIndex = 0;
             }
 

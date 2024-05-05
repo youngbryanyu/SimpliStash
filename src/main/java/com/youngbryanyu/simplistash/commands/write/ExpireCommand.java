@@ -118,13 +118,11 @@ public class ExpireCommand implements Command {
             return ProtocolUtil.buildErrorResponse("EXPIRE failed, TTL is outside the supported range.");
         }
 
-        /* Check if key exists */
-        if (!stash.contains(key)) {
+        /* Update TTL */
+        boolean updatedTTL = stash.updateTTL(key, ttl);
+        if (!updatedTTL) {
             return ProtocolUtil.buildErrorResponse("EXPIRE failed, the key doesn't exist.");
         }
-
-        /* Update TTL */
-        stash.updateTTL(key, ttl);
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();

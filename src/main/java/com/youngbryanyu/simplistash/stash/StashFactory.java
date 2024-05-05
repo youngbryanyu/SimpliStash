@@ -27,7 +27,7 @@ public class StashFactory {
     }
 
     /**
-     * Creates a new instance of a stash. 
+     * Creates a new instance of a stash with the given name. 
      * 
      * @param The stash name.
      * @return A stash.

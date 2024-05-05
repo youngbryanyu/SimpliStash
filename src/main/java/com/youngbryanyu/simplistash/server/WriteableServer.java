@@ -58,7 +58,7 @@ public class WriteableServer implements Server {
 
     /**
      * Starts the server. Creates boss threads to accept incoming connections and
-     * a single worker thread to handle commands from connected clients. Each worker
+     * a single worker thread to handle commands from connected clients. The worker
      * thread runs an event loop that handles I/O in a non-blocking fashion. Sets up
      * the pipeline of handlers for each client channel.
      * 
@@ -94,11 +94,14 @@ public class WriteableServer implements Server {
                         }
                     });
 
-            /* Bind to port and listen for connections, then wait until server is closed */
+            /* Bind to port and listen for connections */
             ChannelFuture f = bootstrap.bind(Server.WRITEABLE_PORT).sync();
             logger.info("Writeable server started on port: " + Server.WRITEABLE_PORT);
+
+            /* Wait until server is closed */
             f.channel().closeFuture().sync();
         } finally {
+            /* Cleanup */
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
             keyExpirationManager.stopExpirationTask();

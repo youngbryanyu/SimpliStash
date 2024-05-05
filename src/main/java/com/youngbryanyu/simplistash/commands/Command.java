@@ -20,23 +20,23 @@ public interface Command {
      */
     public enum ErrorCause {
         /* Optional arg errors */
-        INVALID_OPTIONAL_ARGS_COUNT("Invalid optional args count."),
-        MALFORMED_OPTIONAL_ARGS("Malformed optional args."),
+        INVALID_OPTIONAL_ARGS_COUNT("Invalid optional args count"),
+        MALFORMED_OPTIONAL_ARGS("Malformed optional args"),
         /* Read-only mode errors */
-        READ_ONLY_MODE("Cannot perform this action in read-only mode."),
+        READ_ONLY_MODE("Cannot perform this action in read-only mode"),
         /* Key/value errors */
-        KEY_TOO_LONG("The key is too long."),
-        VALUE_TOO_LONG("The value is too long."),
-        KEY_DOESNT_EXIST("The key doesn't exist."),
+        KEY_TOO_LONG("The key is too long"),
+        VALUE_TOO_LONG("The value is too long"),
+        KEY_DOESNT_EXIST("The key doesn't exist"),
         /* Stash errors */
-        STASH_DOESNT_EXIST("Stash doesn't exist."),
-        STASH_CANNOT_DROP_DEFAULT("Cannot drop the default stash."),
-        STASH_NAME_TOO_LONG("The stash name is too long."),
-        STASH_NAME_TAKEN("The stash name is already taken."),
-        STASH_LIMIT_REACHED("The max number of stashes has been reached."),
+        STASH_DOESNT_EXIST("Stash doesn't exist"),
+        STASH_CANNOT_DROP_DEFAULT("Cannot drop the default stash"),
+        STASH_NAME_TOO_LONG("The stash name is too long"),
+        STASH_NAME_TAKEN("The stash name is already taken"),
+        STASH_LIMIT_REACHED("The max number of stashes has been reached"),
         /* TTL errors */
-        TTL_INVALID_LONG("The TTL must be a valid long."),
-        TTL_OUT_OF_RANGE("The TTL is out of the supported range.");
+        TTL_INVALID_LONG("The TTL must be a valid long"),
+        TTL_OUT_OF_RANGE("The TTL is out of the supported range");
 
         /**
          * The enum's message
@@ -138,6 +138,6 @@ public interface Command {
      * @return The error message for the command with cause.
      */
     public default String buildErrorMessage(ErrorCause cause) {
-        return String.format("%s failed, %s", getName(), cause.getMessage());
+        return String.format("%s failed: %s", getName(), cause.getMessage());
     }
 }

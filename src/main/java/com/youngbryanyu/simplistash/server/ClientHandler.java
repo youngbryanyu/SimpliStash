@@ -146,12 +146,12 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             try {
                 size = Integer.parseInt(buffer.substring(0, delimIdx));
             } catch (NumberFormatException e) {
-                throw new BrokenProtocolException("The token size is not a valid integer. Disconnecting...", e);
+                throw new BrokenProtocolException(BrokenProtocolException.TOKEN_SIZE_INVALID_INTEGER, e);
             }
 
             /* Validate token size */
             if (size < 1) {
-                throw new BrokenProtocolException("The token size must be at least 1. Disconnecting...", null);
+                throw new BrokenProtocolException(BrokenProtocolException.TOKEN_SIZE_OUT_OF_RANGE, null);
             }
 
             /* Get start and end indices of token */

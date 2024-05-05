@@ -7,6 +7,15 @@ package com.youngbryanyu.simplistash.exceptions;
  */
 public class BrokenProtocolException extends Exception {
     /**
+     * Error cause when the token size is an invalid integer.
+     */
+    public static final String TOKEN_SIZE_INVALID_INTEGER = "The token size is not a valid integer";
+     /**
+     * Error cause when the token size is out of range.
+     */
+    public static final String TOKEN_SIZE_OUT_OF_RANGE = "The token size must be at least 1";
+    
+    /**
      * Constructor for the exception with message.
      * 
      * @param message The error message to send the client.
@@ -23,6 +32,6 @@ public class BrokenProtocolException extends Exception {
      * @param cause   The throwable cause.
      */
     public BrokenProtocolException(String message, Throwable cause) {
-        super(String.format("Protocol error: %s", message), cause);
+        super(String.format("Protocol error: %s, disconnecting...", message), cause);
     }
 }

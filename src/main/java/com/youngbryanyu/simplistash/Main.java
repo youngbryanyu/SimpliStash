@@ -26,7 +26,7 @@ public class Main {
         ServerMonitor serverMonitor = context.getBean(ServerMonitor.class);
         Logger logger = context.getBean(Logger.class);
 
-        /* Cleanup resources on shutdown */
+        /* Setup shutdown hook */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             context.close();
         }));
@@ -67,62 +67,6 @@ public class Main {
             logger.error("Server monitoring thread interrupted: ", e);
         }
     }
-
-    /*
-     * HASHMAP:
-     * Test 1:
-     * - Overhead writing 1 million entries (STRING, LONG). Key is 256+ bytes, Val
-     * is
-     * 8 bytes:
-     * 
-     * Hashmap: used 408 MB, took .571 s
-     * HTreeMap: used 688 MB, took 3.683 s
-     * Eclipse collections: used 365 MB, took .538 s
-     * Trove: 391 MB, .586 s
-     * Fastutil 381 MB, .6 s
-     * HPPC: 371 MB, .669 s
-     * Caffeine: 416 MB, .601
-     * 
-     * Test 2:
-     * - Write 1 million, then clear/write 1 million 9 times:
-     * Hashmap: used 628 MB, took 4.3 s
-     * HTreeMap: used 1763 MB, took 57.83 s
-     * Eclipse collections: used 608 MB, took 4.542 s
-     * Trove: used 382 MB, 4.725 s
-     * fastutil: 587 MB, 4.727 s
-     * HPPC: 640 MB, 4.712 s
-     * Caffeine: 416 MB, 4.893
-     * 
-     * TREEMAP tests:
-     * test1:
-     * Treemap: 398 MB, .236s
-     * BTreemap: 1091 MB, 40s
-     * eclipse: 395 MB, .278
-     * trove: N/A
-     * fastutil (avl): 381 MB, .276
-     * fastutil (rb): 374, .34
-     * hppc: none
-     * 
-     * test 2:
-     * Treemap: 398 MB, .236s
-     * BTreemap: 1091 MB, 40s
-     * eclipse: 395 MB, .278
-     * trove: N/A
-     * fastutil (avl): 381 MB, .276
-     * fastutil (rb): 1086, .2.71
-     * hppc: none
-     * 
-     * List<Map<Long, List<String>>>, 4320 length, insert 1000 items
-     * - 4320 is num buckets for 10 second ticks for a month
-     * native: 349 MB, 1.138 s
-     * fastutil: 333 MB, 1.024
-     * eclipse: 514 MB, .944
-     * 
-     * z = 1000
-     * eclipse: 786 MB, 7.5
-     * fastutil: 504 MB, 8.064
-     * native: 218 MB, 10,072
-     */
 
     /*
      * Utility function to print memory usage

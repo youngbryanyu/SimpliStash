@@ -69,7 +69,7 @@ public class DeleteCommand implements Command {
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
         if (numOptionalArgs == -1) {
-            return ProtocolUtil.buildErrorResponse("DELETE failed, invalid optional args count.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
         }
 
         /* Check if there are enough tokens for optional args */
@@ -82,13 +82,13 @@ public class DeleteCommand implements Command {
 
         /* Check if client is read-only */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("DELETE failed, read-only mode.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
         }
 
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
         if (optionalArgVals == null) {
-            return ProtocolUtil.buildErrorResponse("DELETE failed, malformed optional args.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
         }
 
         /* Get stash name */
@@ -102,7 +102,7 @@ public class DeleteCommand implements Command {
         /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            return ProtocolUtil.buildErrorResponse("DELETE failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_DOESNT_EXIST));
         }
 
         /* Delete key */

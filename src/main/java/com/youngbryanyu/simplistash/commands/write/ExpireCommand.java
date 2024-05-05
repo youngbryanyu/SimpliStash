@@ -70,7 +70,7 @@ public class ExpireCommand implements Command {
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
         if (numOptionalArgs == -1) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, invalid optional args count.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
         }
 
         /* Check if there are enough tokens for optional args */
@@ -84,13 +84,13 @@ public class ExpireCommand implements Command {
 
         /* Check if client is read-only */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, read-only mode.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
         }
 
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
         if (optionalArgVals == null) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, malformed optional args.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
         }
 
         /* Get stash name */
@@ -104,7 +104,7 @@ public class ExpireCommand implements Command {
         /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_DOESNT_EXIST));
         }
 
         /* Get TTL */
@@ -112,16 +112,16 @@ public class ExpireCommand implements Command {
         try {
             ttl = Long.parseLong(ttlStr);
         } catch (NumberFormatException e) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, TTL must be a valid long.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.TTL_INVALID_LONG));
         }
         if (ttl <= 0 || ttl > Command.MAX_TTL) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, TTL is outside the supported range.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.TTL_OUT_OF_RANGE));
         }
 
         /* Update TTL */
         boolean updatedTTL = stash.updateTTL(key, ttl);
         if (!updatedTTL) {
-            return ProtocolUtil.buildErrorResponse("EXPIRE failed, the key doesn't exist.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.KEY_DOESNT_EXIST));
         }
 
         /* Build response */

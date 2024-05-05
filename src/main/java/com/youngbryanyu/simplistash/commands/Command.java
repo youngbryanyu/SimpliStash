@@ -15,6 +15,53 @@ public interface Command {
     public static final long MAX_TTL = 157_784_630_000L;
 
     /**
+     * Enum for command error causes, which are part of error messages to return to
+     * clients.
+     */
+    public enum ErrorCause {
+        /* Optional arg errors */
+        INVALID_OPTIONAL_ARGS_COUNT("Invalid optional args count."),
+        MALFORMED_OPTIONAL_ARGS("Malformed optional args."),
+        /* Read-only mode errors */
+        READ_ONLY_MODE("Cannot perform this action in read-only mode."),
+        /* Key/value errors */
+        KEY_TOO_LONG("The key is too long."),
+        VALUE_TOO_LONG("The value is too long."),
+        KEY_DOESNT_EXIST("The key doesn't exist."),
+        /* Stash errors */
+        STASH_DOESNT_EXIST("Stash doesn't exist."),
+        STASH_CANNOT_DROP_DEFAULT("Cannot drop the default stash."),
+        STASH_NAME_TOO_LONG("The stash name is too long."),
+        STASH_NAME_TAKEN("The stash name is already taken."),
+        STASH_LIMIT_REACHED("The max number of stashes has been reached."),
+        /* TTL errors */
+        TTL_INVALID_LONG("The TTL must be a valid long."),
+        TTL_OUT_OF_RANGE("The TTL is out of the supported range.");
+
+        /**
+         * The enum's message
+         */
+        private final String message;
+
+        /**
+         * 
+         * @param message
+         */
+        private ErrorCause(String message) {
+            this.message = message;
+        }
+
+        /**
+         * Returns the message associated with the error cause enum.
+         * 
+         * @return The error cause message.
+         */
+        public String getMessage() {
+            return message;
+        }
+    }
+
+    /**
      * Returns the command's name.
      * 
      * @return The command's name.
@@ -82,5 +129,15 @@ public interface Command {
         }
 
         return argMap;
+    }
+
+    /**
+     * Builds an error message for the command.
+     * 
+     * @param cause The cause of the error.
+     * @return The error message for the command with cause.
+     */
+    public default String buildErrorMessage(ErrorCause cause) {
+        return String.format("%s failed, %s", getName(), cause.getMessage());
     }
 }

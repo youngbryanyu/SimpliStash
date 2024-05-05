@@ -61,12 +61,12 @@ public class DropCommand implements Command {
 
         /* Check if client is read-only */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("DROP failed, read-only mode");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
         }
 
         /* Check if attempting to drop default stash */
         if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
-            return ProtocolUtil.buildErrorResponse("DROP failed, cannot drop the default stash.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_CANNOT_DROP_DEFAULT));
         }
 
         /* Drop stash */

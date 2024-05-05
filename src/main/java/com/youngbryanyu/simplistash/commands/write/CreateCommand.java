@@ -62,20 +62,20 @@ public class CreateCommand implements Command {
 
         /* Check if client is read-only */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("CREATE failed, read-only mode.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
         }
 
         /* Validate stash name */
         if (name.length() > Stash.MAX_NAME_SIZE) {
-            return ProtocolUtil.buildErrorResponse("CREATE failed, the name is too long.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_NAME_TOO_LONG));
         } else if (stashManager.containsStash(name)) {
-            return ProtocolUtil.buildErrorResponse("CREATE failed, the name is already taken.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_NAME_TAKEN));
         }
 
         /* Create stash */
         boolean createdSuccessfully = stashManager.createStash(name);
         if (!createdSuccessfully) {
-            return ProtocolUtil.buildErrorResponse("CREATE failed, the max number of stashes has been reached.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_LIMIT_REACHED));
         }
 
         /* Build response */

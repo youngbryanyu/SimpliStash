@@ -74,7 +74,7 @@ public class SetCommand implements Command {
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
         if (numOptionalArgs == -1) {
-            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args count.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
         }
 
         /* Check if there are enough tokens for optional args */
@@ -88,20 +88,20 @@ public class SetCommand implements Command {
 
         /* Check if client is read-only */
         if (readOnly) {
-            return ProtocolUtil.buildErrorResponse("SET failed, read-only mode.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
         }
 
         /* Validate key */
         if (key.length() > Stash.MAX_KEY_SIZE) {
-            return ProtocolUtil.buildErrorResponse("SET failed, the key is too long.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.KEY_TOO_LONG));
         } else if (value.length() > Stash.MAX_VALUE_SIZE) {
-            return ProtocolUtil.buildErrorResponse("SET failed, the value is too long.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.VALUE_TOO_LONG));
         }
 
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
         if (optionalArgVals == null) {
-            return ProtocolUtil.buildErrorResponse("SET failed, malformed optional args.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
         }
 
         /* Get stash name */
@@ -115,7 +115,7 @@ public class SetCommand implements Command {
         /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            return ProtocolUtil.buildErrorResponse("SET failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_DOESNT_EXIST));
         }
 
         /* Set TTL (optional) */
@@ -124,11 +124,11 @@ public class SetCommand implements Command {
             try {
                 ttl = Long.parseLong(optionalArgVals.get(ARG_TTL));
             } catch (NumberFormatException e) {
-                return ProtocolUtil.buildErrorResponse("SET failed, TTL must be a valid long.");
+                return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.TTL_INVALID_LONG));
             }
 
             if (ttl <= 0 || ttl > Command.MAX_TTL) {
-                return ProtocolUtil.buildErrorResponse("SET failed, TTL is outside the supported range.");
+                return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.TTL_OUT_OF_RANGE));
             }
         }
 

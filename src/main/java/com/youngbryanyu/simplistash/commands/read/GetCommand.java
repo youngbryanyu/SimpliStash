@@ -69,7 +69,7 @@ public class GetCommand implements Command {
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
         if (numOptionalArgs == -1) {
-            return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args count.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
         }
 
         /* Check if there are enough tokens for optional args */
@@ -83,7 +83,7 @@ public class GetCommand implements Command {
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
         if (optionalArgVals == null) {
-            return ProtocolUtil.buildErrorResponse("GET failed, malformed optional args.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
         }
 
         /* Get stash name */
@@ -97,7 +97,7 @@ public class GetCommand implements Command {
         /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_DOESNT_EXIST));
         }
 
         /* Get value */

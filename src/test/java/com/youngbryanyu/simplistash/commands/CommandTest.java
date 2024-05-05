@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
  * Unit tests for command.
  */
 public class CommandTest {
-
+    /**
+     * The concrete command implementing the command interface under test.
+     */
     class TestCommand implements Command {
         public static final String NAME = "name";
         public static final String EXECUTE_RESPONSE = "executed";
@@ -23,12 +25,15 @@ public class CommandTest {
         public String getName() {
             return NAME;
         }
-
+        
         public String execute(Deque<String> tokens, boolean readOnly) {
             return EXECUTE_RESPONSE;
         }
     }
 
+    /**
+     * The command under test.
+     */
     private Command command;
 
     /**
@@ -51,7 +56,7 @@ public class CommandTest {
     }
 
     /**
-     * Test {@link Command#getNumOptionalArgs(String)}.
+     * Test {@link Command#getNumOptionalArgs(String)} with a valid token.
      */
     @Test
     public void testGetNumOptionalArgs_valid() {
@@ -74,7 +79,7 @@ public class CommandTest {
     }
 
     /**
-     * Test {@link Command#processOptionalArgs(Deque, int)}
+     * Test {@link Command#processOptionalArgs(Deque, int)} with valid arguments.
      */
     @Test
     public void testProcessOptionalArgs_valid() {
@@ -85,7 +90,7 @@ public class CommandTest {
     }
 
     /**
-     * Test {@link Command#processOptionalArgs(Deque, int)}.
+     * Test {@link Command#processOptionalArgs(Deque, int)} with invalid arguments.
      */
     @Test
     public void testProcessOptionalArgs_invalid() {
@@ -94,7 +99,7 @@ public class CommandTest {
         assertNull(result);
     }
 
-     /**
+    /**
      * Test {@link Command#buildErrorMessage(Command.ErrorCause)}.
      */
     @Test
@@ -103,5 +108,4 @@ public class CommandTest {
         String actual = command.buildErrorMessage(Command.ErrorCause.KEY_TOO_LONG);
         assertEquals(expected, actual);
     }
-
 }

@@ -153,7 +153,7 @@ public class SetCommand implements WriteCommand {
             }
 
             if (ttl <= 0 || ttl > Command.MAX_TTL) {
-                ProtocolUtil.buildErrorResponse("The TTL value must be in the range [1, 157,784,630,000]");
+                return ProtocolUtil.buildErrorResponse("The TTL value must be in the range [1, 157_784_630_000]");
             }
         }
 

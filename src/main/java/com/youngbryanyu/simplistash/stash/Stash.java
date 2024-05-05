@@ -144,6 +144,16 @@ public class Stash {
     }
 
     /**
+     * Returns whether or not the stash contains the given key.
+     * 
+     * @param key The key.
+     * @return True if the stash contains the key, false otherwise.
+     */
+    public boolean contains(String key) {
+        return get(key) != null;
+    }
+
+    /**
      * Deletes a key from the stash and clears its TTL. Returns the OK response.
      * 
      * There cannot be parallel write operations since there is only one thread
@@ -168,6 +178,16 @@ public class Stash {
      */
     public void setWithTTL(String key, String value, long ttl) {
         cache.put(key, value);
+        ttlTimeWheel.add(key, ttl);
+    }
+
+    /**
+     * Updates the TTL of a given key.
+     * 
+     * @param key The key.
+     * @param ttl The key's new TTL.
+     */
+    public void updateTTL(String key, long ttl) {
         ttlTimeWheel.add(key, ttl);
     }
 
@@ -198,13 +218,13 @@ public class Stash {
      */
     public void expireTTLKeys() {
         List<String> expiredKeys = ttlTimeWheel.expireKeys();
-       
+
         for (String key : expiredKeys) {
             cache.remove(key);
         }
 
         if (!expiredKeys.isEmpty()) {
-            logger.debug(String.format("Expired keys from stash [%s]: %s", name, expiredKeys));        
+            logger.debug(String.format("Expired keys from stash [%s]: %s", name, expiredKeys));
         }
     }
 }

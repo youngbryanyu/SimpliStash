@@ -26,7 +26,7 @@ public class DropCommand implements WriteCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The stash manager.
      */
@@ -46,6 +46,7 @@ public class DropCommand implements WriteCommand {
     public DropCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -58,7 +59,7 @@ public class DropCommand implements WriteCommand {
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough arguments */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 

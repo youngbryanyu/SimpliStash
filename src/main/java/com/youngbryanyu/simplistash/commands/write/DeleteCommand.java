@@ -2,6 +2,7 @@ package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
 
+import org.checkerframework.checker.units.qual.min;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class DeleteCommand implements WriteCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The stash manager.
      */
@@ -47,6 +48,7 @@ public class DeleteCommand implements WriteCommand {
     public DeleteCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -60,7 +62,7 @@ public class DeleteCommand implements WriteCommand {
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough args */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 

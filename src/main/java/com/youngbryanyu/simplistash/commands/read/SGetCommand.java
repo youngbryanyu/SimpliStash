@@ -27,7 +27,7 @@ public class SGetCommand implements ReadCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The stash manager.
      */
@@ -47,6 +47,7 @@ public class SGetCommand implements ReadCommand {
     public SGetCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -61,7 +62,7 @@ public class SGetCommand implements ReadCommand {
      */
     public String execute(Deque<String> tokens) {
         /* Return null if not enough tokens */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 

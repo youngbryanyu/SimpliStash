@@ -1,6 +1,8 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class SSetCommand implements WriteCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The stash manager.
      */
@@ -47,6 +49,7 @@ public class SSetCommand implements WriteCommand {
     public SSetCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -62,7 +65,7 @@ public class SSetCommand implements WriteCommand {
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough args */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 

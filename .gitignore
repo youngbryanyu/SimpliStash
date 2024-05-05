@@ -5,7 +5,8 @@
 target
 
 # Ignore test script used to test client
-test_script.py 
+test.py 
+test_reads.py 
 
 # ignore logs 
 logs

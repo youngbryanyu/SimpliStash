@@ -1,6 +1,9 @@
 package com.youngbryanyu.simplistash.commands;
 
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Interface for a command.
@@ -25,9 +28,49 @@ public interface Command {
      * 
      * @return The minimum number of required arguments for a command.
      */
-    public static int getMinRequiredArgs(String format) {
+    public default int getMinRequiredArgs(String format) {
         return (int) Arrays.stream(format.split(" "))
                 .filter(part -> !part.startsWith("["))
                 .count();
+    }
+
+    /**
+     * Returns the number of optional arguments. Returns -1 if the input is
+     * malformed.
+     * 
+     * @param token The token representing the number of args.
+     * @return The number of optional arguments.
+     */
+    public default int getNumOptionalArgs(String token) {
+        try {
+            return Integer.parseInt(token);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Process the optional args for a command and store them in a map
+     * 
+     * @param tokens  The client's tokens
+     * @param numArgs The number of optional args
+     * @return A map of arg names to arg vals.
+     */
+    public default Map<String, String> processOptionalArgs(Deque<String> tokens, int numArgs) {
+        Map<String, String> argMap = new HashMap<>();
+        for (int i = 0; i < numArgs; i++) {
+            String token = tokens.poll();
+            String[] arg = token.split("=");
+
+            if (arg.length != 2) {
+                return null;
+            }
+
+            String argName = arg[0];
+            String argVal = arg[1];
+            argMap.put(argName, argVal);
+        }
+
+        return argMap;
     }
 }

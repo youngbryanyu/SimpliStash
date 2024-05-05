@@ -29,7 +29,7 @@ public class SetCommand implements WriteCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The name of the optional ttl arg.
      */
@@ -53,6 +53,7 @@ public class SetCommand implements WriteCommand {
     public SetCommand(StashManager stashManager, Logger logger) {
         this.stashManager = stashManager;
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -66,7 +67,7 @@ public class SetCommand implements WriteCommand {
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough args */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
@@ -152,46 +153,6 @@ public class SetCommand implements WriteCommand {
         /* Return OK */
         logger.debug(String.format("SET %s --> %s", key, value));
         return ProtocolUtil.buildOkResponse();
-    }
-
-    /**
-     * Returns the number of optional arguments. Returns -1 if the input is
-     * malformed.
-     * 
-     * @param token The token representing the number of args.
-     * @return The number of optional arguments.
-     */
-    private int getNumOptionalArgs(String token) {
-        try {
-            return Integer.parseInt(token);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
-    /**
-     * Process the optional args and store them in a map
-     * 
-     * @param tokens  The client's tokens
-     * @param numArgs The number of optional args
-     * @return A map of arg names to arg vals.
-     */
-    private Map<String, String> processOptionalArgs(Deque<String> tokens, int numArgs) {
-        Map<String, String> argMap = new HashMap<>();
-        for (int i = 0; i < numArgs; i++) {
-            String token = tokens.poll();
-            String[] arg = token.split("=");
-
-            if (arg.length != 2) {
-                return null;
-            }
-
-            String argName = arg[0];
-            String argVal = arg[1];
-            argMap.put(argName, argVal);
-        }
-
-        return argMap;
     }
 
     /**

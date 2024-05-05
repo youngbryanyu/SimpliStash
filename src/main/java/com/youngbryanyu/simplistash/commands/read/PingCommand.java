@@ -25,7 +25,7 @@ public class PingCommand implements ReadCommand {
     /**
      * The minimum number of required arguments.
      */
-    private static final int MIN_REQUIRED_ARGS = Command.getMinRequiredArgs(FORMAT);
+    private final int minRequiredArgs;
     /**
      * The application logger.
      */
@@ -39,6 +39,7 @@ public class PingCommand implements ReadCommand {
     @Autowired
     public PingCommand(Logger logger) {
         this.logger = logger;
+        minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -51,7 +52,7 @@ public class PingCommand implements ReadCommand {
      */
     public String execute(Deque<String> tokens) {
         /* Return null if not enough arguments */
-        if (tokens.size() < MIN_REQUIRED_ARGS) {
+        if (tokens.size() < minRequiredArgs) {
             return null;
         }
 

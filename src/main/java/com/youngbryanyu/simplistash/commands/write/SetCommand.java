@@ -60,10 +60,7 @@ public class SetCommand implements WriteCommand {
     }
 
     /**
-     * Executes the SET command. Stores the key value pair in the default stash.
-     * Responds with OK.
-     * 
-     * Format: SET <key> <value>
+     * Executes the SET command.
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.

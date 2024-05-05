@@ -1,13 +1,12 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
+import java.util.Map;
 
-import org.checkerframework.checker.units.qual.min;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -24,11 +23,15 @@ public class DeleteCommand implements WriteCommand {
     /**
      * The base format of the command
      */
-    private static final String FORMAT = "DELETE <key>";
+    private static final String FORMAT = "DELETE <key> <num_optional_args> [NAME]";
     /**
      * The minimum number of required arguments.
      */
     private final int minRequiredArgs;
+    /**
+     * The name of the optional name arg.
+     */
+    private static final String ARG_NAME = "NAME";
     /**
      * The stash manager.
      */
@@ -52,10 +55,7 @@ public class DeleteCommand implements WriteCommand {
     }
 
     /**
-     * Executes the DELETE command. Returns null if there aren't enough tokens.
-     * Responds with OK.
-     * 
-     * Format: DELETE <key>
+     * Executes the DELETE command.
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.
@@ -73,15 +73,58 @@ public class DeleteCommand implements WriteCommand {
          */
         tokens.pollFirst();
         String key = tokens.pollFirst();
+        String numOptionalArgsStr = tokens.pollFirst();
 
-        /* Return error if client is in read-only mode */
+        /* Get number of optional args */
+        int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
+
+        /**
+         * Return error if num optional args is malformed.
+         */
+        if (numOptionalArgs == -1) {
+            logger.debug(String.format("GET %s (failed, invalid optional args count)", key));
+            return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args count");
+        }
+
+        /* Re-add tokens and return null if not enough args */
+        if (tokens.size() < numOptionalArgs) {
+            tokens.addFirst(numOptionalArgsStr);
+            tokens.addFirst(key);
+            tokens.addFirst(NAME);
+            return null;
+        }
+
+        /* Return error after extracting tokens if client is in read-only mode */
         if (readOnly) {
             logger.debug(String.format("DELETE %s (failed, read only mode)", key));
             return ProtocolUtil.buildErrorResponse("Cannot DELETE in read-only mode");
         }
 
+        /* Process optional args */
+        Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
+
+        /* Return error message if error occurred while processing optional args */
+        if (optionalArgVals == null) {
+            logger.debug(String.format("DELETE %s (failed, invalid optional args)", key));
+            return ProtocolUtil.buildErrorResponse("DELETE failed, invalid optional args");
+        }
+
+        /* Get the stash name */
+        String name;
+        if (optionalArgVals.containsKey(ARG_NAME)) {
+            name = optionalArgVals.get(ARG_NAME);
+        } else {
+            name = StashManager.DEFAULT_STASH_NAME;
+        }
+
+        /* Get the stash, check if it exists */
+        Stash stash = stashManager.getStash(name);
+        if (stash == null) {
+            logger.debug(String.format("DELETE {%s} %s (failed, stash doesn't exist)", name, key));
+            return ProtocolUtil.buildErrorResponse("DELETE failed, stash doesn't exist.");
+        }
+
         /* Delete the key */
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
         stash.delete(key);
 
         /* Return OK */

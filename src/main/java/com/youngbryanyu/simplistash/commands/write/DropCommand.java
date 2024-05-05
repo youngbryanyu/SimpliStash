@@ -11,7 +11,7 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The DROP command. Deletes an entire stash.
+ * The DROP command. Drops a stash.
  */
 @Component
 public class DropCommand implements Command {
@@ -20,7 +20,7 @@ public class DropCommand implements Command {
      */
     private static final String NAME = "DROP";
     /**
-     * The base format of the command
+     * The command's format.
      */
     private static final String FORMAT = "DROP <name>";
     /**
@@ -31,63 +31,49 @@ public class DropCommand implements Command {
      * The stash manager.
      */
     private final StashManager stashManager;
-    /**
-     * The application logger.
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the DROP command.
      * 
      * @param stashManager The stash manager.
-     * @param logger       The logger.
      */
     @Autowired
-    public DropCommand(StashManager stashManager, Logger logger) {
+    public DropCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        this.logger = logger;
         minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the DROP command. Deletes a stash. Responds with OK.
+     * Executes the DROP command. Returns null if there aren't enough tokens.
      * 
-     * Format: DROP <name>
-     * 
-     * @param tokens The client's tokens.
+     * @param tokens   The client's tokens.
+     * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough arguments */
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
-        /*
-         * Remove all tokens associated with the command. This should be done at the
-         * start in order to not pollute future command execution in case the command
-         * exits early due to an error.
-         */
+        /* Extract tokens */
         tokens.pollFirst();
         String name = tokens.pollFirst();
 
-        /* Return error if client is in read-only mode */
+        /* Check if client is read-only */
         if (readOnly) {
-            logger.debug(String.format("DROP %s (failed, read-only mode)", name));
-            return ProtocolUtil.buildErrorResponse("Cannot DROP in read-only mode");
+            return ProtocolUtil.buildErrorResponse("DROP failed, read-only mode");
         }
 
-        /* Return error if attempting to drop the default stash */
+        /* Check if attempting to drop default stash */
         if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
-            logger.debug("DROP %s (failed, cannot drop default stash)");
-            return ProtocolUtil.buildErrorResponse("Cannot drop the default stash.");
+            return ProtocolUtil.buildErrorResponse("DROP failed, cannot drop the default stash.");
         }
 
-        /* Drop the stash */
-        stashManager.dropStash(name); 
+        /* Drop stash */
+        stashManager.dropStash(name);
 
-        /* Return OK */
-        logger.debug(String.format("DROP %s", name));
+        /* Build response */
         return ProtocolUtil.buildOkResponse();
     }
 

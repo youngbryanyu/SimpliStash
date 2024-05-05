@@ -35,11 +35,10 @@ public class PingCommand implements Command {
     }
 
     /**
-     * Executes the PING command. Reponse with PONG.
+     * Executes the PING command. Returns null if there aren't enough tokens.
      * 
-     * Format: PING
-     * 
-     * @param tokens The client's tokens.
+     * @param tokens   The client's tokens.
+     * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {

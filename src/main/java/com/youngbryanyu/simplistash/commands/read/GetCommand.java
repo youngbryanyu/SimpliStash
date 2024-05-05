@@ -52,6 +52,7 @@ public class GetCommand implements Command {
      * Executes the GET command. Returns null if there aren't enough tokens.
      * 
      * @param tokens The client's tokens.
+     * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
@@ -68,7 +69,7 @@ public class GetCommand implements Command {
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
         if (numOptionalArgs == -1) {
-            return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args count");
+            return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args count.");
         }
 
         /* Check if there are enough tokens for optional args */
@@ -82,10 +83,10 @@ public class GetCommand implements Command {
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
         if (optionalArgVals == null) {
-            return ProtocolUtil.buildErrorResponse("GET failed, malformed optional args");
+            return ProtocolUtil.buildErrorResponse("GET failed, malformed optional args.");
         }
 
-        /* Get the stash name */
+        /* Get stash name */
         String name;
         if (optionalArgVals.containsKey(ARG_NAME)) {
             name = optionalArgVals.get(ARG_NAME);
@@ -93,10 +94,10 @@ public class GetCommand implements Command {
             name = StashManager.DEFAULT_STASH_NAME;
         }
 
-        /* Get the stash */
+        /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist");
+            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
         }
 
         /* Get value */

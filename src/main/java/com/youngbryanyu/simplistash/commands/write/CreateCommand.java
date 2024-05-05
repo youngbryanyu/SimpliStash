@@ -21,7 +21,7 @@ public class CreateCommand implements Command {
      */
     private static final String NAME = "CREATE";
     /**
-     * The base format of the command
+     * The command's format.
      */
     private static final String FORMAT = "CREATE <name>";
     /**
@@ -32,81 +32,59 @@ public class CreateCommand implements Command {
      * The stash manager.
      */
     private final StashManager stashManager;
-    /**
-     * The application logger.
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the CREATE command.
      * 
      * @param stashManager The stash manager.
-     * @param logger       The logger.
      */
     @Autowired
-    public CreateCommand(StashManager stashManager, Logger logger) {
+    public CreateCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        this.logger = logger;
         minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the CREATE command. Creates a new stash. 
-     * 
-     * Format: CREATE <name>
+     * Executes the CREATE command. Returns null if there aren't enough tokens.
      * 
      * @param tokens   The client's tokens.
      * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough args */
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
-        /*
-         * Remove all tokens associated with the command. This should be done at the
-         * start in order to not pollute future command execution in case the command
-         * exits early due to an error.
-         */
+        /* Extract tokens */
         tokens.pollFirst();
         String name = tokens.pollFirst();
 
-        /* Return error if client is in read-only mode */
+        /* Check if client is read-only */
         if (readOnly) {
-            logger.debug(String.format("CREATE %s (failed, read-only mode)", name));
-            return ProtocolUtil.buildErrorResponse("Cannot CREATE in read-only mode");
+            return ProtocolUtil.buildErrorResponse("CREATE failed, read-only mode.");
         }
-        
-        /* Return error if stash name is too long */
+
+        /* Validate stash name */
         if (name.length() > Stash.MAX_NAME_SIZE) {
-            logger.debug(String.format("CREATE %s (failed, name exceeds size limit)", name));
-            return ProtocolUtil.buildErrorResponse("The name exceeds the size limit.");
+            return ProtocolUtil.buildErrorResponse("CREATE failed, the name is too long.");
+        } else if (stashManager.containsStash(name)) {
+            return ProtocolUtil.buildErrorResponse("CREATE failed, the name is already taken.");
         }
 
-        /* Return error if stash name is already taken */
-        if (stashManager.containsStash(name)) {
-            logger.debug(String.format("CREATE %s (failed, name already taken)", name));
-            return ProtocolUtil.buildErrorResponse("The stash name is already taken.");
-        }
-
-        /* Create the stash */
-        boolean createdSuccessfully = stashManager.createStash(name); 
-
-        /* Return error if couldn't create stash (too many existing already) */
+        /* Create stash */
+        boolean createdSuccessfully = stashManager.createStash(name);
         if (!createdSuccessfully) {
-            logger.debug(String.format("CREATE %s (failed, max number of stashes reached)", name));
-            return ProtocolUtil.buildErrorResponse("The max number of stashes has been reached.");
+            return ProtocolUtil.buildErrorResponse("CREATE failed, the max number of stashes has been reached.");
         }
 
-        /* Return OK response */
-        logger.debug(String.format("CREATE %s", name));
+        /* Build response */
         return ProtocolUtil.buildOkResponse();
     }
 
     /**
-     * Returns the command name.
+     * Returns the command's name.
      * 
      * @return THe command's name.
      */

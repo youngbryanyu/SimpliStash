@@ -13,7 +13,7 @@ import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The SET command. Sets a key's value in the default stash.
+ * The SET command. Sets a key's value in a stash.
  */
 @Component
 public class SetCommand implements Command {
@@ -22,7 +22,7 @@ public class SetCommand implements Command {
      */
     private static final String NAME = "SET";
     /**
-     * The base format of the command.
+     * The command's format.
      */
     private static final String FORMAT = "SET <key> <value> <num_optional_args> [NAME] [TTL]";
     /**
@@ -41,41 +41,32 @@ public class SetCommand implements Command {
      * The stash manager.
      */
     private final StashManager stashManager;
-    /**
-     * The application logger.
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the SET command.
      * 
      * @param stashManager The stash manager.
-     * @param logger       The logger.
      */
     @Autowired
-    public SetCommand(StashManager stashManager, Logger logger) {
+    public SetCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        this.logger = logger;
         minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the SET command.
+     * Executes the SET command. Returns null if there aren't enough tokens.
      * 
-     * @param tokens The client's tokens.
+     * @param tokens   The client's tokens.
+     * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough args */
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
-        /*
-         * Remove all tokens associated with the command. This should be done at the
-         * start in order to not pollute future command execution in case the command
-         * exits early due to an error.
-         */
+        /* Extract tokens */
         tokens.pollFirst();
         String key = tokens.pollFirst();
         String value = tokens.pollFirst();
@@ -83,16 +74,11 @@ public class SetCommand implements Command {
 
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
-
-        /**
-         * Return error if num optional args is malformed.
-         */
         if (numOptionalArgs == -1) {
-            logger.debug(String.format("SET %s --> %s (failed, invalid optional args count)", key, value));
-            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args count");
+            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args count.");
         }
 
-        /* Re-add tokens and return null if not enough args */
+        /* Check if there are enough tokens for optional args */
         if (tokens.size() < numOptionalArgs) {
             tokens.addFirst(numOptionalArgsStr);
             tokens.addFirst(value);
@@ -101,34 +87,25 @@ public class SetCommand implements Command {
             return null;
         }
 
-        /* Return error after extracting tokens if client is in read-only mode */
+        /* Check if client is read-only */
         if (readOnly) {
-            logger.debug(String.format("SET %s --> %s (failed, read-only mode)", key, value));
-            return ProtocolUtil.buildErrorResponse("Cannot SET in read-only mode");
+            return ProtocolUtil.buildErrorResponse("SET failed, read-only mode.");
         }
 
-        /* Return error if key is too big */
+        /* Validate key */
         if (key.length() > Stash.MAX_KEY_SIZE) {
-            logger.debug(String.format("SET %s --> %s (failed, key is too big)", key, value));
-            return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
-        }
-
-        /* Return error if value is too big */
-        if (value.length() > Stash.MAX_VALUE_SIZE) {
-            logger.debug(String.format("SET %s --> %s (failed, value is too big)", key, value));
-            return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
+            return ProtocolUtil.buildErrorResponse("SET failed, the key is too long.");
+        } else if (value.length() > Stash.MAX_VALUE_SIZE) {
+            return ProtocolUtil.buildErrorResponse("SET failed, the value is too long.");
         }
 
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
-
-        /* Return error message if error occurred while processing optional args */
         if (optionalArgVals == null) {
-            logger.debug(String.format("SET %s --> %s (failed, invalid optional args)", key, value));
-            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args");
+            return ProtocolUtil.buildErrorResponse("SET failed, malformed optional args.");
         }
 
-        /* Get the stash name */
+        /* Get stash name */
         String name;
         if (optionalArgVals.containsKey(ARG_NAME)) {
             name = optionalArgVals.get(ARG_NAME);
@@ -136,36 +113,34 @@ public class SetCommand implements Command {
             name = StashManager.DEFAULT_STASH_NAME;
         }
 
-        /* Get the stash, check if it exists */
+        /* Get stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            logger.debug(String.format("GET {%s} %s (failed, stash doesn't exist)", name, key));
-            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse("SET failed, stash doesn't exist.");
         }
 
-        /* Set the TTL if specified */
+        /* Set TTL (optional) */
         long ttl = -1;
         if (optionalArgVals.containsKey(ARG_TTL)) {
             try {
                 ttl = Long.parseLong(optionalArgVals.get(ARG_TTL));
             } catch (NumberFormatException e) {
-                return ProtocolUtil.buildErrorResponse("TTL must be a valid long.");
+                return ProtocolUtil.buildErrorResponse("SET failed, TTL must be a valid long.");
             }
 
             if (ttl <= 0 || ttl > Command.MAX_TTL) {
-                return ProtocolUtil.buildErrorResponse("The TTL value must be in the range [1, 157_784_630_000]");
+                return ProtocolUtil.buildErrorResponse("SET failed, TTL is outside the supported range.");
             }
         }
 
-        /* Set a new value */
+        /* Set value */
         if (ttl == -1) {
             stash.set(key, value);
         } else {
             stash.setWithTTL(key, value, ttl); /* Set with TTL if specified */
         }
 
-        /* Return OK */
-        logger.debug(String.format("SET %s --> %s", key, value));
+        /* Build response */
         return ProtocolUtil.buildOkResponse();
     }
 

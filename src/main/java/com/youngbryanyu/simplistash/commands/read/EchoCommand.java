@@ -38,6 +38,7 @@ public class EchoCommand implements Command {
      * Executes the ECHO command. Returns null if there aren't enough tokens.
      * 
      * @param tokens The client's tokens.
+     * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {

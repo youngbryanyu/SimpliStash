@@ -59,6 +59,9 @@ public class AppConfigTest {
         assertTrue(readOnlyHandler instanceof ClientHandler);
     }
 
+    /**
+     * Tests creating the writeable client handler bean.
+     */
     @Test
     public void testWriteableClientHandlerBean() {
         ClientHandler writeableHandler = context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);

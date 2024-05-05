@@ -104,9 +104,7 @@ public class GetCommand implements Command {
         String value = stash.get(key, readOnly);
 
         /* Build response */
-        return (value == null)
-                ? ProtocolUtil.buildNullResponse()
-                : ProtocolUtil.buildValueResponse(value);
+        return ProtocolUtil.buildValueResponse(value);
     }
 
     /**

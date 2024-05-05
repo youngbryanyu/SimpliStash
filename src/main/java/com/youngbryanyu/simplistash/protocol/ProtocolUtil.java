@@ -34,11 +34,15 @@ public final class ProtocolUtil {
 
     /**
      * Builds a response containing an arbitrary value to send back to the client.
+     * Returns the null response of the value is null.
      * 
      * @param value The value to send to the client.
      * @return The formatted value to send to the client.
      */
     public static String buildValueResponse(String value) {
+        if (value == null) {
+            return buildNullResponse();
+        }
         return encode(value);
     }
 
@@ -52,7 +56,7 @@ public final class ProtocolUtil {
      */
     public static String buildErrorResponse(String message) {
         if (message == null) {
-            return encode(ERROR_PREFIX) + encode("unknown error occurred.");
+            return encode(ERROR_PREFIX) + encode("Unknown error occurred.");
         }
         return encode(ERROR_PREFIX) + encode(message);
     }

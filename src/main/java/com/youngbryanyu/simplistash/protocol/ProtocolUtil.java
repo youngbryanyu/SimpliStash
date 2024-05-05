@@ -1,12 +1,14 @@
 package com.youngbryanyu.simplistash.protocol;
 
+import java.util.List;
+
 /**
- * Class containing protocol constants and methods to help with building
- * protocol responses.
+ * Utility class containing protocol constants and methods to help with encoding
+ * and building protocol responses.
  */
 public final class ProtocolUtil {
     /**
-     * Delimiter in the protocol separating arguments.
+     * Delimiter used in the length-prefixed protocol.
      */
     public static final String DELIM = "\r\n";
     /**
@@ -74,10 +76,9 @@ public final class ProtocolUtil {
     }
 
     /**
-     * Builds an "pong" response to the client indicating that their "ping" was
-     * received.
+     * Builds an PONG response.
      * 
-     * @return The formatted "pong" response.
+     * @return The formatted PONG response.
      */
     public static String buildPongResponse() {
         return encode(PONG_RESPONSE);
@@ -96,5 +97,18 @@ public final class ProtocolUtil {
         return String.format("%s%s%s", token.length(), DELIM, token);
     }
 
-    // TODO: add code to encode a list of tokens to string
+    /**
+     * Encodes a list of tokens into a stream of length-prefixed strings that follow
+     * the protocol.
+     * 
+     * @param tokens The list of tokens to encode.
+     * @return
+     */
+    public static String encode(List<String> tokens) {
+        StringBuilder result = new StringBuilder();
+        for (String token : tokens) {
+            result.append(token.length()).append(DELIM).append(token);
+        }
+        return result.toString();
+    }
 }

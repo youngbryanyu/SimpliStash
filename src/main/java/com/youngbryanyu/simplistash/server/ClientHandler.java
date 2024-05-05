@@ -153,7 +153,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * @throws BrokenProtocolException If the client's input doesn't follow the
      *                                 protocol.
      */
-    private void parseTokens()
+    protected void parseTokens()
             throws BufferOverflowException, BrokenProtocolException {
         /* Throw exception if buffer's size has exceeded the allowable limit */
         if (buffer.length() > getMaxBufferSize()) {
@@ -219,15 +219,5 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     private static int getMaxBufferSize() {
         return 3 * (Stash.MAX_KEY_SIZE + Stash.MAX_VALUE_SIZE);
-    }
-
-    /**
-     * Returns whether or not the client handler is can only perform read
-     * operations.
-     * 
-     * @return True if the client is read-only, false otherwise.
-     */
-    public boolean isReadOnly() {
-        return readOnly;
     }
 }

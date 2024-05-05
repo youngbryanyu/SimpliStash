@@ -101,6 +101,24 @@ public class SetCommand implements WriteCommand {
             return null;
         }
 
+        /* Return error after extracting tokens if client is in read-only mode */
+        if (readOnly) {
+            logger.debug(String.format("SET %s --> %s (failed, read-only mode)", key, value));
+            return ProtocolUtil.buildErrorResponse("Cannot SET in read-only mode");
+        }
+
+        /* Return error if key is too big */
+        if (key.length() > Stash.MAX_KEY_SIZE) {
+            logger.debug(String.format("SET %s --> %s (failed, key is too big)", key, value));
+            return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
+        }
+
+        /* Return error if value is too big */
+        if (value.length() > Stash.MAX_VALUE_SIZE) {
+            logger.debug(String.format("SET %s --> %s (failed, value is too big)", key, value));
+            return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
+        }
+
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
 
@@ -122,24 +140,6 @@ public class SetCommand implements WriteCommand {
             if (ttl <= 0 || ttl > Command.MAX_TTL) {
                 ProtocolUtil.buildErrorResponse("The TTL value must be in the range [1, 157,784,630,000]");
             }
-        }
-
-        /* Return error if client is in read-only mode */
-        if (readOnly) {
-            logger.debug(String.format("SET %s --> %s (failed, read-only mode)", key, value));
-            return ProtocolUtil.buildErrorResponse("Cannot SET in read-only mode");
-        }
-
-        /* Return error if key is too big */
-        if (key.length() > Stash.MAX_KEY_SIZE) {
-            logger.debug(String.format("SET %s --> %s (failed, key is too big)", key, value));
-            return ProtocolUtil.buildErrorResponse("The key exceeds the size limit.");
-        }
-
-        /* Return error if value is too big */
-        if (value.length() > Stash.MAX_VALUE_SIZE) {
-            logger.debug(String.format("SET %s --> %s (failed, value is too big)", key, value));
-            return ProtocolUtil.buildErrorResponse("The value exceeds the size limit.");
         }
 
         /* Set a new value */

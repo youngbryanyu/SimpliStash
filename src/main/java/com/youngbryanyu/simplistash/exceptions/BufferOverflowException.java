@@ -1,7 +1,8 @@
 package com.youngbryanyu.simplistash.exceptions;
 
 /**
- * Exception thrown when the client's input buffer exceeds the maximum allowable size.
+ * Exception thrown when the client's input buffer exceeds the maximum allowable
+ * size.
  */
 public class BufferOverflowException extends Exception {
     /**

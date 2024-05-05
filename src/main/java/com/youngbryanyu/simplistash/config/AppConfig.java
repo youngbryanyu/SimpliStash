@@ -1,7 +1,5 @@
 package com.youngbryanyu.simplistash.config;
 
-import java.util.concurrent.ThreadFactory;
-
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;
@@ -14,17 +12,10 @@ import org.springframework.context.annotation.Scope;
 
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.ClientHandler;
-import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
-import com.youngbryanyu.simplistash.stash.TTLTimeWheel;
 
 /**
- * Dependency injection configuration class. We should stick with annotations,
- * unless multiple versions of the same exact dependency need to be injected. In
- * this case we use named annotations. Things set in this config file will
- * override annotations. The default bean scope is singleton.
- * 
- * The application context (IoC container) is automatically injectable.
+ * Dependency injection configuration class.
  */
 @Configuration
 @ComponentScan(basePackages = "com.youngbryanyu.simplistash")
@@ -40,9 +31,9 @@ public class AppConfig {
     }
 
     /**
-     * Creates a new instance of an off-heap in-memory database session.
+     * Creates a new instance of an off-heap in-memory DB.
      * 
-     * @return An off-heap in-memory database session.
+     * @return An off-heap in-memory DB.
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -51,7 +42,7 @@ public class AppConfig {
     }
 
     /**
-     * Name of the read only client handler beans
+     * Name of the read only client handler beans.
      */
     public static final String READ_ONLY_CLIENT_HANDLER = "readOnlyClientHandler";
 
@@ -71,7 +62,7 @@ public class AppConfig {
     }
 
     /**
-     * Name of the writeable client handler beans
+     * Name of the writeable client handler beans.
      */
     public static final String WRITEABLE_CLIENT_HANDLER = "writeableClientHandler";
 

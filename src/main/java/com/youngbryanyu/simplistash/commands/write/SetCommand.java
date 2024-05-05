@@ -1,7 +1,6 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,11 +24,15 @@ public class SetCommand implements WriteCommand {
     /**
      * The base format of the command.
      */
-    private static final String FORMAT = "SET <key> <value> <num_optional_args> [TTL]";
+    private static final String FORMAT = "SET <key> <value> <num_optional_args> [NAME] [TTL]";
     /**
      * The minimum number of required arguments.
      */
     private final int minRequiredArgs;
+    /**
+     * The name of the optional name arg.
+     */
+    private static final String ARG_NAME = "NAME";
     /**
      * The name of the optional ttl arg.
      */
@@ -128,6 +131,21 @@ public class SetCommand implements WriteCommand {
             return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args");
         }
 
+        /* Get the stash name */
+        String name;
+        if (optionalArgVals.containsKey(ARG_NAME)) {
+            name = optionalArgVals.get(ARG_NAME);
+        } else {
+            name = StashManager.DEFAULT_STASH_NAME;
+        }
+
+        /* Get the stash, check if it exists */
+        Stash stash = stashManager.getStash(name);
+        if (stash == null) {
+            logger.debug(String.format("GET {%s} %s (failed, stash doesn't exist)", name, key));
+            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
+        }
+
         /* Set the TTL if specified */
         long ttl = -1;
         if (optionalArgVals.containsKey(ARG_TTL)) {
@@ -143,7 +161,6 @@ public class SetCommand implements WriteCommand {
         }
 
         /* Set a new value */
-        Stash stash = stashManager.getStash(StashManager.DEFAULT_STASH_NAME);
         if (ttl == -1) {
             stash.set(key, value);
         } else {

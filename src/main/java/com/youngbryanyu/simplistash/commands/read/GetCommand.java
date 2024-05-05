@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -56,11 +55,7 @@ public class GetCommand implements ReadCommand {
     }
 
     /**
-     * Executes the GET command. Responds with the value corresponding to the key
-     * in the default stash if the key exists, or the encoded null string if the
-     * key doesn't exist.
-     * 
-     * Format: GET <key>
+     * Executes the GET command. 
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.
@@ -120,7 +115,7 @@ public class GetCommand implements ReadCommand {
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
             logger.debug(String.format("GET {%s} %s (failed, stash doesn't exist)", name, key));
-            return ProtocolUtil.buildErrorResponse("SGET failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
         }
 
          /* Get the value */

@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.commands.read.SGetCommand;
 import com.youngbryanyu.simplistash.commands.write.SDeleteCommand;
 import com.youngbryanyu.simplistash.commands.write.SSetCommand;
 
@@ -103,10 +102,6 @@ public class StashManager {
 
     /**
      * Drops a stash. Does nothing if the stash has already been dropped.
-     * 
-     * Commands like {@link SGetCommand}, {@link SSetCommand},
-     * {@link SDeleteCommand} that access non-default stashes must guard against
-     * race conditions where the stash has been removed from the map.
      * 
      * The stash class's methods {@link Stash#get}, {@link Stash#set},
      * {@link Stash#delete}) must guard against race conditions where the stash's DB

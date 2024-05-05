@@ -16,14 +16,12 @@ import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 @Component
 public class CommandFactory {
     /**
-     * Immutable map that maps command names to their object. Command names are case
-     * sensitive. Do not need to be a concurrent hash map since it is immutable.
+     * Immutable map that maps command names to their object.
      */
     private final Map<String, Command> commands;
 
     /**
-     * Constructor for the command factory. Spring will automatically inject all
-     * commands.
+     * Constructor for the command factory.
      * 
      * @param commandList The list of all commands.
      */
@@ -45,11 +43,9 @@ public class CommandFactory {
      */
     public Command getCommand(String name) throws InvalidCommandException {
         Command command = commands.get(name);
-
         if (command == null) {
             throw new InvalidCommandException(name);
         }
-
         return command;
     }
 }

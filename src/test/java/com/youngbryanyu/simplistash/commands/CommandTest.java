@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for command.
+ * Unit tests for the command interface.
  */
 public class CommandTest {
     /**

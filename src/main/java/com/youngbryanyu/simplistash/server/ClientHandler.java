@@ -109,8 +109,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.debug(String.format("Error occurred in channel, disconnecting client (%s) --> %s", ctx.channel(),
-                cause.getMessage()));
+        logger.debug(String.format("Error occurred in channel, disconnecting client: %s\n" +
+                "- Error: %s", ctx.channel(), cause.getMessage()));
         ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
         ctx.close();
     }

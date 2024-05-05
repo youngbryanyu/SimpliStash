@@ -114,7 +114,7 @@ public class Stash {
             if (!readOnly) {
                 ttlTimeWheel.remove(key);
                 cache.remove(key);
-                logger.debug(String.format("Lazy removed key from stash [%s]: %s", name, key));
+                logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
             }
 
             /* Return null since key expired */

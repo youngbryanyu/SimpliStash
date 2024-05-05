@@ -3,7 +3,6 @@ package com.youngbryanyu.simplistash.commands.read;
 import java.util.Deque;
 import java.util.Map;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,16 +12,16 @@ import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The GET command. Gets a key's value from the default stash.
+ * The GET command. Gets a key's value from a stash.
  */
 @Component
 public class GetCommand implements Command {
     /**
-     * The command's name
+     * The command's name.
      */
     private static final String NAME = "GET";
     /**
-     * The base format of the command
+     * The command's format.
      */
     private static final String FORMAT = "GET <key> <num_optional_args> [NAME]";
     /**
@@ -37,10 +36,6 @@ public class GetCommand implements Command {
      * The stash manager.
      */
     private final StashManager stashManager;
-    /**
-     * The application logger.
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the GET command.
@@ -49,45 +44,35 @@ public class GetCommand implements Command {
      * @param logger       The logger.
      */
     @Autowired
-    public GetCommand(StashManager stashManager, Logger logger) {
+    public GetCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        this.logger = logger;
         minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the GET command. 
+     * Executes the GET command. Returns null if there aren't enough tokens.
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough arguments */
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
-        /*
-         * Remove all tokens associated with the command. This should be done at the
-         * start in order to not pollute future command execution in case the command
-         * exits early due to an error.
-         */
+        /* Extract tokens */
         tokens.pollFirst();
         String key = tokens.pollFirst();
         String numOptionalArgsStr = tokens.pollFirst();
 
         /* Get number of optional args */
         int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
-
-        /**
-         * Return error if num optional args is malformed.
-         */
         if (numOptionalArgs == -1) {
-            logger.debug(String.format("GET %s (failed, invalid optional args count)", key));
             return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args count");
         }
 
-        /* Re-add tokens and return null if not enough args */
+        /* Check if there are enough tokens for optional args */
         if (tokens.size() < numOptionalArgs) {
             tokens.addFirst(numOptionalArgsStr);
             tokens.addFirst(key);
@@ -97,11 +82,8 @@ public class GetCommand implements Command {
 
         /* Process optional args */
         Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
-
-        /* Return error message if error occurred while processing optional args */
         if (optionalArgVals == null) {
-            logger.debug(String.format("GET %s (failed, invalid optional args)", key));
-            return ProtocolUtil.buildErrorResponse("GET failed, invalid optional args");
+            return ProtocolUtil.buildErrorResponse("GET failed, malformed optional args");
         }
 
         /* Get the stash name */
@@ -112,18 +94,16 @@ public class GetCommand implements Command {
             name = StashManager.DEFAULT_STASH_NAME;
         }
 
-        /* Get the stash, check if it exists */
+        /* Get the stash */
         Stash stash = stashManager.getStash(name);
         if (stash == null) {
-            logger.debug(String.format("GET {%s} %s (failed, stash doesn't exist)", name, key));
-            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist.");
+            return ProtocolUtil.buildErrorResponse("GET failed, stash doesn't exist");
         }
 
-         /* Get the value */
+        /* Get value */
         String value = stash.get(key, readOnly);
 
-        /* Return the value, or the null string if null */
-        logger.debug(String.format("GET %s", key, value));
+        /* Build response */
         return (value == null)
                 ? ProtocolUtil.buildNullResponse()
                 : ProtocolUtil.buildValueResponse(value);

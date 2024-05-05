@@ -14,11 +14,11 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 @Component
 public class EchoCommand implements Command {
     /**
-     * Name of the command.
+     * The command's name.
      */
     private static final String NAME = "ECHO";
     /**
-     * The base format of the command
+     * The command's format.
      */
     private static final String FORMAT = "ECHO <text>";
     /**
@@ -35,12 +35,13 @@ public class EchoCommand implements Command {
     }
 
     /**
-     * Executes the ECHO command. Returns null if there aren't enough arguments.
+     * Executes the ECHO command. Returns null if there aren't enough tokens.
      * 
      * @param tokens The client's tokens.
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }

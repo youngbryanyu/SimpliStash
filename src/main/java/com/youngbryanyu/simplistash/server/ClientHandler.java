@@ -2,6 +2,7 @@ package com.youngbryanyu.simplistash.server;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import com.youngbryanyu.simplistash.stash.StashManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultMaxBytesRecvByteBufAllocator;
+import io.netty.util.concurrent.ScheduledFuture;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
@@ -53,6 +56,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * Whether the client is read-only and can only perform read-only actions.
      */
     private final boolean readOnly;
+    /**
+     * Scheduled future to expire keys.
+     */
+    private ScheduledFuture<?> expireTask;
 
     /**
      * Constructor for the client handler.
@@ -99,19 +106,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         buffer.append(input);
         parseTokens();
         String response = commandHandler.handleCommands(tokens, readOnly);
-        
+
         if (response != null) {
             ctx.writeAndFlush(response);
         }
-    }
-
-    /**
-     * Called after a batch of channelRead operations for a client. Flushes the
-     * output buffer, then actively expires a batch of TTLed keys from each stash.
-     */
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        stashManager.expireTTLKeys(); // TODO: ensure keys are expired even when there are 0 clients
     }
 
     /**

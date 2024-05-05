@@ -89,7 +89,7 @@ public class ExpireCommand implements WriteCommand {
          */
         if (numOptionalArgs == -1) {
             logger.debug(String.format("EXPIRE %s --> %s (failed, invalid optional args count)", key, ttlStr));
-            return ProtocolUtil.buildErrorResponse("SET failed, invalid optional args count");
+            return ProtocolUtil.buildErrorResponse("EXPIRE failed, invalid optional args count");
         }
 
         /* Re-add tokens and return null if not enough args */
@@ -104,7 +104,7 @@ public class ExpireCommand implements WriteCommand {
         /* Return error after extracting tokens if client is in read-only mode */
         if (readOnly) {
             logger.debug(String.format("EXPIRE %s --> %s (failed, read-only mode)", key, ttlStr));
-            return ProtocolUtil.buildErrorResponse("Cannot SET in read-only mode");
+            return ProtocolUtil.buildErrorResponse("Cannot EXPIRE in read-only mode");
         }
 
         /* Process optional args */

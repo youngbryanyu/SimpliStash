@@ -36,6 +36,10 @@ public class WriteableServer implements Server {
      */
     private final ClientHandlerFactory clientHandlerFactory;
     /**
+     * The TTL Expiration manager.
+     */
+    private final KeyExpirationManager keyExpirationManager;
+    /**
      * The application logger.
      */
     private final Logger logger;
@@ -46,8 +50,9 @@ public class WriteableServer implements Server {
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public WriteableServer(ClientHandlerFactory clientHandlerFactory, Logger logger) {
+    public WriteableServer(ClientHandlerFactory clientHandlerFactory, KeyExpirationManager keyExpirationManager, Logger logger) {
         this.clientHandlerFactory = clientHandlerFactory;
+        this.keyExpirationManager = keyExpirationManager;
         this.logger = logger;
     }
 
@@ -70,6 +75,9 @@ public class WriteableServer implements Server {
         threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
         EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS, threadFactory);
 
+        /* Set up period task to expire TTLed keys */
+        keyExpirationManager.startExpirationTask(workerGroup);
+
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -91,8 +99,9 @@ public class WriteableServer implements Server {
             logger.info("Writeable server started on port: " + Server.WRITEABLE_PORT);
             f.channel().closeFuture().sync();
         } finally {
-            workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+            keyExpirationManager.stopExpirationTask();
         }
     }
 }

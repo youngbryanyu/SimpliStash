@@ -2,7 +2,6 @@ package com.youngbryanyu.simplistash.server;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +12,10 @@ import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
-import com.youngbryanyu.simplistash.stash.StashManager;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultMaxBytesRecvByteBufAllocator;
-import io.netty.util.concurrent.ScheduledFuture;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -26,14 +23,13 @@ import org.springframework.context.annotation.Scope;
 /**
  * Class that handles communication between the server and client, and maintains
  * state for each client. A new client handler instance is created for each
- * connection to the server. The client handler will run on one of the NIO
- * worker threads.
+ * connection to the server and will run on one of the NIO worker threads.
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
-     * The buffer holding all unprocessed data sent by the client.
+     * The buffer holding all raw data sent by the client.
      */
     private final StringBuilder buffer;
     /**
@@ -41,38 +37,28 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      */
     private final Deque<String> tokens;
     /**
-     * The command handler used to execute commands sent by the client.
+     * The command handler used to execute commands.
      */
     private final CommandHandler commandHandler;
-    /**
-     * The stash manager.
-     */
-    private final StashManager stashManager;
     /**
      * The application logger.
      */
     private final Logger logger;
     /**
-     * Whether the client is read-only and can only perform read-only actions.
+     * Whether the client is read-only.
      */
     private final boolean readOnly;
-    /**
-     * Scheduled future to expire keys.
-     */
-    private ScheduledFuture<?> expireTask;
 
     /**
      * Constructor for the client handler.
      * 
      * @param commandHandler The command handler used to execute commands.
-     * @param stashManager   The stash manager.
      * @param logger         The application logger to use.
      * @param readOnly       Whether or not the client is read-only.
      */
     @Autowired
-    public ClientHandler(CommandHandler commandHandler, StashManager stashManager, Logger logger, boolean readOnly) {
+    public ClientHandler(CommandHandler commandHandler, Logger logger, boolean readOnly) {
         this.commandHandler = commandHandler;
-        this.stashManager = stashManager;
         this.logger = logger;
         this.readOnly = readOnly;
         buffer = new StringBuilder();
@@ -87,6 +73,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         logger.debug(String.format("Client connected: %s", ctx.channel()));
         super.channelActive(ctx);
     }
+
+    // TODO: resume refactoring here
 
     /**
      * Called when input data is received from the client's channel. Adds the data

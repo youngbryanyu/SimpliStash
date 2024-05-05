@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
@@ -13,7 +14,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The DROP command. Deletes an entire stash.
  */
 @Component
-public class DropCommand implements WriteCommand {
+public class DropCommand implements Command {
     /**
      * The command's name.
      */

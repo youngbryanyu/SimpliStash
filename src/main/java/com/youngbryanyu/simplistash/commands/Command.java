@@ -21,6 +21,15 @@ public interface Command {
      */
     public String getName();
 
+     /**
+     * Executes a command.
+     * 
+     * @param tokens The client's tokens
+     * @param readOnly Whether or not the client is read-only.
+     * @return The response to send to the client.
+     */
+    public String execute(Deque<String> tokens, boolean readOnly);
+
     /**
      * Gets the minimum number of required token arguments to execute a command.
      * Commands are always in all caps. Required arguments are in <...>, and

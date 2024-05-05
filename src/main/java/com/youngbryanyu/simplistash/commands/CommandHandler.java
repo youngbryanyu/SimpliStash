@@ -5,8 +5,6 @@ import java.util.Deque;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.commands.read.ReadCommand;
-import com.youngbryanyu.simplistash.commands.write.WriteCommand;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
 /**
@@ -54,14 +52,10 @@ public class CommandHandler {
             try {
                 String commandName = tokens.peekFirst(); /* Peek since we might not have all tokens necessary */
                 Command command = commandFactory.getCommand(commandName);
-                String result;
+                
 
-                /* Handle write and read operations using separate interfaces */
-                if (command instanceof WriteCommand) {
-                    result = ((WriteCommand) command).execute(tokens, readOnly);
-                } else {
-                    result = ((ReadCommand) command).execute(tokens);
-                }
+                /* Handle command */
+                String result = command.execute(tokens, readOnly);
 
                 /*
                  * Break if result from command is null, since it indicates that there weren't

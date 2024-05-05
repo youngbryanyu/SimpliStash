@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -15,7 +16,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The DELETE command. Deletes a key from the default stash.
  */
 @Component
-public class DeleteCommand implements WriteCommand {
+public class DeleteCommand implements Command {
     /**
      * The command's name.
      */

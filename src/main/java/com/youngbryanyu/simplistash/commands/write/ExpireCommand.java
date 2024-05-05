@@ -16,7 +16,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The EXPIRE command. Sets a TTL for a key.
  */
 @Component
-public class ExpireCommand implements WriteCommand {
+public class ExpireCommand implements Command {
     /**
      * The command's name.
      */

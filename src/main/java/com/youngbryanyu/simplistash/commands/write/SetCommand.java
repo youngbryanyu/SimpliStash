@@ -16,7 +16,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The SET command. Sets a key's value in the default stash.
  */
 @Component
-public class SetCommand implements WriteCommand {
+public class SetCommand implements Command {
     /**
      * The command's name.
      */

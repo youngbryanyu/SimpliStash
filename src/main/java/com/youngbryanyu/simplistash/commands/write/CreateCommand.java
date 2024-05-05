@@ -15,7 +15,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The CREATE command. Creates a new stash.
  */
 @Component
-public class CreateCommand implements WriteCommand {
+public class CreateCommand implements Command {
     /**
      * The command's name.
      */

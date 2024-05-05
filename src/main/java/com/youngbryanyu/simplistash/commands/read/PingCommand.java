@@ -13,7 +13,7 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
  * The PING command. Replies with a PONG.
  */
 @Component
-public class PingCommand implements ReadCommand {
+public class PingCommand implements Command {
     /**
      * Name of the command.
      */
@@ -50,7 +50,7 @@ public class PingCommand implements ReadCommand {
      * @param tokens The client's tokens.
      * @return The response to the client.
      */
-    public String execute(Deque<String> tokens) {
+    public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough arguments */
         if (tokens.size() < minRequiredArgs) {
             return null;

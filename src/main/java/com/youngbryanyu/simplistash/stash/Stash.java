@@ -98,6 +98,11 @@ public class Stash {
      * @param value The value to map to the key.
      */
     public void set(String key, String value) {
+        /* We need to remove the TTL metadata first in case the previous key expired */
+        if (ttlTimeWheel.isExpired(key)) {
+            ttlTimeWheel.remove(key); 
+        }
+
         cache.put(key, value);
     }
 
@@ -105,18 +110,21 @@ public class Stash {
      * Retrieves a value from the stash matching the key. Returns an error message
      * if the DB is being closed or has already been closed by another concurrent
      * client, since multiple threads can perform read operations. Passively expires
-     * the key if it has expired.
+     * the key if it has expired (and if the client is not read-only).
      * 
      * @param key The key of the value to get.
+     * @param readOnly Whether or not the client is read-only.
      * @return The value matching the key.
      */
-    public String get(String key) {
+    public String get(String key, boolean readOnly) {
         try {
             if (ttlTimeWheel.isExpired(key)) {
-                ttlTimeWheel.remove(key);
-                cache.remove(key);
+                if (!readOnly) {
+                    ttlTimeWheel.remove(key);
+                    cache.remove(key);
+                    logger.debug(String.format("Lazy removed key from stash [%s]: %s", name, key));
+                }
 
-                logger.debug(String.format("Lazy removed key from stash [%s]: %s", name, key));
                 return null;
             }
 
@@ -150,7 +158,7 @@ public class Stash {
      * @return True if the stash contains the key, false otherwise.
      */
     public boolean contains(String key) {
-        return get(key) != null;
+        return get(key, false) != null;
     }
 
     /**

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
@@ -15,7 +16,7 @@ import com.youngbryanyu.simplistash.stash.StashManager;
  * The GET command. Gets a key's value from the default stash.
  */
 @Component
-public class GetCommand implements ReadCommand {
+public class GetCommand implements Command {
     /**
      * The command's name
      */
@@ -60,7 +61,7 @@ public class GetCommand implements ReadCommand {
      * @param tokens The client's tokens.
      * @return The response to the client.
      */
-    public String execute(Deque<String> tokens) {
+    public String execute(Deque<String> tokens, boolean readOnly) {
         /* Return null if not enough arguments */
         if (tokens.size() < minRequiredArgs) {
             return null;
@@ -119,7 +120,7 @@ public class GetCommand implements ReadCommand {
         }
 
          /* Get the value */
-        String value = stash.get(key);
+        String value = stash.get(key, readOnly);
 
         /* Return the value, or the null string if null */
         logger.debug(String.format("GET %s", key, value));

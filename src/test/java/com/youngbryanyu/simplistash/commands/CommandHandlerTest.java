@@ -55,7 +55,8 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Test {@link CommandHandler#handleCommands(Deque, boolean)} with a valid command.
+     * Test {@link CommandHandler#handleCommands(Deque, boolean)} with a valid
+     * command.
      */
     @Test
     public void testHandleCommands_valid() throws InvalidCommandException {
@@ -64,7 +65,7 @@ public class CommandHandlerTest {
         when(commandFactory.getCommand("command1")).thenReturn(command);
         when(command.execute(tokens, false)).thenAnswer(invocation -> {
             Deque<String> args = invocation.getArgument(0);
-            args.pollFirst(); 
+            args.pollFirst();
             return "Success";
         });
 
@@ -78,7 +79,8 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Test {@link CommandHandler#handleCommands(Deque, boolean)} with an invalid command.
+     * Test {@link CommandHandler#handleCommands(Deque, boolean)} with an invalid
+     * command.
      */
     @Test
     public void testHandleCommands_invalid() throws InvalidCommandException {
@@ -87,7 +89,7 @@ public class CommandHandlerTest {
         when(commandFactory.getCommand("command1")).thenReturn(command);
         when(command.execute(tokens, false)).thenAnswer(invocation -> {
             Deque<String> args = invocation.getArgument(0);
-            args.pollFirst(); 
+            args.pollFirst();
             return null;
         });
 
@@ -100,7 +102,8 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Test {@link CommandHandler#handleCommands(Deque, boolean)} when the command execute returns null.
+     * Test {@link CommandHandler#handleCommands(Deque, boolean)} when the command
+     * execute returns null.
      */
     @Test
     public void testHandleCommands_nullResponse() throws InvalidCommandException {

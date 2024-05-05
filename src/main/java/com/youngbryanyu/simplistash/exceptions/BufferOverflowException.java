@@ -11,7 +11,7 @@ public class BufferOverflowException extends Exception {
      * @param message The error message to send the client.
      * @param cause   The throwable cause.
      */
-    public BufferOverflowException(String message) {
-        super(message);
+    public BufferOverflowException() {
+        super("The input buffer has overflowed");
     }
 }

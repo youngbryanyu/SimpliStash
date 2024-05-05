@@ -133,7 +133,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             throws BufferOverflowException, BrokenProtocolException {
         /* Check if buffer's size has exceeded the limit */
         if (buffer.length() > getMaxBufferSize()) {
-            throw new BufferOverflowException("Input buffer has overflowed.");
+            throw new BufferOverflowException();
         }
 
         String delim = ProtocolUtil.DELIM;

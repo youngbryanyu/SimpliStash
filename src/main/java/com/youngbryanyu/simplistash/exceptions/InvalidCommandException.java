@@ -7,9 +7,9 @@ public class InvalidCommandException extends Exception {
     /**
      * Constructor for an invalid command exception.
      * 
-     * @param command The command sent by the client that was invalid.
+     * @param commandName The command name sent by the client that was invalid.
      */
-    public InvalidCommandException(String command) {
-        super(String.format("The command %s is not a valid command.", command));
+    public InvalidCommandException(String commandName) {
+        super(String.format("The command %s is not a valid command.", commandName));
     }
 }

@@ -41,7 +41,6 @@ public class GetCommand implements Command {
      * Constructor for the GET command.
      * 
      * @param stashManager The stash manager.
-     * @param logger       The logger.
      */
     @Autowired
     public GetCommand(StashManager stashManager) {

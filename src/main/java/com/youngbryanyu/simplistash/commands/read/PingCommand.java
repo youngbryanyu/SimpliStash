@@ -2,7 +2,6 @@ package com.youngbryanyu.simplistash.commands.read;
 
 import java.util.Deque;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,35 +14,28 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 @Component
 public class PingCommand implements Command {
     /**
-     * Name of the command.
+     * The command's name.
      */
     private static final String NAME = "PING";
     /**
-     * The base format of the command
+     * The command's format.
      */
     private static final String FORMAT = "PING";
     /**
      * The minimum number of required arguments.
      */
     private final int minRequiredArgs;
-    /**
-     * The application logger.
-     */
-    private final Logger logger;
 
     /**
      * Constructor for the PING command.
-     * 
-     * @param logger The application logger.
      */
     @Autowired
-    public PingCommand(Logger logger) {
-        this.logger = logger;
+    public PingCommand() {
         minRequiredArgs = getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the PING command. Returns PONG.
+     * Executes the PING command. Reponse with PONG.
      * 
      * Format: PING
      * 
@@ -51,27 +43,22 @@ public class PingCommand implements Command {
      * @return The response to the client.
      */
     public String execute(Deque<String> tokens, boolean readOnly) {
-        /* Return null if not enough arguments */
+        /* Check if there are enough tokens */
         if (tokens.size() < minRequiredArgs) {
             return null;
         }
 
-        /*
-         * Remove all tokens associated with the command. This should be done at the
-         * start in order to not pollute future command execution in case the command
-         * exits early due to an error.
-         */
+        /* Extract tokens */
         tokens.pollFirst();
 
-        /* Respond with PONG */
-        logger.debug("PING");
+        /* Build response */
         return ProtocolUtil.buildPongResponse();
     }
 
     /**
      * Returns the command's name.
      * 
-     * @return The command name.
+     * @return The command's name.
      */
     public String getName() {
         return NAME;

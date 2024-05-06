@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Deque;
@@ -17,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.commands.read.EchoCommand;
 import com.youngbryanyu.simplistash.commands.read.GetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
@@ -69,6 +70,7 @@ public class GetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
+        verify(mockStash, times(1)).get(anyString(), anyBoolean());
     }
 
     /**
@@ -79,6 +81,7 @@ public class GetCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
+        verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 
     /**
@@ -98,6 +101,7 @@ public class GetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 
     /**
@@ -113,6 +117,7 @@ public class GetCommandTest {
 
         /* Perform assertions */
         assertNull(result);
+        verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 
     /**
@@ -132,6 +137,7 @@ public class GetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 
     /**
@@ -152,10 +158,11 @@ public class GetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
+        verify(mockStash, times(1)).get(anyString(), anyBoolean());
     }
 
     /**
-     * Test execution with the optional arg NAME.
+     * Test execution with a stash name that doesn't exist.
      */
     @Test
     public void testExecute_stashDoesntExist() {
@@ -163,7 +170,7 @@ public class GetCommandTest {
         when(mockStashManager.getStash(anyString())).thenReturn(null);
         Deque<String> tokens = new LinkedList<>(List.of("GET", "burger", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil
-        .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_DOESNT_EXIST));
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_DOESNT_EXIST));
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -172,5 +179,6 @@ public class GetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 }

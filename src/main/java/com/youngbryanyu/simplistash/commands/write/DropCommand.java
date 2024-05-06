@@ -66,7 +66,7 @@ public class DropCommand implements Command {
 
         /* Check if attempting to drop default stash */
         if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
-            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_CANNOT_DROP_DEFAULT));
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.CANNOT_DROP_DEFAULT_STASH));
         }
 
         /* Drop stash */

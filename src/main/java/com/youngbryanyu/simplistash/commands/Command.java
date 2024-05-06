@@ -30,7 +30,7 @@ public interface Command {
         KEY_DOESNT_EXIST("The key doesn't exist"),
         /* Stash errors */
         STASH_DOESNT_EXIST("Stash doesn't exist"),
-        STASH_CANNOT_DROP_DEFAULT("Cannot drop the default stash"),
+        CANNOT_DROP_DEFAULT_STASH("Cannot drop the default stash"),
         STASH_NAME_TOO_LONG("The stash name is too long"),
         STASH_NAME_TAKEN("The stash name is already taken"),
         STASH_LIMIT_REACHED("The max number of stashes has been reached"),

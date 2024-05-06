@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -19,8 +21,8 @@ public class Main {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
+        /* Initialize Spring DI */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-
         Server writeableServer = context.getBean(WriteableServer.class);
         Server readOnlyServer = context.getBean(ReadOnlyServer.class);
         ServerMonitor serverMonitor = context.getBean(ServerMonitor.class);
@@ -31,6 +33,12 @@ public class Main {
             context.close();
         }));
 
+        /* Start application */
+        start(writeableServer, readOnlyServer, serverMonitor, logger);
+    }
+
+    public static void start(Server writeableServer, Server readOnlyServer,
+            ServerMonitor serverMonitor, Logger logger) {
         /* Create writeable server thread */
         Thread writeableServerThread = new Thread(() -> {
             try {
@@ -64,30 +72,7 @@ public class Main {
             readOnlyServerThread.interrupt();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); /* Interrupt the main thread */
-            logger.error("Server monitoring thread interrupted: ", e);
+            logger.error("The server monitor's thread was interrupted: ", e);
         }
-    }
-
-    /*
-     * Utility function to print memory usage
-     */
-    public static void printMemoryUsage() {
-        Runtime runtime = Runtime.getRuntime();
-
-        long totalMemory = runtime.totalMemory();
-        long freeMemory = runtime.freeMemory();
-        long usedMemory = totalMemory - freeMemory;
-        long maxMemory = runtime.maxMemory();
-
-        /* Convert bytes to megabytes */
-        double totalMemoryMB = (double) totalMemory / (1024 * 1024);
-        double freeMemoryMB = (double) freeMemory / (1024 * 1024);
-        double usedMemoryMB = (double) usedMemory / (1024 * 1024);
-        double maxMemoryMB = (double) maxMemory / (1024 * 1024);
-
-        System.out.println("Max memory: " + maxMemoryMB);
-        System.out.println("Total memory (MB): " + totalMemoryMB);
-        System.out.println("Free memory (MB): " + freeMemoryMB);
-        System.out.println("Used memory (MB): " + usedMemoryMB);
     }
 }

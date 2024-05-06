@@ -29,7 +29,7 @@ public class ReadOnlyServer implements Server {
      * The application logger.
      */
     private final Logger logger;
-
+    
     /**
      * Constructor for the server.
      * 

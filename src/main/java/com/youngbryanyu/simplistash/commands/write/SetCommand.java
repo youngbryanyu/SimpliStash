@@ -92,9 +92,9 @@ public class SetCommand implements Command {
         }
 
         /* Validate key */
-        if (key.length() > Stash.MAX_KEY_SIZE) {
+        if (key.length() > Stash.MAX_KEY_LENGTH) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.KEY_TOO_LONG));
-        } else if (value.length() > Stash.MAX_VALUE_SIZE) {
+        } else if (value.length() > Stash.MAX_VALUE_LENGTH) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.VALUE_TOO_LONG));
         }
 

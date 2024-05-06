@@ -66,7 +66,7 @@ public class CreateCommand implements Command {
         }
 
         /* Validate stash name */
-        if (name.length() > Stash.MAX_NAME_SIZE) {
+        if (name.length() > Stash.MAX_NAME_LENGTH) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_NAME_TOO_LONG));
         } else if (stashManager.containsStash(name)) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_NAME_TAKEN));

@@ -184,6 +184,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * @return The a client's max buffer size
      */
     private static int getMaxBufferSize() {
-        return 3 * (Stash.MAX_KEY_SIZE + Stash.MAX_VALUE_SIZE);
+        return 3 * (Stash.MAX_KEY_LENGTH + Stash.MAX_VALUE_LENGTH);
     }
 }

@@ -20,17 +20,17 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class Stash {
     /**
-     * The max key size allowed in the stash.
+     * The max key length allowed in the stash.
      */
-    public static final int MAX_KEY_SIZE = 256;
+    public static final int MAX_KEY_LENGTH = 256;
     /**
-     * The max value size allowed in the stash.
+     * The max value length allowed in the stash.
      */
-    public static final int MAX_VALUE_SIZE = 65536;
+    public static final int MAX_VALUE_LENGTH = 65536;
     /**
-     * The max size of a stash's name.
+     * The max alloed length of a stash's name.
      */
-    public static final int MAX_NAME_SIZE = 64;
+    public static final int MAX_NAME_LENGTH = 64;
     /**
      * Name of the primary cache.
      */

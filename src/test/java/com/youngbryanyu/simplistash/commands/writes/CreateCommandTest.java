@@ -3,7 +3,6 @@ package com.youngbryanyu.simplistash.commands.writes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -20,16 +19,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.commands.read.GetCommand;
-import com.youngbryanyu.simplistash.commands.write.DropCommand;
+import com.youngbryanyu.simplistash.commands.write.CreateCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * Unit tests for the DROP command.
+ * Unit tests for the CREATE command.
  */
-public class DropCommandTest {
+public class CreateCommandTest {
     /**
      * The mock stash manager.
      */
@@ -41,7 +39,7 @@ public class DropCommandTest {
     @Mock
     Stash mockStash;
     /**
-     * The DROP command under test.
+     * The CREATE command under test.
      */
     private Command command;
 
@@ -51,17 +49,17 @@ public class DropCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new DropCommand(mockStashManager);
+        command = new CreateCommand(mockStashManager);
     }
 
     /**
-     * Test execution with successful DROP.
+     * Test execution with successful CREATE.
      */
     @Test
     public void testExecute_success() {
         /* Setup */
-        doNothing().when(mockStashManager).dropStash(anyString());
-        Deque<String> tokens = new LinkedList<>(List.of("DROP", "stash1"));
+        when(mockStashManager.createStash(anyString())).thenReturn(true);
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
         /* Call method */
@@ -71,7 +69,7 @@ public class DropCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(1)).dropStash(anyString());
+        verify(mockStashManager, times(1)).createStash(anyString());
     }
 
     /**
@@ -82,7 +80,7 @@ public class DropCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, times(0)).createStash(anyString());
     }
 
     /**
@@ -90,27 +88,57 @@ public class DropCommandTest {
      */
     @Test
     public void testExecute_readOnly() {
-        Deque<String> tokens = new LinkedList<>(List.of("DROP", "stash1"));
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1"));
         String result = command.execute(tokens, true);
         String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.READ_ONLY_MODE));
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, times(0)).createStash(anyString());
     }
 
     /**
-     * Test execution when dropping the default stash.
+     * Test execution with stash length too long.
      */
     @Test
-    public void testExecute_defaultStash() {
-        Deque<String> tokens = new LinkedList<>(List.of("DROP", StashManager.DEFAULT_STASH_NAME));
+    public void testExecute_stashNameTooLong() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < Stash.MAX_NAME_LENGTH + 1; i++) {
+            sb.append("a");
+        }
+
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", sb.toString()));
+        String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TOO_LONG));
+
+        /* Call method */
         String result = command.execute(tokens, false);
-        String expected = ProtocolUtil
-                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.CANNOT_DROP_DEFAULT_STASH));
+
+        /* Perform assertions */
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, times(0)).createStash(anyString());
+    }
+
+    /**
+     * Test execution with stash length too long.
+     */
+    @Test
+    public void testExecute_stashNameToken() {
+        /* Setup */
+        when(mockStashManager.containsStash(anyString())).thenReturn(true);
+        when(mockStashManager.createStash(anyString())).thenReturn(true);
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1"));
+        String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TAKEN));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expected, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, times(0)).createStash(anyString());
     }
 }

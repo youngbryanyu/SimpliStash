@@ -117,6 +117,7 @@ public class GetCommandTest {
 
         /* Perform assertions */
         assertNull(result);
+        assertEquals(3, tokens.size());
         verify(mockStash, times(0)).get(anyString(), anyBoolean());
     }
 

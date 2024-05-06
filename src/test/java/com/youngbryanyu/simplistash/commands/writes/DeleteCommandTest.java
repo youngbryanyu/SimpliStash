@@ -126,7 +126,7 @@ public class DeleteCommandTest {
      */
     @Test
     public void testExecute_readOnly() {
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "stash1", "0"));
+        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "0"));
         String result = command.execute(tokens, true);
         String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.READ_ONLY_MODE));
         assertNotNull(result);
@@ -162,7 +162,6 @@ public class DeleteCommandTest {
     public void testExecute_optionalArgNAME() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
-        doNothing().when(mockStash).delete(anyString());
         Deque<String> tokens = new LinkedList<>(List.of("GET", "burger", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 

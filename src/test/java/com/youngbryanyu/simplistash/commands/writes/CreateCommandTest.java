@@ -101,12 +101,11 @@ public class CreateCommandTest {
      */
     @Test
     public void testExecute_stashNameTooLong() {
+        /* Setup */
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Stash.MAX_NAME_LENGTH + 1; i++) {
             sb.append("a");
         }
-
-        /* Setup */
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", sb.toString()));
         String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TOO_LONG));
 

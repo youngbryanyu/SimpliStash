@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- We log to file using more verbose output than in the console. We also stick with "info" as the
-lowest logging level. We can temporarily set the level to "debug" to show debug level logs for
-debugging -->
-
 <Configuration status="WARN"> <!-- Set internal logging level to warn for logging system messages -->
     <Appenders>
         <!-- Rotated file output -->
         <RollingFile name="RollingFile" fileName="logs/app.log"
             filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
+                <!-- Use more verbose format for logging to files -->
                 <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}: %msg%n</pattern>
             </PatternLayout>
             <Policies>

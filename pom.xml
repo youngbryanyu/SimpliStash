@@ -76,7 +76,7 @@
             <version>6.1.6</version>
             <scope>test</scope>
         </dependency>
-        
+
 
         <!-- Log4j API -->
         <dependency>
@@ -137,10 +137,10 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
                     <configuration>
-                        <!-- Don't reuse forks. Reuse forks is causing tests with static mocks to
-                        fail. Use 1x num cores. -->
-                        <forkCount>1C</forkCount>
-                        <reuseForks>false</reuseForks>
+                        <!-- Set reuse forks to false if mocking static methods since it can cause
+                        them to fail across tests -->
+                        <!-- <reuseForks>false</reuseForks> -->
+                         <!-- <forkCount>1C</forkCount> -->
 
                         <!-- Must prepend argLine with ${argLine} or else JaCoCo will not work -->
                         <argLine>

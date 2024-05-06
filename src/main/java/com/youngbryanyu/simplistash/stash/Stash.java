@@ -174,8 +174,8 @@ public class Stash {
     }
 
     /**
-     * Updates the TTL of a given key. Returns whether or not the TTL was
-     * successfully updated.
+     * Updates the TTL of a given key. Returns whether or not the key exists and the
+     * TTL operation succeeded.
      * 
      * @param key The key.
      * @param ttl The key's new TTL.

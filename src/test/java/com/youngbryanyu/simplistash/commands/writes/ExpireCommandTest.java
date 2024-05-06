@@ -3,6 +3,7 @@ package com.youngbryanyu.simplistash.commands.writes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -20,14 +21,15 @@ import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.commands.write.DeleteCommand;
+import com.youngbryanyu.simplistash.commands.write.ExpireCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * Unit tests for the DELETE command.
+ * Unit tests for the EXPIRE command.
  */
-public class DeleteCommandTest {
+public class ExpireCommandTest {
     /**
      * The mock stash manager.
      */
@@ -39,7 +41,7 @@ public class DeleteCommandTest {
     @Mock
     Stash mockStash;
     /**
-     * The DELETE command under test.
+     * The EXPIRE command under test.
      */
     private Command command;
 
@@ -49,18 +51,18 @@ public class DeleteCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new DeleteCommand(mockStashManager);
+        command = new ExpireCommand(mockStashManager);
     }
 
     /**
-     * Test execution with successful DELETE response.
+     * Test execution with successful EXPIRE.
      */
     @Test
     public void testExecute_success() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
-        doNothing().when(mockStash).delete(anyString());
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "0"));
+        when(mockStash.updateTTL(anyString(), anyLong())).thenReturn(true);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "0"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
         /* Call method */
@@ -70,7 +72,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(1)).delete(anyString());
+        verify(mockStash, times(1)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -81,7 +83,7 @@ public class DeleteCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -90,7 +92,7 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_invalidOptionalArgsCount() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "-1"));
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "-1"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
 
@@ -101,7 +103,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -110,15 +112,15 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_notEnoughOptionalTokens() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1"));
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "1"));
 
         /* Call method */
         String result = command.execute(tokens, false);
 
         /* Perform assertions */
         assertNull(result);
-        assertEquals(3, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        assertEquals(4, tokens.size());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -126,13 +128,13 @@ public class DeleteCommandTest {
      */
     @Test
     public void testExecute_readOnly() {
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "stash1", "0"));
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "stash1", "1000", "0"));
         String result = command.execute(tokens, true);
         String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.READ_ONLY_MODE));
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -141,7 +143,7 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_malformedOptionalArgs() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1", "NAME="));
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "1", "NAME="));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MALFORMED_OPTIONAL_ARGS));
 
@@ -152,7 +154,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -162,8 +164,8 @@ public class DeleteCommandTest {
     public void testExecute_optionalArgNAME() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
-        doNothing().when(mockStash).delete(anyString());
-        Deque<String> tokens = new LinkedList<>(List.of("GET", "burger", "1", "NAME=stash1"));
+        when(mockStash.updateTTL(anyString(), anyLong())).thenReturn(true);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
         /* Call method */
@@ -173,7 +175,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(1)).delete(anyString());
+        verify(mockStash, times(1)).updateTTL(anyString(), anyLong());
     }
 
     /**
@@ -183,7 +185,7 @@ public class DeleteCommandTest {
     public void testExecute_stashDoesntExist() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(null);
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1", "NAME=stash1"));
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_DOESNT_EXIST));
 
@@ -194,6 +196,91 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
+    }
+
+    /**
+     * Test execution with an invalid TTL long parameter specified.
+     */
+    @Test
+    public void testExecute_TTLInvalidLong() {
+        /* Setup */
+        when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "abc", "0"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.TTL_INVALID_LONG));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
+    }
+
+    /**
+     * Test execution with a TTL that is out of the supported range (less).
+     */
+    @Test
+    public void testExecute_TTLOutOfRangeLess() {
+        /* Setup */
+        when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "-1000", "0"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.TTL_OUT_OF_RANGE));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
+    }
+
+    /**
+     * Test execution with a TTL that is out of the supported range (greater).
+     */
+    @Test
+    public void testExecute_TTLOutOfRangeGreater() {
+        /* Setup */
+        when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", Long.toString(Long.MAX_VALUE), "0"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.TTL_OUT_OF_RANGE));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStash, times(0)).updateTTL(anyString(), anyLong());
+    }
+
+     /**
+     * Test execution with a key that doesn't exist.
+     */
+    @Test
+    public void testExecute_keyDoesntExist() {
+        /* Setup */
+        when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
+        when(mockStash.updateTTL(anyString(), anyLong())).thenReturn(false);
+        Deque<String> tokens = new LinkedList<>(List.of("EXPIRE", "burger", "1000", "0"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.KEY_DOESNT_EXIST));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStash, times(1)).updateTTL(anyString(), anyLong());
     }
 }

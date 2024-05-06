@@ -138,13 +138,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
         String delim = ProtocolUtil.DELIM;
         int delimLength = delim.length();
+        int lastEndIdx = 0; /* End of last token parsed */
         int delimIdx = -1;
 
-        while ((delimIdx = buffer.indexOf(delim)) != -1) {
+        while ((delimIdx = buffer.indexOf(delim, lastEndIdx)) != -1) {
             /* Get token size */
             int size;
             try {
-                size = Integer.parseInt(buffer.substring(0, delimIdx));
+                size = Integer.parseInt(buffer.substring(lastEndIdx, delimIdx));
             } catch (NumberFormatException e) {
                 throw new BrokenProtocolException(BrokenProtocolException.TOKEN_SIZE_INVALID_INTEGER, e);
             }
@@ -163,10 +164,15 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 break;
             }
 
-            /* Add token to deque and remove it from buffer */
+            /* Add token to deque */
             String token = buffer.substring(startIdx, endIdx);
             tokens.addLast(token);
-            buffer.delete(0, endIdx);
+            lastEndIdx = endIdx;
+        }
+
+        /* Delete processed tokens from buffer */
+        if (lastEndIdx > 0) {
+            buffer.delete(0, lastEndIdx);
         }
     }
 

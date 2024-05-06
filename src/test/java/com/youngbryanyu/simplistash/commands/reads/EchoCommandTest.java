@@ -13,12 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.commands.read.PingCommand;
+import com.youngbryanyu.simplistash.commands.read.EchoCommand;
 
-/* Unit tests for the PING command */
-public class PingCommandTest {
-    /**
-     * The PING command under test.
+/**
+ * Unit tests for the ECHO command.
+ */
+public class EchoCommandTest {
+     /**
+     * The ECHO command under test.
      */
     private Command command;
 
@@ -28,16 +30,16 @@ public class PingCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new PingCommand();
+        command = new EchoCommand();
     }
 
     /**
-     * Test execution with successful PONG response.
+     * Test execution with successful ECHO response.
      */
     @Test
-    public void testExecute_pong() {
-        Deque<String> tokens = new LinkedList<>(List.of("PING"));
-        String expectedResponse = "4\r\nPONG";
+    public void testExecute_echo() {
+        Deque<String> tokens = new LinkedList<>(List.of("ECHO", "burger"));
+        String expectedResponse = "6\r\nburger";
         String result = command.execute(tokens, false);
         assertNotNull(result);
         assertEquals(expectedResponse, result);

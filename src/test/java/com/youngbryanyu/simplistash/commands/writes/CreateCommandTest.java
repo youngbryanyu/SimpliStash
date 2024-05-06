@@ -107,7 +107,8 @@ public class CreateCommandTest {
             sb.append("a");
         }
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", sb.toString()));
-        String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TOO_LONG));
+        String expected = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TOO_LONG));
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -128,7 +129,8 @@ public class CreateCommandTest {
         when(mockStashManager.containsStash(anyString())).thenReturn(true);
         when(mockStashManager.createStash(anyString())).thenReturn(true);
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1"));
-        String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TAKEN));
+        String expected = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TAKEN));
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -138,5 +140,26 @@ public class CreateCommandTest {
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
         verify(mockStashManager, times(0)).createStash(anyString());
+    }
+
+    /**
+     * Test execution with the stash limit reached error.
+     */
+    @Test
+    public void testExecute_stashLimitReached() {
+        /* Setup */
+        when(mockStashManager.createStash(anyString())).thenReturn(false);
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1"));
+        String expected = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_LIMIT_REACHED));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expected, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, times(1)).createStash(anyString());
     }
 }

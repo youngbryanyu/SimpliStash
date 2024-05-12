@@ -21,23 +21,46 @@ import org.springframework.context.ApplicationContext;
  * Unit tests for the stash factory.
  */
 public class StashFactoryTest {
+    /**
+     * The mock application context for spring
+     */
     @Mock
     private ApplicationContext mockContext;
+    /**
+     * The mock db.
+     */
     @Mock
     private DB mockDB;
+    /**
+     * The mock hash map maker.
+     */
     @Mock
     private HashMapMaker<Object, Object> mockHashmapMaker;
+    /**
+     * The mock ttl time wheel.
+     */
     @Mock
     private TTLTimeWheel mockTTLTimeWheel;
+    /**
+     * The mock logger.
+     */
     @Mock
     private Logger mockLogger;
+    /**
+     * The mock stash.
+     */
     @Mock
     private Stash mockStash;
-
+    /**
+     * The stash factory under test.
+     */
     private StashFactory stashFactory;
 
+    /**
+     * Setup before each test.
+     */
     @BeforeEach
-    void setUp() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         when(mockContext.getBean(DB.class)).thenReturn(mockDB);
@@ -49,6 +72,9 @@ public class StashFactoryTest {
         stashFactory = new StashFactory(mockContext);
     }
 
+    /**
+     * Test {@link StashFactory#createStash(String)}.
+     */
     @Test
     void testCreateStash() {
         /* Setup */

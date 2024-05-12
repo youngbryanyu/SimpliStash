@@ -1,1 +1,10 @@
-# Configurations 
+# Configurations to use when starting the database.
+
+# The maximum size allowed for a key in bytes. This is 256 by default.
+max_key_size_b: 256
+
+# The maximum size allowed for a value in bytes. This is 65536 by default.
+max_value_size_b: 65536
+
+# The maximum number of stashes that can be created. This is 100 by default.
+max_num_stashes: 100

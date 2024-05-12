@@ -128,7 +128,7 @@
             <version>4.1.0</version>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may bemoved
@@ -157,7 +157,7 @@
                         <!-- Set reuse forks to false if mocking static methods since it can cause
                         them to fail across tests -->
                         <!-- <reuseForks>false</reuseForks> -->
-                         <!-- <forkCount>1C</forkCount> -->
+                        <!-- <forkCount>1C</forkCount> -->
 
                         <!-- Must prepend argLine with ${argLine} or else JaCoCo will not work -->
                         <argLine>

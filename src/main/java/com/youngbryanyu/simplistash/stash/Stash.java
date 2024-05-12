@@ -38,7 +38,7 @@ public class Stash {
     /**
      * Error message when attempting to access a closed DB.
      */
-    private static final String DB_CLOSED_ERROR = "The specified stash doesn't exist.";
+    public static final String DB_CLOSED_ERROR = "The specified stash doesn't exist.";
     /**
      * A single DB store instance tied to the stash.
      */
@@ -65,16 +65,17 @@ public class Stash {
      * Constructor for the stash.
      * 
      * @param db     The DB instance.
+     * @param cache  The HTreeMap cache.
      * @param logger The application logger.
      * @param name   The stash's name.
      */
     @Autowired
-    public Stash(DB db, TTLTimeWheel ttlTimeWheel, Logger logger, String name) {
+    public Stash(DB db, HTreeMap<String, String> cache, TTLTimeWheel ttlTimeWheel, Logger logger, String name) {
         this.db = db;
+        this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
         this.name = name;
-        cache = db.hashMap(PRIMARY_CACHE_NAME, Serializer.STRING, Serializer.STRING).create();
         addShutDownHook();
     }
 

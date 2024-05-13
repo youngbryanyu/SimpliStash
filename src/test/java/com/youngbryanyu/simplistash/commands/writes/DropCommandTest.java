@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -82,7 +83,7 @@ public class DropCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, never()).dropStash(anyString());
     }
 
     /**
@@ -96,7 +97,7 @@ public class DropCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, never()).dropStash(anyString());
     }
 
     /**
@@ -111,6 +112,6 @@ public class DropCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).dropStash(anyString());
+        verify(mockStashManager, never()).dropStash(anyString());
     }
 }

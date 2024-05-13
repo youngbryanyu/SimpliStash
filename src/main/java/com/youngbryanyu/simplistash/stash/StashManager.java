@@ -18,7 +18,7 @@ public class StashManager {
     /**
      * The maximum number of stashes that can be created.
      */
-    private static final int MAX_NUM_STASHES = 100;
+    public static final int MAX_NUM_STASHES = 100;
     /**
      * The factory used to create new stash instances.
      */
@@ -101,5 +101,13 @@ public class StashManager {
         for (Stash stash : stashes.values()) {
             stash.expireTTLKeys();
         }
+    }
+
+    /**
+     * Returns the number of active stashes.
+     * @return The number of active stashes.
+     */
+    public int getNumStashes() {
+        return stashes.size();
     }
 }

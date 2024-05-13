@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -82,7 +83,7 @@ public class SetCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -102,7 +103,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -119,7 +120,7 @@ public class SetCommandTest {
         /* Perform assertions */
         assertNull(result);
         assertEquals(4, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -133,7 +134,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -153,7 +154,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -194,7 +195,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -219,7 +220,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -244,7 +245,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -265,7 +266,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -286,7 +287,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**
@@ -308,7 +309,7 @@ public class SetCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).set(anyString(), anyString());
+        verify(mockStash, never()).set(anyString(), anyString());
     }
 
     /**

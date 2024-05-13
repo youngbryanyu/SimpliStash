@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,7 @@ public class DeleteCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 
     /**
@@ -101,7 +102,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 
     /**
@@ -118,7 +119,7 @@ public class DeleteCommandTest {
         /* Perform assertions */
         assertNull(result);
         assertEquals(3, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 
     /**
@@ -132,7 +133,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 
     /**
@@ -152,7 +153,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 
     /**
@@ -193,6 +194,6 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(0)).delete(anyString());
+        verify(mockStash, never()).delete(anyString());
     }
 }

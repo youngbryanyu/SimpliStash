@@ -11,6 +11,7 @@ import java.util.List;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import org.junit.jupiter.api.AfterEach;
@@ -144,7 +145,7 @@ class StashTest {
 
         /* Test assertions */
         assertEquals(null, result);
-        verify(mockTTLTimeWheel, times(0)).remove(anyString());
+        verify(mockTTLTimeWheel, never()).remove(anyString());
     }
 
     /**
@@ -271,7 +272,7 @@ class StashTest {
 
        /* Test assertions */
        assertEquals(false, updatedTTL);
-       verify(mockTTLTimeWheel, times(0)).add(anyString(), anyLong());
+       verify(mockTTLTimeWheel, never()).add(anyString(), anyLong());
     }
 
     /**

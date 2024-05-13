@@ -18,7 +18,7 @@ public class KeyExpirationManager {
     /**
      * The TTL active expiration delay in seconds.
      */
-    private static final int TTL_EXPIRE_INTERVAL = 1;
+    private static final int TTL_EXPIRE_DELAY = 1;
     /**
      * The scheduled future of the task to expire keys
      */
@@ -47,7 +47,7 @@ public class KeyExpirationManager {
         if (expireTask == null || expireTask.isDone()) {
             expireTask = group.scheduleWithFixedDelay(() -> {
                 stashManager.expireTTLKeys();
-            }, 0, TTL_EXPIRE_INTERVAL, TimeUnit.SECONDS);
+            }, 0, TTL_EXPIRE_DELAY, TimeUnit.SECONDS);
         }
     }
 

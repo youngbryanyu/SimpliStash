@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +80,7 @@ public class CreateCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStashManager, times(0)).createStash(anyString());
+        verify(mockStashManager, never()).createStash(anyString());
     }
 
     /**
@@ -93,7 +94,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).createStash(anyString());
+        verify(mockStashManager, never()).createStash(anyString());
     }
 
     /**
@@ -117,7 +118,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).createStash(anyString());
+        verify(mockStashManager, never()).createStash(anyString());
     }
 
     /**
@@ -139,7 +140,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(0)).createStash(anyString());
+        verify(mockStashManager, never()).createStash(anyString());
     }
 
     /**

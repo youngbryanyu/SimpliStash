@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,6 +117,6 @@ public class CommandHandlerTest {
 
         /* Check assertions */
         assertNull(response);
-        verify(command, times(0)).execute(tokens, false);
+        verify(command, never()).execute(tokens, false);
     }
 }

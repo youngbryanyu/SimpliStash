@@ -75,7 +75,7 @@ public class WriteableServer implements Server {
         threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
         EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS, threadFactory);
 
-        /* Set up period task to expire TTLed keys */
+        /* Set up periodic task to expire TTLed keys */
         keyExpirationManager.startExpirationTask(workerGroup);
 
         try {

@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -45,6 +47,11 @@ public class KeyExpirationManagerTest {
      * The key expiration manager under test.
      */
     private KeyExpirationManager expirationManager;
+    /**
+     * The argument captor.
+     */
+    @Captor
+    private ArgumentCaptor<Runnable> runnableCaptor;
 
     /**
      * Setup before each test.
@@ -53,8 +60,23 @@ public class KeyExpirationManagerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         expirationManager = new KeyExpirationManager(mockStashManager);
-        doReturn(mockScheduledFuture).when(mockEventLoopGroup).scheduleWithFixedDelay(any(Runnable.class), anyLong(),
+        doReturn(mockScheduledFuture).when(mockEventLoopGroup).scheduleWithFixedDelay(runnableCaptor.capture(), anyLong(),
                 anyLong(), any(TimeUnit.class));
+    }
+
+    /**
+     * Test that the expire task runs.
+     */
+    @Test
+    void testExpirationTaskRuns() {
+        /* Setup */
+        expirationManager.startExpirationTask(mockEventLoopGroup);
+
+        /* Trigger the captured Runnable to simulate the task execution */ 
+        runnableCaptor.getValue().run();
+
+        /* Verify expireTTLKeys is called */
+        verify(mockStashManager).expireTTLKeys();
     }
 
     /**

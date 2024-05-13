@@ -143,11 +143,11 @@ public class TTLTimeWheelTest {
     void testExpireKeys_multipleBuckets() {
         /* Add keys with staggered TTLs */
         ttlTimeWheel.add("key1", 0);
-        ttlTimeWheel.add("key2", TTLTimeWheel.BUCKET_WINDOW_SIZE + 100);
+        ttlTimeWheel.add("key2", TTLTimeWheel.BUCKET_WINDOW_SIZE + 100); 
 
         /* Sleep to let TTL times reach */
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1000); /* key2 won't expire after 1000 ms */
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

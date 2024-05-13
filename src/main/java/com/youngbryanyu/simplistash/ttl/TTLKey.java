@@ -59,6 +59,9 @@ public class TTLKey implements Comparable<TTLKey> {
         return result;
     }
 
+    /**
+     * Returns the string representation of the TTL compound key.
+     */
     @Override
     public String toString() {
         return String.format("key=%s,exp=%d", key, expirationTime);

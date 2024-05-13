@@ -17,6 +17,8 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 
+import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
+
 /**
  * Unit tests for the stash factory.
  */

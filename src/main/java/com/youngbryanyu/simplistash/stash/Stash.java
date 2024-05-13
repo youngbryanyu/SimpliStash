@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
  * A stash which serves as a single table of key-value pairs.

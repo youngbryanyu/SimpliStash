@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
+
 /**
  * The stash factory used to create stash objects.
  */

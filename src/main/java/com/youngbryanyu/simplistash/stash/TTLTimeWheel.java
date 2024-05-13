@@ -22,7 +22,7 @@ public class TTLTimeWheel {
     /**
      * The bucket window size for each bucket in the time wheel, in milliseconds.
      */
-    private static final int BUCKET_WINDOW_SIZE = 60_000;
+    protected static final int BUCKET_WINDOW_SIZE = 60_000;
     /**
      * The number of buckets in the TTL time wheel.
      */
@@ -34,7 +34,7 @@ public class TTLTimeWheel {
     /**
      * Map of keys to their expiration times.
      */
-    private final Map<String, Long> ttlMap;
+    public final Map<String, Long> ttlMap; // TODO: make this private after debugging
     /**
      * Buckets containing a Tree Map of keys to their expiration times sorted by
      * expiration time.
@@ -76,7 +76,7 @@ public class TTLTimeWheel {
 
     /**
      * Adds a key to the TTL time wheel. Removes the existing key's TTL if it
-     * already had one.
+     * already had one, so this functions as an update method as well.
      * 
      * @param key They key.
      * @param ttl The ttl.
@@ -98,6 +98,9 @@ public class TTLTimeWheel {
 
         /* 2. Insert into bucket */
         buckets[bucketIndex].put(key, expirationTime);
+        System.out.println("just put " + key + " with " + expirationTime);
+        System.out.println("order: " + buckets[bucketIndex].entrySet());
+        System.out.println("ttlMap size after add: " + ttlMap.size());
     }
 
     /**
@@ -115,9 +118,9 @@ public class TTLTimeWheel {
 
         /* Get bucket */
         int bucketIndex = getBucketIndex(expirationTime);
-        if (buckets[bucketIndex] == null) {
-            return;
-        }
+
+        // If a timestamp's bucket is non-null, its key must exist in the map, thus we
+        // don't check if `bucket[bucketIndex] == null` since it is redundant.
 
         /* 1. Remove from bucket */
         buckets[bucketIndex].remove(key);
@@ -152,13 +155,18 @@ public class TTLTimeWheel {
         int numExpired = 0;
         int startBucketIndex = currentBucketIndex;
 
+        System.out.println("expire time: " + currentTime);
+
         /* Expire up to the max expire limit */
         while (!ttlMap.isEmpty() && numExpired < MAX_EXPIRE_LIMIT) {
             TreeMap<String, Long> bucket = buckets[currentBucketIndex];
-
+            
             if (bucket != null) {
+                System.out.println("bucket size: "+ bucket.size());
                 while (!bucket.isEmpty()) {
                     Map.Entry<String, Long> entry = bucket.firstEntry();
+                    
+                    System.out.println("time of earliest TTL: " + entry.toString());
 
                     /* No more expired keys from current bucket so break */
                     if (entry.getValue() > currentTime) {
@@ -168,7 +176,6 @@ public class TTLTimeWheel {
                     /* Add to expired key list and remove the key */
                     expiredKeys.add(entry.getKey());
                     remove(entry.getKey());
-                    bucket.pollFirstEntry();
                     numExpired++;
 
                     /* Break if we've reached the expire limit */

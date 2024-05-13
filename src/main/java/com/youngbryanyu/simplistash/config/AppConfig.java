@@ -14,6 +14,10 @@ import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.ClientHandler;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+
 /**
  * Dependency injection configuration class.
  */
@@ -75,5 +79,25 @@ public class AppConfig {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ClientHandler writeableclientHandler(CommandHandler commandHandler, Logger logger) {
         return new ClientHandler(commandHandler, logger, false);
+    }
+
+    /**
+     * Creates an instance of a netty nio event loop group.
+     * @return An instance of a netty nio event loop group.
+     */
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public EventLoopGroup nioEventLoopGroup() {
+        return new NioEventLoopGroup();
+    }
+
+     /**
+     * Creates an instance of a netty server bootstrap.
+     * @return An instance of a netty server bootstrap.
+     */
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public ServerBootstrap serverBootstrap() {
+        return new ServerBootstrap();
     }
 }

@@ -6,14 +6,8 @@ import org.springframework.stereotype.Component;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.util.CharsetUtil;
 
 /**
  * The server with read-only permissions which listens for incoming client
@@ -22,53 +16,57 @@ import io.netty.util.CharsetUtil;
 @Component
 public class ReadOnlyServer implements Server {
     /**
-     * The client handler factory.
-     */
-    private final ClientHandlerFactory clientHandlerFactory;
-    /**
      * The application logger.
      */
     private final Logger logger;
-    
+    /**
+     * The boss event loop group.
+     */
+    private final EventLoopGroup bossGroup;
+    /**
+     * The worker event loop group.
+     */
+    private final EventLoopGroup workerGroup;
+    /**
+     * The server bootstrap.
+     */
+    private final ServerBootstrap bootstrap;
+    /**
+     * The channel initializer.
+     */
+    private final ReadOnlyChannelInitializer channelInitializer;
+
     /**
      * Constructor for the server.
      * 
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public ReadOnlyServer(ClientHandlerFactory clientHandlerFactory, Logger logger) {
-        this.clientHandlerFactory = clientHandlerFactory;
+    public ReadOnlyServer(EventLoopGroup bossGroup,
+            EventLoopGroup workerGroup,
+            ServerBootstrap bootstrap,
+            ReadOnlyChannelInitializer channelInitializer,
+            Logger logger) {
+        this.bossGroup = bossGroup;
+        this.workerGroup = workerGroup;
+        this.bootstrap = bootstrap;
+        this.channelInitializer = channelInitializer;
         this.logger = logger;
     }
 
     /**
      * Starts the server. Creates boss threads to accept incoming connections and
      * worker threads to handle commands from connected clients. Each worker thread
-     * runs an event loop that handles I/O in a non-blocking fashion. Sets up the
-     * pipeline of handlers for each client channel. We use the default number of
-     * threads in each group.
+     * runs an event loop that handles I/O in a non-blocking fashion. We use the
+     * default number of threads in each group.
      * 
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-
         try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel channel) throws Exception {
-                            channel.pipeline().addLast(
-                                    new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
-                                    new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-
-                                    /* Create read-only client handler */
-                                    clientHandlerFactory.createReadOnlyClientHandler());
-                        }
-                    });
+                    .childHandler(channelInitializer);
 
             /* Bind to port and listen for connections */
             ChannelFuture f = bootstrap.bind(Server.READ_ONLY_PORT).sync();

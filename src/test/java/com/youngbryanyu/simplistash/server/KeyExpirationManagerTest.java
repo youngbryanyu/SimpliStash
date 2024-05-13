@@ -152,6 +152,8 @@ public class KeyExpirationManagerTest {
     void testStopExpirationTask_cancelled() {
         expirationManager.startExpirationTask(mockEventLoopGroup);
         expirationManager.stopExpirationTask();
+
+        /* The 2nd time stop is called the task isn't null but is cancelled */
         when(mockScheduledFuture.isCancelled()).thenReturn(true);
         expirationManager.stopExpirationTask();
 

@@ -43,7 +43,7 @@ public class ServerMonitor {
      * 
      * @return True if one of the servers crashed, false otherwise.
      */
-    public synchronized boolean didServerCrashed() {
+    public synchronized boolean didServerCrash() {
         return serverCrashed;
     }
 }

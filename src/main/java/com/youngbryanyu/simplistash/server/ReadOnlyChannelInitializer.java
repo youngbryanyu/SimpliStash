@@ -36,7 +36,7 @@ public class ReadOnlyChannelInitializer extends ChannelInitializer<SocketChannel
         channel.pipeline().addLast(
             new StringDecoder(CharsetUtil.UTF_8), 
             new StringEncoder(CharsetUtil.UTF_8), 
-            clientHandlerFactory.createReadOnlyClientHandler()  
+            clientHandlerFactory.createReadOnlyClientHandler() /* Use read only client handler */
         );
     }
 }

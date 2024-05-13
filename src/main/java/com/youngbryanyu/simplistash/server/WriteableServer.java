@@ -35,10 +35,6 @@ public class WriteableServer implements Server {
      */
     public static final int NUM_WORKER_THREADS = 1;
     /**
-     * The client handler factory.
-     */
-    private final ClientHandlerFactory clientHandlerFactory;
-    /**
      * The TTL Expiration manager.
      */
     private final KeyExpirationManager keyExpirationManager;
@@ -73,14 +69,12 @@ public class WriteableServer implements Server {
             @Qualifier(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP) EventLoopGroup workerGroup,
             ServerBootstrap bootstrap,
             WriteableChannelInitializer channelInitializer,
-            ClientHandlerFactory clientHandlerFactory,
             KeyExpirationManager keyExpirationManager,
             Logger logger) {
         this.bossGroup = bossGroup;
         this.workerGroup = workerGroup;
         this.bootstrap = bootstrap;
         this.channelInitializer = channelInitializer;
-        this.clientHandlerFactory = clientHandlerFactory;
         this.keyExpirationManager = keyExpirationManager;
         this.logger = logger;
     }

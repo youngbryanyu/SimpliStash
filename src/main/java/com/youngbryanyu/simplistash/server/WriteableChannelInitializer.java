@@ -36,7 +36,7 @@ public class WriteableChannelInitializer extends ChannelInitializer<SocketChanne
         channel.pipeline().addLast(
             new StringDecoder(CharsetUtil.UTF_8), 
             new StringEncoder(CharsetUtil.UTF_8), 
-            clientHandlerFactory.createWriteableClientHandler() 
+            clientHandlerFactory.createWriteableClientHandler() /* Use writeable client handler */
         );
     }
 }

@@ -7,7 +7,7 @@ import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.ReadOnlyServer;
 import com.youngbryanyu.simplistash.server.Server;
 import com.youngbryanyu.simplistash.server.ServerMonitor;
-import com.youngbryanyu.simplistash.server.WriteableServer;
+import com.youngbryanyu.simplistash.server.PrimaryServer;
 
 /**
  * The entry point to the application.
@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         /* Initialize Spring DI */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        Server writeableServer = context.getBean(WriteableServer.class);
+        Server primaryServer = context.getBean(PrimaryServer.class);
         Server readOnlyServer = context.getBean(ReadOnlyServer.class);
         ServerMonitor serverMonitor = context.getBean(ServerMonitor.class);
         Logger logger = context.getBean(Logger.class);
@@ -32,18 +32,18 @@ public class Main {
         }));
 
         /* Start application */
-        start(writeableServer, readOnlyServer, serverMonitor, logger);
+        start(primaryServer, readOnlyServer, serverMonitor, logger);
     }
 
-    public static void start(Server writeableServer, Server readOnlyServer,
+    public static void start(Server primaryServer, Server readOnlyServer,
             ServerMonitor serverMonitor, Logger logger) {
-        /* Create writeable server thread */
-        Thread writeableServerThread = new Thread(() -> {
+        /* Create primary server thread */
+        Thread primaryServerThread = new Thread(() -> {
             try {
-                writeableServer.start();
+                primaryServer.start();
             } catch (Exception e) {
                 serverMonitor.setServerCrashed();
-                logger.error("The writeable server crashed:", e);
+                logger.error("The primary server crashed:", e);
             }
         });
 
@@ -58,7 +58,7 @@ public class Main {
         });
 
         /* Start servers */
-        writeableServerThread.start();
+        primaryServerThread.start();
         readOnlyServerThread.start();
 
         try {
@@ -66,7 +66,7 @@ public class Main {
             serverMonitor.waitForCrash();
 
             /* Interrupt server threads to stop application */
-            writeableServerThread.interrupt();
+            primaryServerThread.interrupt();
             readOnlyServerThread.interrupt();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); /* Interrupt the main thread */

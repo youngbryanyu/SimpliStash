@@ -10,10 +10,10 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
 /**
- * The channel initializer for the writeable server.
+ * The channel initializer for the primary server.
  */
 @Component
-public class WriteableChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class PrimaryChannelInitializer extends ChannelInitializer<SocketChannel> {
     /**
      * The client handler factory.
      */
@@ -24,7 +24,7 @@ public class WriteableChannelInitializer extends ChannelInitializer<SocketChanne
      * @param clientHandlerFactory The client handler factory.
      */
     @Autowired
-    public WriteableChannelInitializer(ClientHandlerFactory clientHandlerFactory) {
+    public PrimaryChannelInitializer(ClientHandlerFactory clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
     }
 
@@ -36,7 +36,7 @@ public class WriteableChannelInitializer extends ChannelInitializer<SocketChanne
         channel.pipeline().addLast(
             new StringDecoder(CharsetUtil.UTF_8), 
             new StringEncoder(CharsetUtil.UTF_8), 
-            clientHandlerFactory.createWriteableClientHandler() /* Use writeable client handler */
+            clientHandlerFactory.createPrimaryClientHandler() /* Use primary client handler */
         );
     }
 }

@@ -1,7 +1,7 @@
 # Configurations to use when starting the database.
 
-# The port that the main server with write permissions listens on. Defaults to 3000.
-writeable_server_port: 3000
+# The port that the primary server with write permissions listens on. Defaults to 3000.
+primary_server_port: 3000
 
 # The port that the read-only server listens on. Defaults to 3001.
 read_only_server_port: 3001

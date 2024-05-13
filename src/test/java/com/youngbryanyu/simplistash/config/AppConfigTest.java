@@ -60,12 +60,12 @@ public class AppConfigTest {
     }
 
     /**
-     * Tests creating the writeable client handler bean.
+     * Tests creating the primary client handler bean.
      */
     @Test
-    public void testWriteableClientHandlerBean() {
-        ClientHandler writeableHandler = context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
-        assertTrue(writeableHandler instanceof ClientHandler);
+    public void testPrimaryClientHandlerBean() {
+        ClientHandler primaryHandler = context.getBean(AppConfig.PRIMARY_CLIENT_HANDLER, ClientHandler.class);
+        assertTrue(primaryHandler instanceof ClientHandler);
     }
 
 }

@@ -37,20 +37,20 @@ public class ClientHandlerFactoryTest {
     }
 
     /**
-     * Test {@link ClientHandlerFactory#createWriteableClientHandler()}.
+     * Test {@link ClientHandlerFactory#createPrimaryClientHandler()}.
      */
     @Test
-    void testCreateWriteableClientHandler() {
+    void testCreatePrimaryClientHandler() {
         /* Setup */
         ClientHandler expectedHandler = mock(ClientHandler.class);
-        when(mockContext.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class)).thenReturn(expectedHandler);
+        when(mockContext.getBean(AppConfig.PRIMARY_CLIENT_HANDLER, ClientHandler.class)).thenReturn(expectedHandler);
 
         /* Call method */
-        ClientHandler actualHandler = clientHandlerFactory.createWriteableClientHandler();
+        ClientHandler actualHandler = clientHandlerFactory.createPrimaryClientHandler();
 
         /* Test assertions */
         assertSame(expectedHandler, actualHandler);
-        verify(mockContext).getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
+        verify(mockContext).getBean(AppConfig.PRIMARY_CLIENT_HANDLER, ClientHandler.class);
     }
 
      /**

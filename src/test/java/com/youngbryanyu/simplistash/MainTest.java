@@ -20,7 +20,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.youngbryanyu.simplistash.server.ReadOnlyServer;
 import com.youngbryanyu.simplistash.server.ServerMonitor;
-import com.youngbryanyu.simplistash.server.WriteableServer;
+import com.youngbryanyu.simplistash.server.PrimaryServer;
 
 /**
  * Unit tests for the main class.
@@ -32,10 +32,10 @@ public class MainTest {
     @Mock
     private AnnotationConfigApplicationContext context;
     /**
-     * The mocked writeable server.
+     * The mocked primary server.
      */
     @Mock
-    private WriteableServer writeableServer;
+    private PrimaryServer primaryServer;
     /**
      * The mocked read-only server.
      */
@@ -59,7 +59,7 @@ public class MainTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        when(context.getBean(WriteableServer.class)).thenReturn(writeableServer);
+        when(context.getBean(PrimaryServer.class)).thenReturn(primaryServer);
         when(context.getBean(ReadOnlyServer.class)).thenReturn(readOnlyServer);
         when(context.getBean(ServerMonitor.class)).thenReturn(serverMonitor);
         when(context.getBean(Logger.class)).thenReturn(mockLogger);
@@ -89,27 +89,27 @@ public class MainTest {
     @Test
     public void testStart_successful() throws Exception {
         /* Setup */
-        doNothing().when(writeableServer).start();
+        doNothing().when(primaryServer).start();
         doNothing().when(readOnlyServer).start();
 
         /* Call method */
-        Main.start(writeableServer, readOnlyServer, serverMonitor, mockLogger);
+        Main.start(primaryServer, readOnlyServer, serverMonitor, mockLogger);
 
         /* Check assertions */
         verify(serverMonitor, times(1)).waitForCrash();
     }
 
     /**
-     * Test {@link Main#start} when the writeable server crashes.
+     * Test {@link Main#start} when the primary server crashes.
      */
     @Test
-    public void testStart_writeableServerCrash() throws Exception {
+    public void testStart_primaryServerCrash() throws Exception {
         /* Setup */
-        doThrow(new RuntimeException("Writeable server crashed")).when(writeableServer).start();
+        doThrow(new RuntimeException("Primary server crashed")).when(primaryServer).start();
         doNothing().when(readOnlyServer).start();
 
         /* Call method */
-        Main.start(writeableServer, readOnlyServer, serverMonitor, mockLogger);
+        Main.start(primaryServer, readOnlyServer, serverMonitor, mockLogger);
 
         /* Check assertions */
         verify(serverMonitor, times(1)).waitForCrash();
@@ -121,11 +121,11 @@ public class MainTest {
     @Test
     public void testStart_readOnlyServerCrash() throws Exception {
         /* Setup */
-        doNothing().when(writeableServer).start();
+        doNothing().when(primaryServer).start();
         doThrow(new RuntimeException("Read-only server crashed")).when(readOnlyServer).start();
 
         /* Call method */
-        Main.start(writeableServer, readOnlyServer, serverMonitor, mockLogger);
+        Main.start(primaryServer, readOnlyServer, serverMonitor, mockLogger);
 
         /* Check assertions */
         verify(serverMonitor, times(1)).waitForCrash();
@@ -137,12 +137,12 @@ public class MainTest {
     @Test
     public void testStart_waitForCrash_interruptedException() throws Exception {
         /* Setup */
-        doNothing().when(writeableServer).start();
+        doNothing().when(primaryServer).start();
         doNothing().when(readOnlyServer).start();
         doThrow(new InterruptedException()).when(serverMonitor).waitForCrash();
 
         /* Call method */
-        Main.start(writeableServer, readOnlyServer, serverMonitor, mockLogger);
+        Main.start(primaryServer, readOnlyServer, serverMonitor, mockLogger);
 
         /* Check assertions */
         verify(serverMonitor, times(1)).waitForCrash();

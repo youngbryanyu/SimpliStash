@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.ClientHandler;
-import com.youngbryanyu.simplistash.server.WriteableServer;
+import com.youngbryanyu.simplistash.server.PrimaryServer;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -70,9 +70,9 @@ public class AppConfig {
     }
 
     /**
-     * Name of the writeable client handler beans.
+     * Name of the primary client handler beans.
      */
-    public static final String WRITEABLE_CLIENT_HANDLER = "writeableClientHandler";
+    public static final String PRIMARY_CLIENT_HANDLER = "primaryClientHandler";
 
     /**
      * Creates an instance of a client handler with both read and write permissions.
@@ -81,9 +81,9 @@ public class AppConfig {
      * @param logger         The application logger.
      * @return A new instance of a client handler.
      */
-    @Bean(WRITEABLE_CLIENT_HANDLER)
+    @Bean(PRIMARY_CLIENT_HANDLER)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ClientHandler writeableclientHandler(CommandHandler commandHandler, Logger logger) {
+    public ClientHandler primaryClientHandler(CommandHandler commandHandler, Logger logger) {
         return new ClientHandler(commandHandler, logger, false);
     }
 
@@ -106,14 +106,14 @@ public class AppConfig {
 
     /**
      * Creates a singleton instance of a single threaded netty nio event loop group
-     * with thread affinity used for the writeable server's worker group.
+     * with thread affinity used for the primary server's worker group.
      * 
      * @return A singleton instance of a single threaded netty nio event loop group.
      */
     @Bean(SINGLE_THREADED_NIO_EVENT_LOOP_GROUP)
     public EventLoopGroup nioEventLoopGroup_singleThread() {
         ThreadFactory threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
-        return new NioEventLoopGroup(WriteableServer.NUM_WORKER_THREADS, threadFactory);
+        return new NioEventLoopGroup(PrimaryServer.NUM_WORKER_THREADS, threadFactory);
     }
 
     /**

@@ -20,7 +20,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class WriteableServerTest {
+public class PrimaryServerTest {
     /**
      * The mocked client handler factory.
      */
@@ -65,7 +65,7 @@ public class WriteableServerTest {
      * The mocked channel initializer
      */
     @Mock
-    private WriteableChannelInitializer mockChannelInitializer;
+    private PrimaryChannelInitializer mockChannelInitializer;
     /**
      * The mocked key expiration manager.
      */
@@ -74,7 +74,7 @@ public class WriteableServerTest {
     /**
      * The read only server under test.
      */
-    private WriteableServer writeableServer;
+    private PrimaryServer primaryServer;
 
     /**
      * Setup before each test.
@@ -93,20 +93,20 @@ public class WriteableServerTest {
         when(mockCloseFuture.sync()).thenReturn(mockCloseFuture);
         doNothing().when(mockKeyExpirationManager).startExpirationTask(any());
 
-        writeableServer = new WriteableServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap,
+        primaryServer = new PrimaryServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap,
                 mockChannelInitializer, mockKeyExpirationManager, mockLogger);
     }
 
     /**
-     * Test {@link WriteableServer#start()}.
+     * Test {@link PrimaryServer#start()}.
      */
     @Test
     public void testServerStart() throws Exception {
-        writeableServer.start();
+        primaryServer.start();
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
-        verify(mockServerBootstrap).bind(Server.WRITEABLE_PORT);
+        verify(mockServerBootstrap).bind(Server.PRIMARY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
         verify(mockKeyExpirationManager).startExpirationTask(any());

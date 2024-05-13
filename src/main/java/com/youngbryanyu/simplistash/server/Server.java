@@ -7,7 +7,7 @@ public interface Server {
     /**
      * The port to use for the main server.
      */
-    public static final int WRITEABLE_PORT = 3000;
+    public static final int PRIMARY_PORT = 3000;
     /**
      * The port to use for the server that can only perform reads.
      */

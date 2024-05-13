@@ -28,7 +28,7 @@ import net.openhft.affinity.AffinityThreadFactory;
  * connections. Creates client handlers with write and read permissions.
  */
 @Component
-public class WriteableServer implements Server {
+public class PrimaryServer implements Server {
     /**
      * Number of worker threads to use to handle commands. We use a single thread
      * (similar to Redis).
@@ -53,7 +53,7 @@ public class WriteableServer implements Server {
     /**
      * The read only channel initializer.
      */
-    private final WriteableChannelInitializer channelInitializer;
+    private final PrimaryChannelInitializer channelInitializer;
     /**
      * The application logger.
      */
@@ -65,10 +65,10 @@ public class WriteableServer implements Server {
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public WriteableServer(EventLoopGroup bossGroup,
+    public PrimaryServer(EventLoopGroup bossGroup,
             @Qualifier(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP) EventLoopGroup workerGroup,
             ServerBootstrap bootstrap,
-            WriteableChannelInitializer channelInitializer,
+            PrimaryChannelInitializer channelInitializer,
             KeyExpirationManager keyExpirationManager,
             Logger logger) {
         this.bossGroup = bossGroup;
@@ -100,8 +100,8 @@ public class WriteableServer implements Server {
                     .childHandler(channelInitializer);
 
             /* Bind to port and listen for connections */
-            ChannelFuture f = bootstrap.bind(Server.WRITEABLE_PORT).sync();
-            logger.info("Writeable server started on port: " + Server.WRITEABLE_PORT);
+            ChannelFuture f = bootstrap.bind(Server.PRIMARY_PORT).sync();
+            logger.info("Primary server started on port: " + Server.PRIMARY_PORT);
 
             /* Wait until server is closed */
             f.channel().closeFuture().sync();

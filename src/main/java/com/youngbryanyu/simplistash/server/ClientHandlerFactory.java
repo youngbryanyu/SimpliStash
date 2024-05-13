@@ -31,8 +31,8 @@ public class ClientHandlerFactory {
      * 
      * @return A client handler.
      */
-    public ClientHandler createWriteableClientHandler() {
-        return context.getBean(AppConfig.WRITEABLE_CLIENT_HANDLER, ClientHandler.class);
+    public ClientHandler createPrimaryClientHandler() {
+        return context.getBean(AppConfig.PRIMARY_CLIENT_HANDLER, ClientHandler.class);
     }
 
     /**

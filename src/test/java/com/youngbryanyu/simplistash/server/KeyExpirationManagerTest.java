@@ -108,10 +108,15 @@ public class KeyExpirationManagerTest {
      */
     @Test
     void testStartExpirationTask_AlreadyScheduledAndDone() {
+        /* Setup */
+        when(mockScheduledFuture.isDone()).thenReturn(true);
+
+        /* Start stop then start task */
         expirationManager.startExpirationTask(mockEventLoopGroup);
         expirationManager.stopExpirationTask();
         expirationManager.startExpirationTask(mockEventLoopGroup);
 
+        /* Check assertions */
         verify(mockEventLoopGroup, times(2)).scheduleWithFixedDelay(any(Runnable.class), eq(0L), eq(1L),
                 eq(TimeUnit.SECONDS));
     }

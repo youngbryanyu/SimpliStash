@@ -1,6 +1,4 @@
-package com.youngbryanyu.simplistash.server;
-
-import java.util.concurrent.ThreadFactory;
+package com.youngbryanyu.simplistash.server.primary;
 
 import org.slf4j.Logger;
 
@@ -9,19 +7,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.config.AppConfig;
+import com.youngbryanyu.simplistash.server.Server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
-import io.netty.util.CharsetUtil;
-import net.openhft.affinity.AffinityStrategies;
-import net.openhft.affinity.AffinityThreadFactory;
 
 /**
  * The server with write permissions which listens for incoming client

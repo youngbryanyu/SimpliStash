@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.youngbryanyu.simplistash.config.AppConfig;
-import com.youngbryanyu.simplistash.server.ReadOnlyServer;
 import com.youngbryanyu.simplistash.server.Server;
 import com.youngbryanyu.simplistash.server.ServerMonitor;
-import com.youngbryanyu.simplistash.server.PrimaryServer;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
+import com.youngbryanyu.simplistash.server.readOnly.ReadOnlyServer;
 
 /**
  * The entry point to the application.

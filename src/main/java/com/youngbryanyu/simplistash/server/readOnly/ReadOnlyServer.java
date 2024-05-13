@@ -1,8 +1,10 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.readOnly;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.youngbryanyu.simplistash.server.Server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

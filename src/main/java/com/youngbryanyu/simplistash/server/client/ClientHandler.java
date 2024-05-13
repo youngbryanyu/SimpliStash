@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.client;
 
 import java.util.Deque;
 import java.util.LinkedList;

@@ -18,9 +18,9 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.youngbryanyu.simplistash.server.ReadOnlyServer;
 import com.youngbryanyu.simplistash.server.ServerMonitor;
-import com.youngbryanyu.simplistash.server.PrimaryServer;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
+import com.youngbryanyu.simplistash.server.readOnly.ReadOnlyServer;
 
 /**
  * Unit tests for the main class.

@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.primary;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.ScheduledFuture;

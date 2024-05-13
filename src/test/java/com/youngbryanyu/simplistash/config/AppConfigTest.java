@@ -1,7 +1,5 @@
 package com.youngbryanyu.simplistash.config;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import com.youngbryanyu.simplistash.server.ClientHandler;
+import com.youngbryanyu.simplistash.server.client.ClientHandler;
 
 /**
  * Tests for the spring IoC/DI config class.

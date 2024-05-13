@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.client;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;

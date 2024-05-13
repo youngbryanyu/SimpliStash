@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 
 import com.youngbryanyu.simplistash.commands.CommandHandler;
-import com.youngbryanyu.simplistash.server.ClientHandler;
-import com.youngbryanyu.simplistash.server.PrimaryServer;
+import com.youngbryanyu.simplistash.server.client.ClientHandler;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 import io.netty.bootstrap.ServerBootstrap;

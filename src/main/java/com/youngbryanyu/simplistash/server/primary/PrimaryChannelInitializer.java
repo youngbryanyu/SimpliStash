@@ -1,7 +1,9 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.primary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.youngbryanyu.simplistash.server.client.ClientHandlerFactory;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -10,10 +12,10 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
 /**
- * The channel initializer for the read only server.
+ * The channel initializer for the primary server.
  */
 @Component
-public class ReadOnlyChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class PrimaryChannelInitializer extends ChannelInitializer<SocketChannel> {
     /**
      * The client handler factory.
      */
@@ -24,7 +26,7 @@ public class ReadOnlyChannelInitializer extends ChannelInitializer<SocketChannel
      * @param clientHandlerFactory The client handler factory.
      */
     @Autowired
-    public ReadOnlyChannelInitializer(ClientHandlerFactory clientHandlerFactory) {
+    public PrimaryChannelInitializer(ClientHandlerFactory clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
     }
 
@@ -32,11 +34,11 @@ public class ReadOnlyChannelInitializer extends ChannelInitializer<SocketChannel
      * Initializes the channel.
      */
     @Override
-    protected void initChannel(SocketChannel channel) {
+    public void initChannel(SocketChannel channel) {
         channel.pipeline().addLast(
             new StringDecoder(CharsetUtil.UTF_8), 
             new StringEncoder(CharsetUtil.UTF_8), 
-            clientHandlerFactory.createReadOnlyClientHandler() /* Use read only client handler */
+            clientHandlerFactory.createPrimaryClientHandler() /* Use primary client handler */
         );
     }
 }

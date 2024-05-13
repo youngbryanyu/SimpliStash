@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

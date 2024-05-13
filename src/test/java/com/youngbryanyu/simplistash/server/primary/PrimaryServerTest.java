@@ -1,8 +1,9 @@
-package com.youngbryanyu.simplistash.server;
+package com.youngbryanyu.simplistash.server.primary;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
+import com.youngbryanyu.simplistash.server.Server;
+import com.youngbryanyu.simplistash.server.client.ClientHandlerFactory;
+import com.youngbryanyu.simplistash.server.primary.PrimaryChannelInitializer;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -19,10 +25,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-/**
- * Unit tests for the read only server.
- */
-public class ReadOnlyServerTest {
+public class PrimaryServerTest {
     /**
      * The mocked client handler factory.
      */
@@ -67,11 +70,16 @@ public class ReadOnlyServerTest {
      * The mocked channel initializer
      */
     @Mock
-    private ReadOnlyChannelInitializer mockChannelInitializer;
+    private PrimaryChannelInitializer mockChannelInitializer;
+    /**
+     * The mocked key expiration manager.
+     */
+    @Mock
+    private KeyExpirationManager mockKeyExpirationManager;
     /**
      * The read only server under test.
      */
-    private ReadOnlyServer readOnlyServer;
+    private PrimaryServer primaryServer;
 
     /**
      * Setup before each test.
@@ -88,22 +96,24 @@ public class ReadOnlyServerTest {
         when(mockChannelFuture.channel()).thenReturn(mockServerChannel);
         when(mockServerChannel.closeFuture()).thenReturn(mockCloseFuture);
         when(mockCloseFuture.sync()).thenReturn(mockCloseFuture);
+        doNothing().when(mockKeyExpirationManager).startExpirationTask(any());
 
-        readOnlyServer = new ReadOnlyServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap, mockChannelInitializer,
-                mockLogger);
+        primaryServer = new PrimaryServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap,
+                mockChannelInitializer, mockKeyExpirationManager, mockLogger);
     }
 
     /**
-     * Test {@link ReadOnlyServer#start()}.
+     * Test {@link PrimaryServer#start()}.
      */
     @Test
     public void testServerStart() throws Exception {
-        readOnlyServer.start();
+        primaryServer.start();
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
-        verify(mockServerBootstrap).bind(Server.READ_ONLY_PORT);
+        verify(mockServerBootstrap).bind(Server.PRIMARY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
+        verify(mockKeyExpirationManager).startExpirationTask(any());
     }
 }

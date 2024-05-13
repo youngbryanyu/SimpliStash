@@ -30,7 +30,7 @@ public class TTLTimeWheel {
     /**
      * The max number of entries to expire in 1 expiration operation.
      */
-    private static final int MAX_EXPIRE_LIMIT = 100;
+    public static final int MAX_EXPIRE_LIMIT = 100;
     /**
      * Map of keys to their compound ttl key consisting of (key, expirationTime).
      */
@@ -93,9 +93,6 @@ public class TTLTimeWheel {
 
         /* 2. Insert into bucket */
         buckets[bucketIndex].add(ttlKey);
-        System.out.println("just put " + key + " with " + expirationTime);
-        System.out.println("order: " + buckets[bucketIndex]);
-        System.out.println("ttlMap size after add: " + ttlMap.size());
     }
 
     /**
@@ -151,19 +148,14 @@ public class TTLTimeWheel {
         int numExpired = 0;
         int startBucketIndex = currentBucketIndex;
 
-        System.out.println("expire time: " + currentTime);
-
         /* Expire up to the max expire limit */
         while (!ttlMap.isEmpty() && numExpired < MAX_EXPIRE_LIMIT) {
             TreeSet<TTLKey> bucket = buckets[currentBucketIndex];
             
             if (bucket != null) {
-                System.out.println("bucket size: "+ bucket.size());
                 while (!bucket.isEmpty()) {
                     TTLKey ttlKey = bucket.first();
                     
-                    System.out.println("time of earliest TTL: " + ttlKey.toString());
-
                     /* No more expired keys from current bucket so break */
                     if (ttlKey.getExpirationTime() > currentTime) {
                         break;

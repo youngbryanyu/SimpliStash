@@ -32,7 +32,7 @@ public class ReadOnlyServer implements Server {
      */
     private final ServerBootstrap bootstrap;
     /**
-     * The channel initializer.
+     * The read only channel initializer.
      */
     private final ReadOnlyChannelInitializer channelInitializer;
 

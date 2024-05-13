@@ -16,9 +16,9 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 /**
- * Unit tests for the read only channel initializer.
+ * Unit tests for the writeable channel initializer.
  */
-public class ReadOnlyChannelInitializerTest {
+public class WriteableChannelInitializerTest {
     /**
      * The mock client handler factory.
      */
@@ -54,8 +54,8 @@ public class ReadOnlyChannelInitializerTest {
     @Test
     public void testInitChannel() {
         /* Setup */
-        when(mockClientHandlerFactory.createReadOnlyClientHandler()).thenReturn(mockClientHandler);
-        ReadOnlyChannelInitializer initializer = new ReadOnlyChannelInitializer(mockClientHandlerFactory);
+        when(mockClientHandlerFactory.createWriteableClientHandler()).thenReturn(mockClientHandler);
+        WriteableChannelInitializer initializer = new WriteableChannelInitializer(mockClientHandlerFactory);
         when(mockSocketChannel.pipeline()).thenReturn(mockChannelPipeline);
 
         /* Call method */

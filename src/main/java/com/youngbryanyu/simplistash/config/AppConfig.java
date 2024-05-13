@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.config;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.slf4j.Logger;
@@ -8,15 +10,19 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.ClientHandler;
+import com.youngbryanyu.simplistash.server.WriteableServer;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import net.openhft.affinity.AffinityStrategies;
+import net.openhft.affinity.AffinityThreadFactory;
 
 /**
  * Dependency injection configuration class.
@@ -82,18 +88,38 @@ public class AppConfig {
     }
 
     /**
-     * Creates an instance of a netty nio event loop group.
-     * @return An instance of a netty nio event loop group.
+     * Creates an instance of a default netty nio event loop group.
+     * 
+     * @return An instance of a default netty nio event loop group.
      */
     @Bean
+    @Primary
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public EventLoopGroup nioEventLoopGroup() {
+    public EventLoopGroup eventLoopGroup() {
         return new NioEventLoopGroup();
     }
 
-     /**
-     * Creates an instance of a netty server bootstrap.
-     * @return An instance of a netty server bootstrap.
+    /**
+     * Name of a bean for the single threaded nio event loop group.
+     */
+    public static final String SINGLE_THREADED_NIO_EVENT_LOOP_GROUP = "singleThreadedNioEventLoopGroup";
+
+    /**
+     * Creates a singleton instance of a single threaded netty nio event loop group
+     * with thread affinity used for the writeable server's worker group.
+     * 
+     * @return A singleton instance of a single threaded netty nio event loop group.
+     */
+    @Bean(SINGLE_THREADED_NIO_EVENT_LOOP_GROUP)
+    public EventLoopGroup nioEventLoopGroup_singleThread() {
+        ThreadFactory threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
+        return new NioEventLoopGroup(WriteableServer.NUM_WORKER_THREADS, threadFactory);
+    }
+
+    /**
+     * Creates an instance of a default netty server bootstrap.
+     * 
+     * @return An instance of a default netty server bootstrap.
      */
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -101,3 +127,5 @@ public class AppConfig {
         return new ServerBootstrap();
     }
 }
+
+// TODO: add unit tests for new methods

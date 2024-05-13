@@ -5,7 +5,10 @@ import java.util.concurrent.ThreadFactory;
 import org.slf4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import com.youngbryanyu.simplistash.config.AppConfig;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -30,7 +33,7 @@ public class WriteableServer implements Server {
      * Number of worker threads to use to handle commands. We use a single thread
      * (similar to Redis).
      */
-    private static final int NUM_WORKER_THREADS = 1;
+    public static final int NUM_WORKER_THREADS = 1;
     /**
      * The client handler factory.
      */
@@ -39,6 +42,22 @@ public class WriteableServer implements Server {
      * The TTL Expiration manager.
      */
     private final KeyExpirationManager keyExpirationManager;
+    /**
+     * The boss event loop group.
+     */
+    private final EventLoopGroup bossGroup;
+    /**
+     * The worker event loop group with a single thread and thread affinity.
+     */
+    private final EventLoopGroup workerGroup;
+    /**
+     * The server bootstrap.
+     */
+    private final ServerBootstrap bootstrap;
+    /**
+     * The read only channel initializer.
+     */
+    private final WriteableChannelInitializer channelInitializer;
     /**
      * The application logger.
      */
@@ -50,7 +69,17 @@ public class WriteableServer implements Server {
      * @param cache The in-memory cache to store data to.
      */
     @Autowired
-    public WriteableServer(ClientHandlerFactory clientHandlerFactory, KeyExpirationManager keyExpirationManager, Logger logger) {
+    public WriteableServer(EventLoopGroup bossGroup,
+            @Qualifier(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP) EventLoopGroup workerGroup,
+            ServerBootstrap bootstrap,
+            WriteableChannelInitializer channelInitializer,
+            ClientHandlerFactory clientHandlerFactory,
+            KeyExpirationManager keyExpirationManager,
+            Logger logger) {
+        this.bossGroup = bossGroup;
+        this.workerGroup = workerGroup;
+        this.bootstrap = bootstrap;
+        this.channelInitializer = channelInitializer;
         this.clientHandlerFactory = clientHandlerFactory;
         this.keyExpirationManager = keyExpirationManager;
         this.logger = logger;
@@ -68,31 +97,13 @@ public class WriteableServer implements Server {
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-
-        /* Use single worker thread and pin thread to CPU */
-        ThreadFactory threadFactory;
-        threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(NUM_WORKER_THREADS, threadFactory);
-
         /* Set up periodic task to expire TTLed keys */
         keyExpirationManager.startExpirationTask(workerGroup);
 
         try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel channel) throws Exception {
-                            channel.pipeline().addLast(
-                                    new StringDecoder(CharsetUtil.UTF_8), /* Decode client input with UTF8 */
-                                    new StringEncoder(CharsetUtil.UTF_8), /* Encode server output with UTF8 */
-
-                                    /* Create writeable client handler */
-                                    clientHandlerFactory.createWriteableClientHandler());
-                        }
-                    });
+                    .childHandler(channelInitializer);
 
             /* Bind to port and listen for connections */
             ChannelFuture f = bootstrap.bind(Server.WRITEABLE_PORT).sync();

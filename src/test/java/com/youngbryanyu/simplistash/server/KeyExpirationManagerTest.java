@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -142,5 +143,18 @@ public class KeyExpirationManagerTest {
         expirationManager.stopExpirationTask();
 
         verify(mockScheduledFuture, never()).cancel(anyBoolean());
+    }
+
+    /**
+     * Test {@link KeyExpirationManager#stopExpirationTask()} when the previous task is cancelled
+     */
+    @Test
+    void testStopExpirationTask_cancelled() {
+        expirationManager.startExpirationTask(mockEventLoopGroup);
+        expirationManager.stopExpirationTask();
+        when(mockScheduledFuture.isCancelled()).thenReturn(true);
+        expirationManager.stopExpirationTask();
+
+        verify(mockScheduledFuture, times(1)).cancel(anyBoolean());
     }
 }

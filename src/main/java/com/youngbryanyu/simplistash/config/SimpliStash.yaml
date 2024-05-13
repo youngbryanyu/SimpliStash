@@ -1,5 +1,11 @@
 # Configurations to use when starting the database.
 
+# The port that the main server with write permissions listens on. Defaults to 3000.
+writeable_server_port: 3000
+
+# The port that the read-only server listens on. Defaults to 3001.
+read_only_server_port: 3001
+
 # The maximum size allowed for a key in bytes. This is 256 by default.
 max_key_size_b: 256
 

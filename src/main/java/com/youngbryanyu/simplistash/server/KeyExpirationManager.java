@@ -57,6 +57,7 @@ public class KeyExpirationManager {
     public void stopExpirationTask() {
         if (expireTask != null && !expireTask.isCancelled()) {
             expireTask.cancel(false);
+            expireTask = null;
         }
     }
 }

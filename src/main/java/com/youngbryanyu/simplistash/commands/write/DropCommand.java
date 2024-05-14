@@ -17,7 +17,7 @@ public class DropCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "DROP";
+    public static final String NAME = "DROP";
     /**
      * The command's format.
      */
@@ -39,7 +39,7 @@ public class DropCommand implements Command {
     @Autowired
     public DropCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**

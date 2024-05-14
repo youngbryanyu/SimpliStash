@@ -16,11 +16,11 @@ public class EchoCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "ECHO";
+    public static final String NAME = "ECHO";
     /**
      * The command's format.
      */
-    private static final String FORMAT = "ECHO <text>";
+    private static final String FORMAT = "ECHO <value>";
     /**
      * The minimum number of required arguments.
      */
@@ -31,7 +31,7 @@ public class EchoCommand implements Command {
      */
     @Autowired
     public EchoCommand() {
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**

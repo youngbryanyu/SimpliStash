@@ -88,7 +88,6 @@ public class Stash {
         }
 
         cache.put(key, value);
-        logger.debug(String.format("Key set in stash \"%s\": %s --> %s", name, key, value));
     }
 
     /**
@@ -112,6 +111,7 @@ public class Stash {
             if (!readOnly) {
                 ttlTimeWheel.remove(key);
                 cache.remove(key);
+
                 logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
             }
 
@@ -157,7 +157,6 @@ public class Stash {
     public void delete(String key) {
         cache.remove(key);
         ttlTimeWheel.remove(key);
-        logger.debug(String.format("Key deleted from stash \"%s\": %s", name, key));
     }
 
     /**
@@ -170,7 +169,6 @@ public class Stash {
     public void setWithTTL(String key, String value, long ttl) {
         cache.put(key, value);
         ttlTimeWheel.add(key, ttl);
-        logger.debug(String.format("Key set in stash \"%s\": %s --> %s (ttl=%d)", name, key, value, ttl));
     }
 
     /**
@@ -187,7 +185,6 @@ public class Stash {
         }
 
         ttlTimeWheel.add(key, ttl);
-        logger.debug(String.format("TTL updated for key: %s (ttl=%d)", key, ttl));
         return true;
     }
 

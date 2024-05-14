@@ -19,7 +19,7 @@ public class DeleteCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "DELETE";
+    public static final String NAME = "DELETE";
     /**
      * The command's name.
      */
@@ -29,13 +29,16 @@ public class DeleteCommand implements Command {
      */
     private final int minRequiredArgs;
     /**
-     * The name of the optional name arg.
-     */
-    private static final String ARG_NAME = "NAME";
-    /**
      * The stash manager.
      */
     private final StashManager stashManager;
+
+    /**
+     * The optional args.
+     */
+    public enum OptionalArg {
+        NAME;
+    }
 
     /**
      * Constructor for the DELETE command.
@@ -45,13 +48,13 @@ public class DeleteCommand implements Command {
     @Autowired
     public DeleteCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**
      * Executes the DELETE command. Returns null if there aren't enough tokens.
      * 
-     * @param tokens The client's tokens.
+     * @param tokens   The client's tokens.
      * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
@@ -93,8 +96,8 @@ public class DeleteCommand implements Command {
 
         /* Get stash name */
         String name;
-        if (optionalArgVals.containsKey(ARG_NAME)) {
-            name = optionalArgVals.get(ARG_NAME);
+        if (optionalArgVals.containsKey(OptionalArg.NAME.name())) {
+            name = optionalArgVals.get(OptionalArg.NAME.name());
         } else {
             name = StashManager.DEFAULT_STASH_NAME;
         }

@@ -16,7 +16,7 @@ public class PingCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "PING";
+    public static final String NAME = "PING";
     /**
      * The command's format.
      */
@@ -31,7 +31,7 @@ public class PingCommand implements Command {
      */
     @Autowired
     public PingCommand() {
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**

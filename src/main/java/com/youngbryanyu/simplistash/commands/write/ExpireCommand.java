@@ -19,7 +19,7 @@ public class ExpireCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "EXPIRE";
+    public static final String NAME = "EXPIRE";
     /**
      * The command's format.
      */
@@ -29,13 +29,16 @@ public class ExpireCommand implements Command {
      */
     private final int minRequiredArgs;
     /**
-     * The name of the optional name arg.
-     */
-    private static final String ARG_NAME = "NAME";
-    /**
      * The stash manager.
      */
     private final StashManager stashManager;
+
+    /**
+     * The optional args.
+     */
+    public enum OptionalArg {
+        NAME;
+    }
 
     /**
      * Constructor for the EXPIRE command.
@@ -45,7 +48,7 @@ public class ExpireCommand implements Command {
     @Autowired
     public ExpireCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -95,8 +98,8 @@ public class ExpireCommand implements Command {
 
         /* Get stash name */
         String name;
-        if (optionalArgVals.containsKey(ARG_NAME)) {
-            name = optionalArgVals.get(ARG_NAME);
+        if (optionalArgVals.containsKey(OptionalArg.NAME.name())) {
+            name = optionalArgVals.get(OptionalArg.NAME.name());
         } else {
             name = StashManager.DEFAULT_STASH_NAME;
         }

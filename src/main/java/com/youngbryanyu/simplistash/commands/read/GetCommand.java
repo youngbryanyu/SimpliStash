@@ -19,7 +19,7 @@ public class GetCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "GET";
+    public static final String NAME = "GET";
     /**
      * The command's format.
      */
@@ -29,13 +29,16 @@ public class GetCommand implements Command {
      */
     private final int minRequiredArgs;
     /**
-     * The name of the optional name arg.
-     */
-    private static final String ARG_NAME = "NAME";
-    /**
      * The stash manager.
      */
     private final StashManager stashManager;
+
+    /**
+     * The optional args.
+     */
+    public enum OptionalArg {
+        NAME;    
+    }
 
     /**
      * Constructor for the GET command.
@@ -45,13 +48,13 @@ public class GetCommand implements Command {
     @Autowired
     public GetCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**
      * Executes the GET command. Returns null if there aren't enough tokens.
      * 
-     * @param tokens The client's tokens.
+     * @param tokens   The client's tokens.
      * @param readOnly Whether the client is read-only.
      * @return The response to the client.
      */
@@ -88,8 +91,8 @@ public class GetCommand implements Command {
 
         /* Get stash name */
         String name;
-        if (optionalArgVals.containsKey(ARG_NAME)) {
-            name = optionalArgVals.get(ARG_NAME);
+        if (optionalArgVals.containsKey(OptionalArg.NAME.name())) {
+            name = optionalArgVals.get(OptionalArg.NAME.name());
         } else {
             name = StashManager.DEFAULT_STASH_NAME;
         }

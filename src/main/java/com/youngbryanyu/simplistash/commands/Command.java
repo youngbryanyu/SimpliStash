@@ -78,18 +78,6 @@ public interface Command {
     public String execute(Deque<String> tokens, boolean readOnly);
 
     /**
-     * Gets the minimum number of required arguments to execute a command. Required
-     * arguments are in <...>, and optional arguments are in [...].
-     * 
-     * @return The minimum number of required arguments for a command.
-     */
-    public default int getMinRequiredArgs(String format) {
-        return (int) Arrays.stream(format.split(" "))
-                .filter(part -> !part.startsWith("["))
-                .count();
-    }
-
-    /**
      * Returns the number of optional arguments. Returns -1 if the input is
      * malformed.
      * 

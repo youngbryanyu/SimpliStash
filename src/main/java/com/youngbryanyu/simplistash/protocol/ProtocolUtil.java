@@ -1,6 +1,8 @@
 package com.youngbryanyu.simplistash.protocol;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class containing protocol constants and methods to help with encoding
@@ -27,6 +29,12 @@ public final class ProtocolUtil {
      * The token that prefixes all error messages
      */
     private static final String ERROR_PREFIX = "ERROR";
+    /**
+     * The token that prefixes all value messages that aren't errors.
+     */
+    private static final String VALUE_PREFIX = "VALUE";
+
+    // TODO create prefix for fatal errors that should disconnect client
 
     /* Private constructor to prevent instantiation */
     private ProtocolUtil() {
@@ -43,7 +51,7 @@ public final class ProtocolUtil {
         if (value == null) {
             return buildNullResponse();
         }
-        return encode(value);
+        return encode(VALUE_PREFIX) + encode(value);
     }
 
     /**
@@ -67,7 +75,7 @@ public final class ProtocolUtil {
      * @return The encoded OK response.
      */
     public static String buildOkResponse() {
-        return encode(OK_RESPONSE);
+        return encode(VALUE_PREFIX) + encode(OK_RESPONSE);
     }
 
     /**
@@ -76,7 +84,7 @@ public final class ProtocolUtil {
      * @return The encoded null response.
      */
     public static String buildNullResponse() {
-        return encode(NULL_RESPONSE);
+        return encode(VALUE_PREFIX) + encode(NULL_RESPONSE);
     }
 
     /**
@@ -85,7 +93,7 @@ public final class ProtocolUtil {
      * @return The formatted PONG response.
      */
     public static String buildPongResponse() {
-        return encode(PONG_RESPONSE);
+        return encode(VALUE_PREFIX) + encode(PONG_RESPONSE);
     }
 
     /**
@@ -114,5 +122,85 @@ public final class ProtocolUtil {
             result.append(token.length()).append(DELIM).append(token);
         }
         return result.toString();
+    }
+
+    /**
+     * Encodes a command, required args, optional args into a format that follows
+     * the protocol. Converts all command names and optional arg names to upper case
+     * since the server is case-sensitive.
+     * 
+     * Example 1:
+     * - command: set
+     * - requiredArgs: {john, cena}
+     * - takesOptionalArgs: true
+     * - optionalArgs: {ttl=5000, name=stash1}
+     * 
+     * The output would be in the form (assume each token is encoded with
+     * length-prefixing, with no spaces):
+     * - SET john cena 2 TTL=5000 NAME=stash1
+     * 
+     * Example 2:
+     * - command: echo
+     * - requiredArgs: {hello}
+     * - takesOptionalArgs: false
+     * - optionalArgs: {}
+     * 
+     * The output would be in the form (assume each token is encoded with
+     * length-prefixing, with no spaces):
+     * - ECHO hello
+     * 
+     * @param command           The command name.
+     * @param requiredArgs      The requires arguments.
+     * @param takesOptionalArgs Whether or not the command takes optional args. If
+     *                          it does, the number of optional args must be
+     *                          specified along with the optional args even if 0 are
+     *                          used.
+     * @param optionalArgs      The optional arguments.
+     * @return The encoded command following the protocol to be sent to the server.
+     */
+    public static String encode(String command, List<String> requiredArgs, boolean takesOptionalArgs,
+            Map<String, String> optionalArgs) {
+        StringBuilder sb = new StringBuilder();
+
+        /* Append encoded command */
+        sb.append(ProtocolUtil.encode(command.toUpperCase())); /* Use upper case command */
+
+        /* Append encoded required args */
+        sb.append(ProtocolUtil.encode(requiredArgs));
+
+        /* If the command needs number of optional args specified, add it */
+        if (takesOptionalArgs) {
+            sb.append(ProtocolUtil.encode(Integer.toString(optionalArgs.size())));
+
+            optionalArgs.forEach((arg, val) -> {
+                String optionalArg = String.format("%s=%s", arg.toUpperCase(), val); /* Use upper case arg name */
+                sb.append(ProtocolUtil.encode(optionalArg));
+            });
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Gets the minimum number of required arguments to execute a command based on
+     * the format. Optional arguments are in [...].
+     * 
+     * The specification should always be the following for both the protocol and
+     * CLI input:
+     * - COMMAND <required_args> ... [optional_args] ...
+     * 
+     * @return The minimum number of required arguments for a command.
+     */
+    public static int getMinRequiredArgs(String format) {
+        /* Remove the optional part, that starts with [ */
+        int startOfOptionalIndex = format.indexOf("[");
+        String requiredPart = format;
+        if (startOfOptionalIndex != -1) {
+            requiredPart = format.substring(0, startOfOptionalIndex);
+        }
+
+        /* Return the number of required args */
+        return (int) Arrays.stream(requiredPart.split(" "))
+                .count();
     }
 }

@@ -63,8 +63,7 @@ public class StashManager {
         }
 
         
-        stashes.putIfAbsent(name, stashFactory.createStash(name));
-        logger.debug(String.format("Created stash: %s", name));
+        stashes.putIfAbsent(name, stashFactory.createStash(name));        
         return true;
     }
 
@@ -99,7 +98,6 @@ public class StashManager {
         if (stash != null) {
             stashes.remove(name);
             stash.drop();
-            logger.debug(String.format("Dropped stash: %s", name));
         }
     }
 

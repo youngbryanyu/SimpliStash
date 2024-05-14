@@ -19,7 +19,7 @@ public class SetCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "SET";
+    public static final String NAME = "SET";
     /**
      * The command's format.
      */
@@ -29,17 +29,17 @@ public class SetCommand implements Command {
      */
     private final int minRequiredArgs;
     /**
-     * The name of the optional name arg.
-     */
-    private static final String ARG_NAME = "NAME";
-    /**
-     * The name of the optional ttl arg.
-     */
-    private static final String ARG_TTL = "TTL";
-    /**
      * The stash manager.
      */
     private final StashManager stashManager;
+
+    /**
+     * The optional args.
+     */
+    public enum OptionalArg {
+        NAME,
+        TTL;
+    }
 
     /**
      * Constructor for the SET command.
@@ -49,7 +49,7 @@ public class SetCommand implements Command {
     @Autowired
     public SetCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**
@@ -106,8 +106,8 @@ public class SetCommand implements Command {
 
         /* Get stash name */
         String name;
-        if (optionalArgVals.containsKey(ARG_NAME)) {
-            name = optionalArgVals.get(ARG_NAME);
+        if (optionalArgVals.containsKey(OptionalArg.NAME.name())) {
+            name = optionalArgVals.get(OptionalArg.NAME.name());
         } else {
             name = StashManager.DEFAULT_STASH_NAME;
         }
@@ -120,9 +120,9 @@ public class SetCommand implements Command {
 
         /* Set TTL (optional) */
         long ttl = -1;
-        if (optionalArgVals.containsKey(ARG_TTL)) {
+        if (optionalArgVals.containsKey(OptionalArg.TTL.name())) {
             try {
-                ttl = Long.parseLong(optionalArgVals.get(ARG_TTL));
+                ttl = Long.parseLong(optionalArgVals.get(OptionalArg.TTL.name()));
             } catch (NumberFormatException e) {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.TTL_INVALID_LONG));
             }

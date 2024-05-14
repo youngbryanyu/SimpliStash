@@ -18,7 +18,7 @@ public class CreateCommand implements Command {
     /**
      * The command's name.
      */
-    private static final String NAME = "CREATE";
+    public static final String NAME = "CREATE";
     /**
      * The command's format.
      */
@@ -40,7 +40,7 @@ public class CreateCommand implements Command {
     @Autowired
     public CreateCommand(StashManager stashManager) {
         this.stashManager = stashManager;
-        minRequiredArgs = getMinRequiredArgs(FORMAT);
+        minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.atLeast;
@@ -301,5 +302,22 @@ class StashTest {
 
         /* Test assertions */
         verify(mockTTLTimeWheel, times(1)).expireKeys();
+        verify(mockLogger, times(1)).debug(anyString());
+    }
+
+    /**
+     * Test {@link Stash#updateTTL(String, long)} when no keys were expired.
+     */
+    @Test
+    void testExpireTTLKeys_noneExpired() {
+        /* Setup */
+        when(mockTTLTimeWheel.expireKeys()).thenReturn(Collections.emptyList());
+        
+        /* Call method */
+        stash.expireTTLKeys();
+
+        /* Test assertions */
+        verify(mockTTLTimeWheel, times(1)).expireKeys();
+        verify(mockLogger, never()).debug(anyString());
     }
 }

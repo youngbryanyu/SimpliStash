@@ -129,7 +129,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * @throws BrokenProtocolException If the client's input doesn't follow the
      *                                 protocol.
      */
-    protected void parseTokens()
+    private void parseTokens()
             throws BufferOverflowException, BrokenProtocolException {
         /* Check if buffer's size has exceeded the limit */
         if (buffer.length() > getMaxBufferSize()) {
@@ -175,6 +175,22 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             buffer.delete(0, lastEndIdx);
         }
     }
+    
+    /**
+     * Returns the client's current tokens.
+     * @return The client's tokens.
+     */
+    public Deque<String> getTokens() {
+        return tokens;
+    }
+
+    /**
+     * Returns the client's current buffer.
+     * @return The client's current buffer.
+     */
+    public StringBuilder getBuffer() {
+        return buffer;
+    }
 
     /**
      * Returns the max buffer size each client can have. This is to prevent the
@@ -183,7 +199,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * 
      * @return The a client's max buffer size
      */
-    private static int getMaxBufferSize() {
+    public static int getMaxBufferSize() {
         return 3 * (Stash.MAX_KEY_LENGTH + Stash.MAX_VALUE_LENGTH);
     }
 }

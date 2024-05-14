@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Dependency injection configuration class for the CLI.
  */
-@Configuration
+@Configuration 
 @ComponentScan(basePackages = "com.youngbryanyu.simplistash.cli")
 public class CLIConfig {
    

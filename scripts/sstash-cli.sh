@@ -6,5 +6,5 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-# Pass the IP and port as system properties to Maven
-mvn -f "$(dirname "$0")/../pom.xml" exec:java -Pcli -Dip=$1 -Dport=$2
+# Run the CLI
+mvn -q -f "$(dirname "$0")/../pom.xml" exec:java -Pcli -Dip=$1 -Dport=$2

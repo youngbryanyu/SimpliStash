@@ -111,7 +111,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.debug(String.format("Error occurred in channel, disconnecting client: %s\n" +
                 "- Error: %s", ctx.channel(), cause.getMessage()));
-        ctx.writeAndFlush(ProtocolUtil.buildErrorResponse(cause.getMessage()));
+        ctx.writeAndFlush(ProtocolUtil.buildFatalResponse(cause.getMessage()));
         ctx.close();
     }
 
@@ -138,7 +138,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
         String delim = ProtocolUtil.DELIM;
         int delimLength = delim.length();
-        int lastEndIdx = 0; /* End of last token parsed */
+        int lastEndIdx = 0; /* End of final token parsed */
         int delimIdx = -1;
 
         while ((delimIdx = buffer.indexOf(delim, lastEndIdx)) != -1) {

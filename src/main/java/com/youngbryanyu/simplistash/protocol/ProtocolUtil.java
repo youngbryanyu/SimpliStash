@@ -24,17 +24,20 @@ public final class ProtocolUtil {
     /**
      * The PONG response to a PING command.
      */
-    private static final String PONG_RESPONSE = "PONG";
+    public static final String PONG_RESPONSE = "PONG";
     /**
-     * The token that prefixes all error messages
+     * The token that prefixes all error messages.
      */
-    private static final String ERROR_PREFIX = "ERROR";
+    public static final String ERROR_PREFIX = "ERROR";
     /**
      * The token that prefixes all value messages that aren't errors.
      */
-    private static final String VALUE_PREFIX = "VALUE";
-
-    // TODO create prefix for fatal errors that should disconnect client
+    public static final String VALUE_PREFIX = "VALUE";
+    /**
+     * The token that prefixes fatal errors that should disconnect the client, such
+     * as invalid protocol that leads to ambiguous interpretation.
+     */
+    public static final String FATAL_PREFIX = "FATAL";
 
     /* Private constructor to prevent instantiation */
     private ProtocolUtil() {
@@ -67,6 +70,21 @@ public final class ProtocolUtil {
             return encode(ERROR_PREFIX) + encode("Unknown error occurred.");
         }
         return encode(ERROR_PREFIX) + encode(message);
+    }
+
+    /**
+     * Builds a response containing an fatal error message to send back to the client.
+     * 
+     * Errors are sent in the format: FATAL <message>
+     * 
+     * @param message The error message to send to the client.
+     * @return The encoded error message to send to the client.
+     */
+    public static String buildFatalResponse(String message) {
+        if (message == null) {
+            return encode(FATAL_PREFIX) + encode("Unknown fatal error occurred.");
+        }
+        return encode(FATAL_PREFIX) + encode(message);
     }
 
     /**

@@ -23,7 +23,7 @@
     </Appenders>
     <Loggers>
         <!-- The lowest log level to show -->
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="RollingFile" />
             <AppenderRef ref="Console" />
         </Root>

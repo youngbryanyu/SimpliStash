@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /**
- * The CLI
+ * The CLI used to connect to a database server instance.
  */
 public class CLI {
     private Socket socket;
@@ -52,8 +52,11 @@ public class CLI {
 
                 // Read response from the server
                 String response = in.readLine();
+                // TODO handle logic to read length prefixed from server
                 System.out.println("Response from server: " + response);
             }
+
+             // TODO: fix issue where only first command is sent and parsed
 
             socket.close();
             scanner.close();
@@ -85,7 +88,7 @@ public class CLI {
             }
         }
         appendToken(sb, currentToken); // Append the last token
-
+        System.out.println("*****| Sent to server: " + sb.toString() + " |*****");
         return sb.toString();
     }
 

@@ -3,6 +3,7 @@ package com.youngbryanyu.simplistash.stash;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,10 @@ public class StashManager {
      * Mapping of each stash's name to its instance.
      */
     private final Map<String, Stash> stashes;
+    /**
+     * The application logger.
+     */
+    private final Logger logger;
 
     /**
      * Constructor for a stash manager.
@@ -34,8 +39,9 @@ public class StashManager {
      * @param stashFactory The factory used to create the stashes.
      */
     @Autowired
-    public StashManager(StashFactory stashFactory) {
+    public StashManager(StashFactory stashFactory, Logger logger) {
         this.stashFactory = stashFactory;
+        this.logger = logger;
         stashes = new ConcurrentHashMap<>();
 
         /* Create default stash */
@@ -56,7 +62,9 @@ public class StashManager {
             return false;
         }
 
+        
         stashes.putIfAbsent(name, stashFactory.createStash(name));
+        logger.debug(String.format("Created stash: %s", name));
         return true;
     }
 
@@ -91,6 +99,7 @@ public class StashManager {
         if (stash != null) {
             stashes.remove(name);
             stash.drop();
+            logger.debug(String.format("Dropped stash: %s", name));
         }
     }
 

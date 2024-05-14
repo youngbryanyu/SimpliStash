@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -32,10 +31,6 @@ public class Stash {
      * The max alloed length of a stash's name.
      */
     public static final int MAX_NAME_LENGTH = 64;
-    /**
-     * Name of the primary cache.
-     */
-    private static final String PRIMARY_CACHE_NAME = "primary";
     /**
      * Error message when attempting to access a closed DB.
      */
@@ -93,6 +88,7 @@ public class Stash {
         }
 
         cache.put(key, value);
+        logger.debug(String.format("Key set in stash \"%s\": %s --> %s", name, key, value));
     }
 
     /**
@@ -161,6 +157,7 @@ public class Stash {
     public void delete(String key) {
         cache.remove(key);
         ttlTimeWheel.remove(key);
+        logger.debug(String.format("Key deleted from stash \"%s\": %s", name, key));
     }
 
     /**
@@ -173,6 +170,7 @@ public class Stash {
     public void setWithTTL(String key, String value, long ttl) {
         cache.put(key, value);
         ttlTimeWheel.add(key, ttl);
+        logger.debug(String.format("Key set in stash \"%s\": %s --> %s (ttl=%d)", name, key, value, ttl));
     }
 
     /**
@@ -189,6 +187,7 @@ public class Stash {
         }
 
         ttlTimeWheel.add(key, ttl);
+        logger.debug(String.format("TTL updated for key: %s (ttl=%d)", key, ttl));
         return true;
     }
 

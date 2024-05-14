@@ -51,7 +51,7 @@ public class CommandHandler {
                 Command command = commandFactory.getCommand(commandName);
                 String result = command.execute(tokens, readOnly);
 
-                logger.debug(String.format("Executing command: \n" +
+                logger.debug(String.format("Executed command: \n" +
                         "- %s\n" +
                         "- readOnly: %b\n" +
                         "- Result: %s\n",

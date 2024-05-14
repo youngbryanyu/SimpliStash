@@ -85,7 +85,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <!-- Log4j API -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -120,15 +119,6 @@
             <artifactId>affinity</artifactId>
             <version>3.23.3</version>
         </dependency>
-
-        <!-- Awaitility -->
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>4.1.0</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may bemoved
@@ -257,14 +247,72 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <mainClass>com.youngbryanyu.simplistash.Main</mainClass>
                     <arguments>
                         <argument></argument>
                     </arguments>
                 </configuration>
-            </plugin>
+            </plugin> -->
 
         </plugins>
     </build>
+
+    <!-- Profiles for different mains to run -->
+    <profiles>
+        <!-- Main server profile -->
+        <profile>
+            <id>server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <mainClass>com.youngbryanyu.simplistash.Main</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- CLI profile -->
+        <profile>
+            <id>cli</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <mainClass>com.youngbryanyu.simplistash.cli.CLI</mainClass>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>ip</key>
+                                    <value>${ip}</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>port</key>
+                                    <value>${port}</value>
+                                </systemProperty>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

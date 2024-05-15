@@ -1,5 +1,5 @@
 # SimpliStash
-A Stupid Simple Key-Value Database 📦
+A Stupid Simple In-Memory Key-Value Database 📦
 
 ## Installation
 Run the following to clone the repository and run the setup script. 
@@ -9,9 +9,13 @@ cd SimpliStash
 chmod +x setup.sh
 ./setup.sh
 ```
-to clone the repository.
+
+The setup script does the following:
+- Compiles the source code
+- Creates symbolic links to executables
 
 ## Running SimpliStash
-To start the server, run the following:
-1. `mvn compile`: compiles the source code
-2. `mvn exec:java -Dexec.mainClass=com.youngbryanyu.simplistash.Main`: Runs the executable using Java.
+To start the server, run `sstash`.
+
+## Running the CLI
+To run the CLI, run `sstash-cli <ip> <port>`. If running locally this is just `sstash-cli localhost 3000` by default.

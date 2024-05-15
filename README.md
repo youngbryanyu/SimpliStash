@@ -1,5 +1,5 @@
 # SimpliStash
-A Stupid Simple In-Memory Key-Value Database 📦
+A Stupid Simple In-Memory Key-Value Database. For more details and usage notes see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
 ## Installation
 Run the following to clone the repository and run the setup script. 

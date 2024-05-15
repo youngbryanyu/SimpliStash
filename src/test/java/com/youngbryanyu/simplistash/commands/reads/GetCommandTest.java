@@ -62,7 +62,7 @@ public class GetCommandTest {
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
         when(mockStash.get(anyString(), anyBoolean())).thenReturn("value");
         Deque<String> tokens = new LinkedList<>(List.of("GET", "burger", "0"));
-        String expectedResponse = "5\r\nvalue";
+        String expectedResponse = "5\r\nVALUE5\r\nvalue";
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -151,7 +151,7 @@ public class GetCommandTest {
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
         when(mockStash.get(anyString(), anyBoolean())).thenReturn("value");
         Deque<String> tokens = new LinkedList<>(List.of("GET", "burger", "1", "NAME=stash1"));
-        String expectedResponse = "5\r\nvalue";
+        String expectedResponse = "5\r\nVALUE5\r\nvalue";
 
         /* Call method */
         String result = command.execute(tokens, false);

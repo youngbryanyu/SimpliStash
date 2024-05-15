@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
 
 /**
  * Unit tests for the stash manager.
@@ -32,6 +33,11 @@ public class StashManagerTest {
     @Mock
     private Stash mockStash;
     /**
+     * The mocked logger.
+     */
+    @Mock
+    private Logger mockLogger;
+    /**
      * The stash manager under test.
      */
     private StashManager stashManager;
@@ -43,7 +49,7 @@ public class StashManagerTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
         when(mockStashFactory.createStash(anyString())).thenReturn(mockStash);
-        stashManager = new StashManager(mockStashFactory);
+        stashManager = new StashManager(mockStashFactory, mockLogger);
     }
 
     /**

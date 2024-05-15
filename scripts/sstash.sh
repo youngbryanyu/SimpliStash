@@ -6,5 +6,9 @@ if [ "$#" -ne 0 ]; then
     exit 1
 fi
 
+# Get the directory of the actual script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
 # Pass the IP and port as system properties to Maven
-mvn -f "$(dirname "$0")/../pom.xml" exec:java -Pserver
+mvn -f "$SCRIPT_DIR/../pom.xml" exec:java -Pserver
+

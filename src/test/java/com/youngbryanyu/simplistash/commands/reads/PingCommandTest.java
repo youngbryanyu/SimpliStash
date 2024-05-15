@@ -41,7 +41,7 @@ public class PingCommandTest {
     @Test
     public void testExecute_pong() {
         Deque<String> tokens = new LinkedList<>(List.of("PING"));
-        String expectedResponse = "4\r\nPONG";
+        String expectedResponse = "5\r\nVALUE4\r\nPONG";
         String result = command.execute(tokens, false);
         assertNotNull(result);
         assertEquals(expectedResponse, result);

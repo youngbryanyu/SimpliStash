@@ -16,7 +16,7 @@ public class ProtocolUtilTest {
     @Test
     public void testBuildValueResponse_notNull() {
         String actual = ProtocolUtil.buildValueResponse("value");
-        String expected = "5\r\nvalue";
+        String expected = "5\r\nVALUE5\r\nvalue";
         assertEquals(expected, actual);
     }
 
@@ -26,7 +26,7 @@ public class ProtocolUtilTest {
     @Test
     public void testBuildValueResponse_null() {
         String actual = ProtocolUtil.buildValueResponse(null);
-        String expected = "5\r\n*NULL";
+        String expected = "5\r\nVALUE5\r\n*NULL";
         assertEquals(expected, actual);
     }
 
@@ -56,7 +56,7 @@ public class ProtocolUtilTest {
     @Test
     public void testBuildOkResponse() {
         String actual = ProtocolUtil.buildOkResponse();
-        String expected = "2\r\nOK";
+        String expected = "5\r\nVALUE2\r\nOK";
         assertEquals(expected, actual);
     }
 
@@ -66,7 +66,7 @@ public class ProtocolUtilTest {
     @Test
     public void testBuildPongResponse() {
         String actual = ProtocolUtil.buildPongResponse();
-        String expected = "4\r\nPONG";
+        String expected = "5\r\nVALUE4\r\nPONG";
         assertEquals(expected, actual);
     }
 

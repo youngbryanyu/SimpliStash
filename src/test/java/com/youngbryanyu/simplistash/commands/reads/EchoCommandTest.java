@@ -39,7 +39,7 @@ public class EchoCommandTest {
     @Test
     public void testExecute_echo() {
         Deque<String> tokens = new LinkedList<>(List.of("ECHO", "burger"));
-        String expectedResponse = "6\r\nburger";
+        String expectedResponse = "5\r\nVALUE6\r\nburger";
         String result = command.execute(tokens, false);
         assertNotNull(result);
         assertEquals(expectedResponse, result);

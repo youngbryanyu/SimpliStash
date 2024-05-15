@@ -45,17 +45,6 @@ public class CommandTest {
     }
 
     /**
-     * Test {@link Command#getMinRequiredArgs(String)}.
-     */
-    @Test
-    public void testGetMinRequiredArgs() {
-        String format = "<key> <value> [optional]";
-        int expected = 2;
-        int actual = command.getMinRequiredArgs(format);
-        assertEquals(expected, actual);
-    }
-
-    /**
      * Test {@link Command#getNumOptionalArgs(String)} with a valid token.
      */
     @Test

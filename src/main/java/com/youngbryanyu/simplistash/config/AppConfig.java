@@ -113,7 +113,7 @@ public class AppConfig {
     public EventLoopGroup nioEventLoopGroup_singleThread() {
         ThreadFactory threadFactory = new AffinityThreadFactory("atf_wrk", AffinityStrategies.DIFFERENT_CORE);
         return new NioEventLoopGroup(PrimaryServer.NUM_WORKER_THREADS, threadFactory);
-    }
+    } // TODO: remove if deleting read-only server
 
     /**
      * Creates an instance of a default netty server bootstrap.

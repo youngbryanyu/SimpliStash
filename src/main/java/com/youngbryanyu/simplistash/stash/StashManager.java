@@ -32,6 +32,10 @@ public class StashManager {
      * The application logger.
      */
     private final Logger logger;
+    /**
+     * The lock service.
+     */
+    private final LockService lockService; // TODO: inject
 
     /**
      * Constructor for a stash manager.
@@ -43,6 +47,8 @@ public class StashManager {
         this.stashFactory = stashFactory;
         this.logger = logger;
         stashes = new ConcurrentHashMap<>();
+
+        lockService = new LockService(16);
 
         /* Create default stash */
         createStash(DEFAULT_STASH_NAME);
@@ -58,12 +64,14 @@ public class StashManager {
      *         otherwise.
      */
     public boolean createStash(String name) {
+        lockService.lock(name); /* LOCK */
+
         if (stashes.size() >= MAX_NUM_STASHES) {
             return false;
         }
+        stashes.putIfAbsent(name, stashFactory.createStash(name));
 
-        
-        stashes.putIfAbsent(name, stashFactory.createStash(name));        
+        lockService.unlock(name); /* UNLOCK */
         return true;
     }
 
@@ -93,12 +101,16 @@ public class StashManager {
      * @param name The name of the stash to delete.
      */
     public void dropStash(String name) {
+        lockService.lock(name); /* LOCK */
+
         Stash stash = getStash(name);
 
         if (stash != null) {
             stashes.remove(name);
             stash.drop();
         }
+        
+        lockService.unlock(name); /* UNLOCK */
     }
 
     /**
@@ -112,6 +124,7 @@ public class StashManager {
 
     /**
      * Returns the number of active stashes.
+     * 
      * @return The number of active stashes.
      */
     public int getNumStashes() {

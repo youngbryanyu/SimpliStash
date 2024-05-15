@@ -56,6 +56,10 @@ public class Stash {
      * The name of the Stash.
      */
     private final String name;
+    /**
+     * The lock service.
+     */
+    private final LockService lockService; // TODO: inject
 
     /**
      * Constructor for the stash.
@@ -73,6 +77,8 @@ public class Stash {
         this.logger = logger;
         this.name = name;
         addShutDownHook();
+
+        lockService = new LockService(16);
     }
 
     /**
@@ -82,12 +88,21 @@ public class Stash {
      * @param value The value to map to the key.
      */
     public void set(String key, String value) {
-        /* Remove TTL metadata in case key previously expired */
-        if (ttlTimeWheel.isExpired(key)) {
-            ttlTimeWheel.remove(key);
+        try {
+            lockService.lock(key); /* Lock */
+
+            /* Remove TTL metadata in case key previously expired */
+            if (ttlTimeWheel.isExpired(key)) {
+                ttlTimeWheel.remove(key);
+            }
+
+            cache.put(key, value);
+        } catch (NullPointerException | IllegalAccessError e) {
+            logger.debug("Stash set failed, stash was closed.");
+        } finally {
+            lockService.unlock(key); /* Unlock */
         }
 
-        cache.put(key, value);
     }
 
     /**
@@ -109,44 +124,24 @@ public class Stash {
 
             /* Lazy expire if not read-only */
             if (!readOnly) {
-                ttlTimeWheel.remove(key);
-                cache.remove(key);
+                lockService.lock(key); /* Lock */
 
-                logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
+                /* Check expiration again so its an atomic check-then-act */
+                if (!ttlTimeWheel.isExpired(key)) {
+                    ttlTimeWheel.remove(key);
+                    cache.remove(key);
+                    logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
+                }
             }
 
             /* Return null since key expired */
             return null;
-        } catch (NullPointerException e) {
-            /*
-             * The below exception can be thrown when the DB is being closed by another
-             * thread:
-             * 
-             * java.lang.NullPointerException: Cannot read the array length because "slices"
-             * is null
-             */
-            logger.debug("Stash get failed, stash doesn't exist (NullPointerException)");
+        } catch (NullPointerException | IllegalAccessError e) {
+            logger.debug("Stash get failed, stash was closed.");
             return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
-        } catch (IllegalAccessError e) {
-            /*
-             * The below exception can be thrown when the DB has been closed by another
-             * thread:
-             * 
-             * java.lang.IllegalAccessError: Store was closed
-             */
-            logger.debug("Stash get failed, stash doesn't exist (IllegalAccessError)");
-            return ProtocolUtil.buildErrorResponse(DB_CLOSED_ERROR);
+        } finally {
+            lockService.unlock(key); /* Unlock */
         }
-    }
-
-    /**
-     * Returns whether or not the stash contains the given key.
-     * 
-     * @param key The key.
-     * @return True if the stash contains the key, false otherwise.
-     */
-    public boolean contains(String key) {
-        return get(key, false) != null;
     }
 
     /**
@@ -155,8 +150,16 @@ public class Stash {
      * @param key The key to delete.
      */
     public void delete(String key) {
-        cache.remove(key);
-        ttlTimeWheel.remove(key);
+        try {
+            lockService.lock(key); /* Lock */
+
+            cache.remove(key);
+            ttlTimeWheel.remove(key);
+        } catch (NullPointerException | IllegalAccessError e) {
+            logger.debug("Stash delete failed, stash was closed.");
+        } finally {
+            lockService.unlock(key); /* Unlock */
+        }
     }
 
     /**
@@ -167,8 +170,16 @@ public class Stash {
      * @param ttl   The ttl of the key.
      */
     public void setWithTTL(String key, String value, long ttl) {
-        cache.put(key, value);
-        ttlTimeWheel.add(key, ttl);
+        try {
+            lockService.lock(key); /* Lock */
+
+            cache.put(key, value);
+            ttlTimeWheel.add(key, ttl);
+        } catch (NullPointerException | IllegalAccessError e) {
+            logger.debug("Stash set with TTL failed, stash was closed.");
+        } finally {
+            lockService.unlock(key); /* Unlock */
+        }
     }
 
     /**
@@ -180,12 +191,20 @@ public class Stash {
      * @return True if the TTL was updated, false if the key doesn't exist.
      */
     public boolean updateTTL(String key, long ttl) {
-        if (!contains(key)) {
-            return false;
-        }
+        try {
+            lockService.lock(key); /* Lock */
 
-        ttlTimeWheel.add(key, ttl);
-        return true;
+            if (!cache.containsKey(key)) {
+                return false;
+            }
+
+            ttlTimeWheel.add(key, ttl);
+            return true;
+        } catch (NullPointerException | IllegalAccessError e) {
+            return false;
+        } finally {
+            lockService.unlock(key); /* Unlock */
+        }
     }
 
     /**
@@ -211,7 +230,7 @@ public class Stash {
     public void expireTTLKeys() {
         List<String> expiredKeys = ttlTimeWheel.expireKeys();
         for (String key : expiredKeys) {
-            cache.remove(key);
+            delete(key); /* Delete method manages locks */
         }
 
         if (!expiredKeys.isEmpty()) {
@@ -219,3 +238,21 @@ public class Stash {
         }
     }
 }
+
+// TODO: set segments in HTreeMap
+// TODO: make null checks when getting stash in commands
+
+/**
+ * Notes about DB and HTreeMap exceptions and errors:
+ * 
+ * Thrown when the DB is being closed by another thread:
+ * 1. java.lang.NullPointerException: Cannot read the array length because
+ * "slices" is null
+ * 2. java.lang.IllegalAccessError: Store was closed
+ * 
+ * Because the HTreeMap can be closed, any operation with the HTreeMap (cache)
+ * must be
+ * guarded with the try-catch.
+ */
+
+// TODO: remove read only server if concurrency works.

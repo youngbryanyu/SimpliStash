@@ -57,7 +57,8 @@ public class PrimaryServer implements Server {
      */
     @Autowired
     public PrimaryServer(EventLoopGroup bossGroup,
-            @Qualifier(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP) EventLoopGroup workerGroup,
+            // @Qualifier(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP) EventLoopGroup workerGroup,
+            EventLoopGroup workerGroup,
             ServerBootstrap bootstrap,
             PrimaryChannelInitializer channelInitializer,
             KeyExpirationManager keyExpirationManager,

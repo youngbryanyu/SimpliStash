@@ -20,3 +20,9 @@ ttl_active_expire_delay_s: 1
 
 # The number of keys to expire from each stash per active expiration operation. This is 100 by default.
 ttl_active_expire_batch_size: 100
+
+# The number of segments to use for locking on write operations per stash. Defaults to 16
+num_lock_segments_per_stash: 16
+
+# The number of segments to use for locking on write operations on the stash manager. Defaults to 16
+num_lock_segments_stash_manager: 16

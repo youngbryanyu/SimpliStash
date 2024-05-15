@@ -50,7 +50,7 @@ public class TTLTimeWheel {
     @Autowired
     @SuppressWarnings("unchecked")
     public TTLTimeWheel() {
-        ttlMap = new HashMap<>();
+        ttlMap = new HashMap<>(); /* Write-concurrency is protected with locks in stash */
         buckets = new TreeSet[NUM_BUCKETS];
         currentBucketIndex = 0;
     }

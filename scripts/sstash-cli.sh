@@ -9,5 +9,5 @@ fi
 # Get the directory of the actual script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
-# Run the CLI
+# Compile and run the CLI
 mvn -q -f "$SCRIPT_DIR/../pom.xml" exec:java -Pcli -Dip=$1 -Dport=$2

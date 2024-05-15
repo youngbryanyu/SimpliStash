@@ -9,6 +9,6 @@ fi
 # Get the directory of the actual script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
-# Pass the IP and port as system properties to Maven
+# Compile and run the CLI
 mvn -f "$SCRIPT_DIR/../pom.xml" exec:java -Pserver
 

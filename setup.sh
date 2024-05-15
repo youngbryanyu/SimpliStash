@@ -3,6 +3,10 @@
 # Absolute path to the directory containing this script
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Compile
+mvn clean
+mvn compile
+
 # Path to the server and CLI scripts
 SSTASH_SCRIPT="$REPO_DIR/scripts/sstash.sh"
 SSTASH_CLI_SCRIPT="$REPO_DIR/scripts/sstash-cli.sh"

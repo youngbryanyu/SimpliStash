@@ -207,8 +207,8 @@ class StashTest {
                 .thenReturn(false);
 
         /* Test assertions */
-        assertEquals(true, stash.contains("key1"));
-        assertEquals(false, stash.contains("key2"));
+        assertEquals(true, stash.contains("key1", false));
+        assertEquals(false, stash.contains("key2", false));
     }
 
     /**
@@ -227,7 +227,7 @@ class StashTest {
         stash.delete("key1");
 
         /* Test assertions */
-        assertEquals(false, stash.contains("key2"));
+        assertEquals(false, stash.contains("key2", false));
         verify(mockTTLTimeWheel, times(1)).remove(anyString());
     }
 
@@ -244,7 +244,7 @@ class StashTest {
         stash.setWithTTL("key1", "value1", 100L);
 
         /* Test assertions */
-        assertEquals(true, stash.contains("key1"));
+        assertEquals(true, stash.contains("key1", false));
         verify(mockTTLTimeWheel, times(1)).add(anyString(), anyLong());
     }
 

@@ -145,8 +145,8 @@ public class Stash {
      * @param key The key.
      * @return True if the stash contains the key, false otherwise.
      */
-    public boolean contains(String key) {
-        return get(key, false) != null;
+    public boolean contains(String key, boolean readOnly) {
+        return get(key, readOnly) != null;
     }
 
     /**
@@ -180,7 +180,7 @@ public class Stash {
      * @return True if the TTL was updated, false if the key doesn't exist.
      */
     public boolean updateTTL(String key, long ttl) {
-        if (!contains(key)) {
+        if (!contains(key, false)) {
             return false;
         }
 

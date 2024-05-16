@@ -90,3 +90,5 @@ public class ProtocolUtilTest {
         assertEquals(expected, actual);
     }
 }
+
+// TODO: add test for get min required args as well as new encode

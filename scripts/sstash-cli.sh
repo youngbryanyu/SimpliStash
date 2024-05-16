@@ -6,6 +6,8 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
+echo "Starting the CLI..."
+
 # Get the directory of the actual script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 

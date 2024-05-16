@@ -99,7 +99,4 @@ public class AppConfigTest {
         ServerBootstrap serverBootstrap = context.getBean(ServerBootstrap.class);
         assertTrue(serverBootstrap instanceof ServerBootstrap);
     }
-
-    // TODO: add tests for new beans
-
 }

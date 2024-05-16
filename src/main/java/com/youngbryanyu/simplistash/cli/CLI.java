@@ -48,7 +48,7 @@ public class CLI {
      * Starts the CLI.
      */
     public void start() {
-        System.out.println("Connected to the server:");
+        System.out.println("Connected to the server. Enter your commands: ");
 
         while (true) {
             /* Read line from client */

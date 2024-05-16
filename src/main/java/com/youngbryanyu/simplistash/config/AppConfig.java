@@ -94,7 +94,7 @@ public class AppConfig {
     @Bean
     @Primary
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public EventLoopGroup eventLoopGroup() {
+    public EventLoopGroup nioEventLoopGroup() {
         return new NioEventLoopGroup();
     }
 

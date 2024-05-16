@@ -12,6 +12,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import com.youngbryanyu.simplistash.server.client.ClientHandler;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoop;
+import io.netty.channel.nio.NioEventLoopGroup;
+
 /**
  * Tests for the spring IoC/DI config class.
  */
@@ -64,6 +69,35 @@ public class AppConfigTest {
     public void testPrimaryClientHandlerBean() {
         ClientHandler primaryHandler = context.getBean(AppConfig.PRIMARY_CLIENT_HANDLER, ClientHandler.class);
         assertTrue(primaryHandler instanceof ClientHandler);
+    }
+
+    /**
+     * Tests creating the default nio event loop group bean.
+     */
+    @Test
+    public void testNioEventLoopGroup() {
+        EventLoopGroup eventLoopGroup = context.getBean(EventLoopGroup.class);
+        assertTrue(eventLoopGroup instanceof NioEventLoopGroup);
+    }
+
+    /**
+     * Tests creating the primary nio event loop group with a single worker thread
+     * bean.
+     */
+    @Test
+    public void testNioEventLoopGroup_singleThread() {
+        EventLoopGroup eventLoopGroup = context.getBean(AppConfig.SINGLE_THREADED_NIO_EVENT_LOOP_GROUP,
+                EventLoopGroup.class);
+        assertTrue(eventLoopGroup instanceof NioEventLoopGroup);
+    }
+
+    /**
+     * Tests creating the server bootstrap bean.
+     */
+    @Test
+    public void testServerBootstrap() {
+        ServerBootstrap serverBootstrap = context.getBean(ServerBootstrap.class);
+        assertTrue(serverBootstrap instanceof ServerBootstrap);
     }
 
     // TODO: add tests for new beans

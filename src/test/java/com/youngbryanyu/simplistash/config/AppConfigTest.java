@@ -66,4 +66,6 @@ public class AppConfigTest {
         assertTrue(primaryHandler instanceof ClientHandler);
     }
 
+    // TODO: add tests for new beans
+
 }

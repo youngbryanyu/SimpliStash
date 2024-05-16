@@ -10,5 +10,6 @@ fi
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 # Compile and run the CLI
-mvn -f "$SCRIPT_DIR/../pom.xml" exec:java -Pserver
+mvn -q -f "$SCRIPT_DIR/../pom.xml" compile
+mvn -q -f "$SCRIPT_DIR/../pom.xml" exec:java -Pserver
 

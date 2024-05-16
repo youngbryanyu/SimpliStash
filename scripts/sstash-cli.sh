@@ -10,4 +10,5 @@ fi
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 # Compile and run the CLI
+mvn -q -f "$SCRIPT_DIR/../pom.xml" compile
 mvn -q -f "$SCRIPT_DIR/../pom.xml" exec:java -Pcli -Dip=$1 -Dport=$2

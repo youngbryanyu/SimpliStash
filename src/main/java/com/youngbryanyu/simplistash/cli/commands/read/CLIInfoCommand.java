@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.cli.commands.read;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,22 +12,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.cli.commands.CLICommand;
-import com.youngbryanyu.simplistash.commands.read.GetCommand;
+import com.youngbryanyu.simplistash.commands.read.InfoCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * The GET command used in the CLI.
+ * The INFO command used in the CLI.
  */
 @Component
-public class CLIGetCommand implements CLICommand {
+public class CLIInfoCommand implements CLICommand {
     /**
      * The command's name.
      */
-    public static final String NAME = GetCommand.NAME;
+    public static final String NAME = InfoCommand.NAME;
     /**
      * The usage of the CLI command.
      */
-    public static final String USAGE = "GET <key> [-name <name>]";
+    public static final String USAGE = "INFO [-name <name>]";
     /**
      * The minimum number of required arguments.
      */
@@ -36,7 +37,7 @@ public class CLIGetCommand implements CLICommand {
      * The constructor.
      */
     @Autowired
-    public CLIGetCommand() {
+    public CLIInfoCommand() {
         minRequiredArgs = ProtocolUtil.getMinRequiredArgs(USAGE);
     }
 
@@ -52,12 +53,9 @@ public class CLIGetCommand implements CLICommand {
             return null;
         }
 
-        /* Get key */
-        String key = args.get(1);
-
         /* Get optional args and creating arg to val mapping */
         Map<String, String> optArgMap = new HashMap<>();
-        for (GetCommand.OptionalArg optArg : GetCommand.OptionalArg.values()) {
+        for (InfoCommand.OptionalArg optArg : InfoCommand.OptionalArg.values()) {
             String optArgName = optArg.name().toLowerCase(); /* Convert to lower case */
             if (commandLine.hasOption(optArgName)) {
                 optArgMap.put(optArgName, commandLine.getOptionValue(optArgName));
@@ -65,7 +63,7 @@ public class CLIGetCommand implements CLICommand {
         }
 
         /* Encode to protocol */
-        return ProtocolUtil.encode(NAME, List.of(key), true, optArgMap);
+        return ProtocolUtil.encode(NAME, Collections.emptyList(), true, optArgMap);
     }
 
     /**
@@ -76,7 +74,7 @@ public class CLIGetCommand implements CLICommand {
     public Options getOptions() {
         Options options = new Options();
 
-        for (GetCommand.OptionalArg optArg : GetCommand.OptionalArg.values()) {
+        for (InfoCommand.OptionalArg optArg : InfoCommand.OptionalArg.values()) {
             options.addOption(Option.builder()
                     .longOpt(optArg.name().toLowerCase())
                     .hasArg()

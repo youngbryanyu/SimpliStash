@@ -3,10 +3,6 @@ package com.youngbryanyu.simplistash.commands.reads;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -56,5 +52,13 @@ public class PingCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
+    }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("PING", command.getName());
     }
 }

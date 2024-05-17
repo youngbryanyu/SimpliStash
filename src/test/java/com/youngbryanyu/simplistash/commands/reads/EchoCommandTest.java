@@ -55,4 +55,12 @@ public class EchoCommandTest {
         String result = command.execute(tokens, false);
         assertNull(result);
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("ECHO", command.getName());
+    }
 }

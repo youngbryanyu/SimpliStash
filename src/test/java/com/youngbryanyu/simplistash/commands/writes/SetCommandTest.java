@@ -333,4 +333,12 @@ public class SetCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStash, times(1)).setWithTTL(anyString(), anyString(), anyLong());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("SET", command.getName());
+    }
 }

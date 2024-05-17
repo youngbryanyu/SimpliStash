@@ -284,4 +284,12 @@ public class ExpireCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStash, times(1)).updateTTL(anyString(), anyLong());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("EXPIRE", command.getName());
+    }
 }

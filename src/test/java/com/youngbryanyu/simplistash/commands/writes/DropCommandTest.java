@@ -114,4 +114,12 @@ public class DropCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStashManager, never()).dropStash(anyString());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("DROP", command.getName());
+    }
 }

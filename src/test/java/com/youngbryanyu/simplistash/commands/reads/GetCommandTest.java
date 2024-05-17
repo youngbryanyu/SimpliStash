@@ -183,4 +183,12 @@ public class GetCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStash, never()).get(anyString(), anyBoolean());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("GET", command.getName());
+    }
 }

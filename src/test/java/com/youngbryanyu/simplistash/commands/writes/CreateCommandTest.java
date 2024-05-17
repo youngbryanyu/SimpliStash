@@ -163,4 +163,12 @@ public class CreateCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStashManager, times(1)).createStash(anyString());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("CREATE", command.getName());
+    }
 }

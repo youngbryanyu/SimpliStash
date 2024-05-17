@@ -196,4 +196,12 @@ public class DeleteCommandTest {
         assertEquals(0, tokens.size());
         verify(mockStash, never()).delete(anyString());
     }
+
+    /**
+     * Test the get name method.
+     */
+    @Test
+    public void testGetName() {
+        assertEquals("DELETE", command.getName());
+    }
 }

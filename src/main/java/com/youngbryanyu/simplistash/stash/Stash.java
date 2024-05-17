@@ -218,4 +218,14 @@ public class Stash {
             logger.debug(String.format("Expired keys from stash \"%s\": %s", name, expiredKeys));
         }
     }
+
+    // /**
+    //  * Returns information about the stash.
+    //  * @return Info about the stash.
+    //  */
+    // public String getInfo() { // TODO add test
+    //     StringBuilder sb = new StringBuilder();
+    //     sb.append("Number of keys: " + cache.size());
+    //     return sb.toString();   
+    // }
 }

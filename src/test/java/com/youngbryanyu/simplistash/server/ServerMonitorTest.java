@@ -45,14 +45,14 @@ public class ServerMonitorTest {
 
         /* Start the test thread and then ensure it's waiting */
         testThread.start();
-        Thread.sleep(1000); /*  Allow some time for the thread to start and possibly block */
+        Thread.sleep(100); /*  Allow some time for the thread to start and possibly block */
         assertFalse(testThread.getState() == Thread.State.TERMINATED);
 
         /* Set the server to crashed */
         monitor.setServerCrashed();
 
         /* Wait for a little while to allow thread to respond */
-        testThread.join(1000); /*  Wait for the thread to finish execution */
+        testThread.join(100); /*  Wait for the thread to finish execution */
         assertFalse(testThread.isAlive());
     }
 }

@@ -98,7 +98,7 @@ public class TTLTimeWheelTest {
 
         /* Sleep to let TTL times reach */
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -124,7 +124,7 @@ public class TTLTimeWheelTest {
 
         /* Sleep to let TTL times reach */
         try {
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -147,7 +147,7 @@ public class TTLTimeWheelTest {
 
         /* Sleep to let TTL times reach */
         try {
-            Thread.sleep(1000); /* key2 won't expire after 1000 ms */
+            Thread.sleep(100); /* key2 won't expire after 1000 ms */
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

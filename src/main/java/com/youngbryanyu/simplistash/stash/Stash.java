@@ -223,7 +223,7 @@ public class Stash {
      * Returns information about the stash.
      * @return Info about the stash.
      */
-    public String getInfo() { // TODO add test
+    public String getInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("Number of keys: " + cache.size());
         return sb.toString();   

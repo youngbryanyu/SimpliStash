@@ -320,4 +320,13 @@ class StashTest {
         verify(mockTTLTimeWheel, times(1)).expireKeys();
         verify(mockLogger, never()).debug(anyString());
     }
+
+    /**
+     * Test {@link Stash#getInfo()}.
+     */
+    @Test
+    void testGetInfo() {       
+        String result = stash.getInfo();
+        assertEquals("Number of keys: 0", result);
+    }
 }

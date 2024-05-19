@@ -20,3 +20,6 @@ ttl_active_expire_delay_s: 1
 
 # The number of keys to expire from each stash per active expiration operation. This is 100 by default.
 ttl_active_expire_batch_size: 100
+
+# Whether or not to store in-memory values off-heap. This is true by default.
+use_off_heap_cache: true

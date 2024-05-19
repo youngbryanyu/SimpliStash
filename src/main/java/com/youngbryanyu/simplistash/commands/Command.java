@@ -1,6 +1,5 @@
 package com.youngbryanyu.simplistash.commands;
 
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;

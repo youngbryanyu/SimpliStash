@@ -26,12 +26,17 @@ public class CLIClient {
      * The output writer.
      */
     private PrintWriter out;
+    /**
+     * The CLI client factory.
+     */
+    private CLIClientFactory cliClientFactory;
 
     /**
      * The constructor.
      */
     @Autowired
-    public CLIClient() {
+    public CLIClient(CLIClientFactory cliClientFactory) {
+        this.cliClientFactory = cliClientFactory;
     }
 
     /**
@@ -43,9 +48,9 @@ public class CLIClient {
      *                     server.
      */
     public void connect(String ip, int port) throws IOException {
-        socket = new Socket(ip, port);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
+        socket = cliClientFactory.createSocket(ip, port);
+        in = cliClientFactory.createBufferedReader(socket);
+        out = cliClientFactory.createPrintWriter(socket);
     }
 
     /**

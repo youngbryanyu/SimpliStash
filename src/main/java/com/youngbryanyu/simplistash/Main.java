@@ -35,7 +35,7 @@ public class Main {
         start(primaryServer, readOnlyServer, serverMonitor, logger);
     }
 
-    public static void start(Server primaryServer, Server readOnlyServer,
+    protected static void start(Server primaryServer, Server readOnlyServer,
             ServerMonitor serverMonitor, Logger logger) {
         /* Create primary server thread */
         Thread primaryServerThread = new Thread(() -> {

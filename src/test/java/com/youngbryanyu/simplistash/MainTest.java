@@ -79,7 +79,7 @@ public class MainTest {
             Main.main(new String[] {});
 
             /* Check assertions */
-            mockMain.verify(() -> Main.start(any(), any(), any(), any()), Mockito.times(1));
+            mockMain.verify(() -> Main.start(any(), any(), any(), any()), times(1));
         }
     }
 

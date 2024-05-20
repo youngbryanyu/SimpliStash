@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.cli;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -47,33 +48,34 @@ public class CLI {
     /**
      * Starts the CLI.
      */
-    public void start() {
-        System.out.println("Connected to the server. Enter your commands: ");
+    public void start(String ip, String port) {
+        try {
+            cliClient.connect(ip, Integer.parseInt(port));
+            System.out.println("Connected to the server. Enter your commands: ");
 
-        while (true) {
-            /* Read line from client */
-            String userInput = terminalHandler.readLine("> ");
+            while (true) {
+                /* Read line from client */
+                String userInput = terminalHandler.readLine("> ");
 
-            /* Handle exit case */
-            if (userInput.equalsIgnoreCase(EXIT)) {
-                break;
-            }
-
-            /* Process command and show response */
-            String response = cliCommandHandler.processCommand(userInput);
-            if (response != null) {
-                if (response.equals(EXIT)) {
-                    System.out.println("Server disconnected, exiting...");
+                /* Handle exit case */
+                if (userInput.equalsIgnoreCase(EXIT)) {
                     break;
                 }
-                System.out.println(response);
-            }
-        }
 
-        try {
+                /* Process command and show response */
+                String response = cliCommandHandler.processCommand(userInput);
+                if (response != null) {
+                    if (response.equals(EXIT)) {
+                        System.out.println("Server disconnected, exiting...");
+                        break;
+                    }
+                    System.out.println(response);
+                }
+            }
+
             cliClient.close();
         } catch (IOException e) {
-            System.out.println("Failed to gracefully close the CLI client: " + e.getMessage());
+            System.out.println("IOException occurred while running of closing the CLI client: " + e.getMessage());
         }
     }
 
@@ -100,13 +102,19 @@ public class CLI {
             return;
         }
 
-        /* Start CLI and connect to server */
+        /* Start */
+        startCLI(context, ip, port);
+    }
+
+    /**
+     * Creates the CLI and starts it.
+     * 
+     * @param context The Spring application context.
+     * @param ip      The ip address of the server.
+     * @param port    The port of the server.
+     */
+    protected static void startCLI(ApplicationContext context, String ip, String port) {
         CLI cli = context.getBean(CLI.class);
-        try {
-            cli.cliClient.connect(ip, Integer.parseInt(port));
-            cli.start();
-        } catch (IOException e) {
-            System.out.println("Failed to connect to server: " + e.getMessage());
-        }
+        cli.start(ip, port);
     }
 }

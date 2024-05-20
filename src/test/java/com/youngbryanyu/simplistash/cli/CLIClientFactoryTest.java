@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.cli;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -12,9 +13,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -52,19 +56,18 @@ public class CLIClientFactoryTest {
     }
 
     /**
-     * Test creating the socket. The socket constructor creates an actual connection
-     * so that line is going to throw an IO exception since no connection will
-     * actually be made.
+     * Test creating the socket.
      */
     @Test
     public void testCreateSocket() throws IOException {
-        String ip = "127.0.0.1";
+        String ip = "localhost";
         int port = 8080;
 
-        try (Socket socket = cliClientFactory.createSocket(ip, port)) {
+        try (MockedConstruction<Socket> mockPaymentService = Mockito.mockConstruction(Socket.class, (mock, context) -> {
+            /* Do nothing */
+        })) {
+            Socket socket = cliClientFactory.createSocket(ip, port);
             assertNotNull(socket);
-        } catch (IOException e) {
-            /* No real socket connection is established */
         }
     }
 

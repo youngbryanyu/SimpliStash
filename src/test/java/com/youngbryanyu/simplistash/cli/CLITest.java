@@ -193,13 +193,34 @@ class CLITest {
     }
 
     /**
-     * Test the main method when the args of ip and port are missing.
+     * Test the main method when the arg port is missing.
      */
     @Test
-    public void testMain_missingArgs() throws Exception {
+    public void testMain_missingPort() throws Exception {
         /* Set system properties, port is missing */
         System.setProperty("ip", "127.0.0.1");
 
+        try (MockedStatic<CLI> mockMain = Mockito.mockStatic(CLI.class, Mockito.CALLS_REAL_METHODS)) {
+            /* Setup */
+            mockMain.when(() -> CLI.startCLI(any(), any(), any()))
+                    .thenAnswer((Answer<Void>) invocation -> null);
+
+            /* Call method */
+            CLI.main(new String[] {});
+
+            /* Check assertions */
+            mockMain.verify(() -> CLI.startCLI(any(), any(), any()), never());
+        }
+
+         /* Set system properties, port is missing */
+         System.clearProperty("ip");
+    }
+
+     /**
+     * Test the main method when both args port and ip are missing.
+     */
+    @Test
+    public void testMain_missingIp() throws Exception {
         try (MockedStatic<CLI> mockMain = Mockito.mockStatic(CLI.class, Mockito.CALLS_REAL_METHODS)) {
             /* Setup */
             mockMain.when(() -> CLI.startCLI(any(), any(), any()))

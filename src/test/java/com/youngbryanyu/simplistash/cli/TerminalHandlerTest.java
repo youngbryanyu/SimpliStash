@@ -34,7 +34,7 @@ public class TerminalHandlerTest {
      * Setup before each test.
      */
     @BeforeEach
-    void setup() throws IOException {
+    public void setup() throws IOException {
         MockitoAnnotations.openMocks(this);
         terminalHandler = new TerminalHandler(mockLineReader);
     }
@@ -43,7 +43,7 @@ public class TerminalHandlerTest {
      * Test reading normal input.
      */
     @Test
-    void testReadLineNormalInput() {
+    public void testReadLineNormalInput() {
         when(mockLineReader.readLine(anyString())).thenReturn("userInput");
 
         String result = terminalHandler.readLine("prompt");
@@ -56,7 +56,7 @@ public class TerminalHandlerTest {
      * Test an interrupt during reading input .
      */
     @Test
-    void testReadLineUserInterrupt() {
+    public void testReadLineUserInterrupt() {
         when(mockLineReader.readLine(anyString())).thenThrow(new UserInterruptException("interrupt"));
 
         String result = terminalHandler.readLine("prompt");
@@ -69,7 +69,7 @@ public class TerminalHandlerTest {
      * Test reading EOF
      */
     @Test
-    void testReadLineEndOfFile() {
+    public void testReadLineEndOfFile() {
         when(mockLineReader.readLine(anyString())).thenThrow(new EndOfFileException());
 
         String result = terminalHandler.readLine("prompt");

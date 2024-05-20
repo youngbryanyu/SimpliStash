@@ -64,7 +64,7 @@ class CLITest {
      * Setup before each test.
      */
     @BeforeEach
-    void setup() {
+    public void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
@@ -72,7 +72,7 @@ class CLITest {
      * Test handling user input from the terminal.
      */
     @Test
-    void testStartHandlesUserInput() throws IOException {
+    public void testStartHandlesUserInput() throws IOException {
         /* Simulate user input */
         when(mockTerminalHandler.readLine(anyString()))
                 .thenReturn("command1")
@@ -103,7 +103,7 @@ class CLITest {
      * Test the exit command.
      */
     @Test
-    void testStartHandlesExitCommand() throws IOException {
+    public void testStartHandlesExitCommand() throws IOException {
         /* Simulate user input */
         when(mockTerminalHandler.readLine(anyString())).thenReturn("exit");
 
@@ -124,7 +124,7 @@ class CLITest {
      * Test handling server disconnect.
      */
     @Test
-    void testStartHandlesServerDisconnect() throws IOException {
+    public void testStartHandlesServerDisconnect() throws IOException {
         /* Simulate user input */
         when(mockTerminalHandler.readLine(anyString()))
                 .thenReturn("command")
@@ -149,7 +149,7 @@ class CLITest {
      * Test starting the CLI when an IO exception is thrown.
      */
     @Test
-    void testStartIOException() throws IOException {
+    public void testStartIOException() throws IOException {
         /* Simulate user input */
         when(mockTerminalHandler.readLine(anyString())).thenReturn("exit");
 
@@ -238,7 +238,7 @@ class CLITest {
      * Test the static start method inside main.
      */
     @Test
-    void testStartCLI() throws IOException {
+    public void testStartCLI() throws IOException {
         /* Setup */
         doThrow(new IOException("test")).when(mockCLIClient).connect(anyString(), anyInt());
         when(mockContext.getBean(CLI.class)).thenReturn(cli);

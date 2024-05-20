@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.cli;
 
 import java.io.IOException;
+import java.net.Socket;
 
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;

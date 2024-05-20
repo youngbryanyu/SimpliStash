@@ -50,7 +50,7 @@ public class CLIClientTest {
      * Setup before each test.
      */
     @BeforeEach
-    void setUp() throws IOException {
+    public void setup() throws IOException {
         MockitoAnnotations.openMocks(this);
 
         when(mockClientFactory.createSocket(anyString(), anyInt())).thenReturn(mockSocket);
@@ -64,7 +64,7 @@ public class CLIClientTest {
      * Test connecting to the server.
      */
     @Test
-    void testConnect() throws IOException {
+    public void testConnect() throws IOException {
         String ip = "127.0.0.1";
         int port = 8080;
 
@@ -81,7 +81,7 @@ public class CLIClientTest {
      * Test closing the CLI client and its connection.
      */
     @Test
-    void testClose() throws IOException {
+    public void testClose() throws IOException {
         cliClient.connect("127.0.0.1", 8080);
 
         cliClient.close();
@@ -95,7 +95,7 @@ public class CLIClientTest {
      * Test closing the CLI client without ever connecting in the first place.
      */
     @Test
-    void testClose_withoutConnect() throws IOException {
+    public void testClose_withoutConnect() throws IOException {
         cliClient.close();
 
         verify(mockSocket, never()).close();
@@ -107,7 +107,7 @@ public class CLIClientTest {
      * Test sending a command to the server.
      */
     @Test
-    void testSendCommand() throws IOException {
+    public void testSendCommand() throws IOException {
         cliClient.connect( "127.0.0.1", 8080);
         
         cliClient.sendCommand("testCommand");
@@ -120,7 +120,7 @@ public class CLIClientTest {
      * Test sending a command without connecting to the server first.
      */
     @Test
-    void testSendCommand_withoutConnect() {
+    public void testSendCommand_withoutConnect() {
         cliClient.sendCommand("testCommand");
 
         verify(mockOut, never()).print(anyString());
@@ -131,7 +131,7 @@ public class CLIClientTest {
      * Test getting the input stream.
      */
     @Test
-    void testGetInputStream() throws IOException {
+    public void testGetInputStream() throws IOException {
         cliClient.connect("127.0.0.1", 8080);
 
         BufferedReader inputStream = cliClient.getInputStream();

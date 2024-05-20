@@ -14,7 +14,6 @@ import com.youngbryanyu.simplistash.server.client.ClientHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;
 
 /**

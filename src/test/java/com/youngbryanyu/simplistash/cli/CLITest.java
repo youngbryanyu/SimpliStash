@@ -220,7 +220,7 @@ class CLITest {
      * Test the main method when both args port and ip are missing.
      */
     @Test
-    public void testMain_missingIp() throws Exception {
+    public void testMain_missingIpAndPort() throws Exception {
         try (MockedStatic<CLI> mockMain = Mockito.mockStatic(CLI.class, Mockito.CALLS_REAL_METHODS)) {
             /* Setup */
             mockMain.when(() -> CLI.startCLI(any(), any(), any()))

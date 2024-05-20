@@ -21,10 +21,6 @@ public class TerminalHandler {
      * The line reader.
      */
     private LineReader lineReader;
-    /**
-     * The terminal.
-     */
-    private Terminal terminal;
 
     /**
      * The constructor.
@@ -32,14 +28,8 @@ public class TerminalHandler {
      * @throws IOException If an I/O exception occurs while creating the terminal.
      */
     @Autowired
-    public TerminalHandler() throws IOException {
-        terminal = TerminalBuilder.builder()
-                .system(true)
-                .build();
-        lineReader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .history(new DefaultHistory())
-                .build();
+    public TerminalHandler(LineReader lineReader) throws IOException {
+        this.lineReader = lineReader;
     }
 
     /**

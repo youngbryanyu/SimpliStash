@@ -3,7 +3,6 @@ package com.youngbryanyu.simplistash.cli;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -24,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 
-import com.youngbryanyu.simplistash.Main;
 import com.youngbryanyu.simplistash.cli.commands.CLICommandHandler;
 
 /**
@@ -35,17 +33,17 @@ class CLITest {
      * The mock CLI command handler.
      */
     @Mock
-    private CLICommandHandler cliCommandHandler;
+    private CLICommandHandler mockCLICommandHandler;
     /**
      * The mock CLI client.
      */
     @Mock
-    private CLIClient cliClient;
+    private CLIClient mockCLIClient;
     /**
      * The Terminal handler.
      */
     @Mock
-    private TerminalHandler terminalHandler;
+    private TerminalHandler mockTerminalHandler;
     /**
      * The CLI.
      */
@@ -60,7 +58,7 @@ class CLITest {
      * The mocked application context.
      */
     @Mock
-    private ApplicationContext context;
+    private ApplicationContext mockContext;
 
     /**
      * Setup before each test.
@@ -76,29 +74,29 @@ class CLITest {
     @Test
     void testStartHandlesUserInput() throws IOException {
         /* Simulate user input */
-        when(terminalHandler.readLine(anyString()))
+        when(mockTerminalHandler.readLine(anyString()))
                 .thenReturn("command1")
                 .thenReturn("command2")
                 .thenReturn("exit");
 
-        when(cliCommandHandler.processCommand("command1")).thenReturn(null);
-        when(cliCommandHandler.processCommand("command2")).thenReturn("response2");
+        when(mockCLICommandHandler.processCommand("command1")).thenReturn(null);
+        when(mockCLICommandHandler.processCommand("command2")).thenReturn("response2");
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
 
         /* Verify connection */
-        verify(cliClient).connect("127.0.0.1", 8080);
+        verify(mockCLIClient).connect("127.0.0.1", 8080);
 
         /* Verify that processCommand was called with the right inputs */
-        verify(cliCommandHandler).processCommand("command1");
-        verify(cliCommandHandler).processCommand("command2");
+        verify(mockCLICommandHandler).processCommand("command1");
+        verify(mockCLICommandHandler).processCommand("command2");
 
         /* Verify that responses are printed */
-        verify(terminalHandler, times(3)).readLine("> ");
+        verify(mockTerminalHandler, times(3)).readLine("> ");
 
         /* Verify CLI client is closed */
-        verify(cliClient).close();
+        verify(mockCLIClient).close();
     }
 
     /**
@@ -107,19 +105,19 @@ class CLITest {
     @Test
     void testStartHandlesExitCommand() throws IOException {
         /* Simulate user input */
-        when(terminalHandler.readLine(anyString())).thenReturn("exit");
+        when(mockTerminalHandler.readLine(anyString())).thenReturn("exit");
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
 
         /* Verify the connection */
-        verify(cliClient).connect("127.0.0.1", 8080);
+        verify(mockCLIClient).connect("127.0.0.1", 8080);
 
         /* Verify that processCommand was never called */
-        verify(cliCommandHandler, never()).processCommand(anyString());
+        verify(mockCLICommandHandler, never()).processCommand(anyString());
 
         /* Verify that CLIClient was closed */
-        verify(cliClient).close();
+        verify(mockCLIClient).close();
     }
 
     /**
@@ -128,23 +126,23 @@ class CLITest {
     @Test
     void testStartHandlesServerDisconnect() throws IOException {
         /* Simulate user input */
-        when(terminalHandler.readLine(anyString()))
+        when(mockTerminalHandler.readLine(anyString()))
                 .thenReturn("command")
                 .thenReturn("exit");
 
-        when(cliCommandHandler.processCommand("command")).thenReturn("exit");
+        when(mockCLICommandHandler.processCommand("command")).thenReturn("exit");
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
 
         /* Verify the connection */
-        verify(cliClient).connect("127.0.0.1", 8080);
+        verify(mockCLIClient).connect("127.0.0.1", 8080);
 
         /* Verify that processCommand was called */
-        verify(cliCommandHandler).processCommand("command");
+        verify(mockCLICommandHandler).processCommand("command");
 
         /* Verify that CLIClient was closed */
-        verify(cliClient).close();
+        verify(mockCLIClient).close();
     }
 
     /**
@@ -153,19 +151,19 @@ class CLITest {
     @Test
     void testStartIOException() throws IOException {
         /* Simulate user input */
-        when(terminalHandler.readLine(anyString())).thenReturn("exit");
+        when(mockTerminalHandler.readLine(anyString())).thenReturn("exit");
 
         /* Simulate an IOException when connecting */
-        doThrow(new IOException("Connection failed")).when(cliClient).connect(anyString(), anyInt());
+        doThrow(new IOException("Connection failed")).when(mockCLIClient).connect(anyString(), anyInt());
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
 
         /* Verify the connection */
-        verify(cliClient).connect("127.0.0.1", 8080);
+        verify(mockCLIClient).connect("127.0.0.1", 8080);
 
         /* Verify that CLIClient was not closed since connect() threw an exception */
-        verify(cliClient, never()).close();
+        verify(mockCLIClient, never()).close();
     }
 
     /**
@@ -221,13 +219,13 @@ class CLITest {
     @Test
     void testStartCLI() throws IOException {
         /* Setup */
-        doThrow(new IOException("test")).when(cliClient).connect(anyString(), anyInt());
-        when(context.getBean(CLI.class)).thenReturn(cli);
+        doThrow(new IOException("test")).when(mockCLIClient).connect(anyString(), anyInt());
+        when(mockContext.getBean(CLI.class)).thenReturn(cli);
 
         /* Call method */
-        CLI.startCLI(context, "127.0.0.1", "8080");
+        CLI.startCLI(mockContext, "127.0.0.1", "8080");
 
         /* Test assertions */
-        verify(context).getBean(CLI.class);
+        verify(mockContext).getBean(CLI.class);
     }
 }

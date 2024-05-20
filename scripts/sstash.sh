@@ -11,7 +11,7 @@ echo "Starting SimpliStash..."
 # Get the directory of the actual script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
-# Compile and run the CLI
+# Compile and run the server
 mvn -q -f "$SCRIPT_DIR/../pom.xml" compile
 mvn -q -f "$SCRIPT_DIR/../pom.xml" exec:java -Pserver
 

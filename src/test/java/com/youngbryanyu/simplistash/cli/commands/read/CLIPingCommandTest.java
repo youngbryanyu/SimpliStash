@@ -25,7 +25,7 @@ public class CLIPingCommandTest {
      * The CLI PING command under test.
      */
     @InjectMocks
-    private CLIPingCommand cliPingCommand;
+    private CLIPingCommand command;
 
     /**
      * Setup before each test.
@@ -33,7 +33,7 @@ public class CLIPingCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        cliPingCommand = new CLIPingCommand();
+        command = new CLIPingCommand();
     }
 
     /**
@@ -41,7 +41,7 @@ public class CLIPingCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(PingCommand.NAME, cliPingCommand.getName());
+        assertEquals(PingCommand.NAME, command.getName());
     }
 
     /**
@@ -49,7 +49,7 @@ public class CLIPingCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("ping", cliPingCommand.getUsage());
+        assertEquals("ping", command.getUsage());
     }
 
     /**
@@ -57,7 +57,7 @@ public class CLIPingCommandTest {
      */
     @Test
     public void testGetOptions() {
-        Options options = cliPingCommand.getOptions();
+        Options options = command.getOptions();
         assertNotNull(options);
         assertEquals(0, options.getOptions().size());
     }
@@ -68,9 +68,9 @@ public class CLIPingCommandTest {
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
         String[] args = { "ping" };
-        CommandLine commandLine = new DefaultParser().parse(cliPingCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliPingCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
         assertEquals(ProtocolUtil.encode(PingCommand.NAME, Collections.emptyList(), false, Collections.emptyMap()),
@@ -83,9 +83,9 @@ public class CLIPingCommandTest {
     @Test
     public void testEncodeCLICommand_WithInsufficientArgs() throws Exception {
         String[] args = {};
-        CommandLine commandLine = new DefaultParser().parse(cliPingCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliPingCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNull(encodedCommand);
     }

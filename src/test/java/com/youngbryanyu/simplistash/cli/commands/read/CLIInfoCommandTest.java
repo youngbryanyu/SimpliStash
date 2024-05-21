@@ -27,8 +27,7 @@ public class CLIInfoCommandTest {
     /**
      * The CLI INFO command under test.
      */
-    @InjectMocks
-    private CLIInfoCommand cliInfoCommand;
+    private CLIInfoCommand command;
 
     /**
      * Setup before each test.
@@ -36,7 +35,7 @@ public class CLIInfoCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        cliInfoCommand = new CLIInfoCommand();
+        command = new CLIInfoCommand();
     }
 
     /**
@@ -44,7 +43,7 @@ public class CLIInfoCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(InfoCommand.NAME, cliInfoCommand.getName());
+        assertEquals(InfoCommand.NAME, command.getName());
     }
 
     /**
@@ -52,7 +51,7 @@ public class CLIInfoCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("INFO [-name <name>]", cliInfoCommand.getUsage());
+        assertEquals("INFO [-name <name>]", command.getUsage());
     }
 
     /**
@@ -60,7 +59,7 @@ public class CLIInfoCommandTest {
      */
     @Test
     public void testGetOptions() {
-        Options options = cliInfoCommand.getOptions();
+        Options options = command.getOptions();
         assertNotNull(options);
         for (InfoCommand.OptionalArg optArg : InfoCommand.OptionalArg.values()) {
             assertTrue(options.hasOption(optArg.name().toLowerCase()));
@@ -73,9 +72,9 @@ public class CLIInfoCommandTest {
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
         String[] args = {"info"};
-        CommandLine commandLine = new DefaultParser().parse(cliInfoCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliInfoCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
         Map<String, String> optArgMap = new HashMap<>();
@@ -88,9 +87,9 @@ public class CLIInfoCommandTest {
     @Test
     public void testEncodeCLICommand_WithOptionalArgs() throws Exception {
         String[] args = {"info", "--name", "testName"};
-        CommandLine commandLine = new DefaultParser().parse(cliInfoCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliInfoCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
         Map<String, String> optArgMap = new HashMap<>();
@@ -104,9 +103,9 @@ public class CLIInfoCommandTest {
     @Test
     public void testEncodeCLICommand_WithInsufficientArgs() throws Exception {
         String[] args = {};
-        CommandLine commandLine = new DefaultParser().parse(cliInfoCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliInfoCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNull(encodedCommand);
     }

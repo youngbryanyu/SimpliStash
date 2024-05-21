@@ -19,14 +19,13 @@ import com.youngbryanyu.simplistash.commands.read.EchoCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * Unit tests for the CLI echo command.
+ * Unit tests for the CLI ECHO command.
  */
 public class CLIEchoCommandTest {
     /**
-     * The CLI echo command under test.
+     * The CLI ECHO command under test.
      */
-    @InjectMocks
-    private CLIEchoCommand cliEchoCommand;
+    private CLIEchoCommand command;
 
     /**
      * Setup before each test
@@ -34,7 +33,7 @@ public class CLIEchoCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        cliEchoCommand = new CLIEchoCommand();
+        command = new CLIEchoCommand();
     }
 
     /**
@@ -42,7 +41,7 @@ public class CLIEchoCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(EchoCommand.NAME, cliEchoCommand.getName());
+        assertEquals(EchoCommand.NAME, command.getName());
     }
 
     /**
@@ -50,7 +49,7 @@ public class CLIEchoCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("echo <value>", cliEchoCommand.getUsage());
+        assertEquals("echo <value>", command.getUsage());
     }
 
     /**
@@ -58,7 +57,7 @@ public class CLIEchoCommandTest {
      */
     @Test
     public void testGetOptions() {
-        Options options = cliEchoCommand.getOptions();
+        Options options = command.getOptions();
         assertNotNull(options);
         assertEquals(0, options.getOptions().size());
     }
@@ -69,9 +68,9 @@ public class CLIEchoCommandTest {
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
         String[] args = {"echo", "Hello"};
-        CommandLine commandLine = new DefaultParser().parse(cliEchoCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliEchoCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
         assertEquals(ProtocolUtil.encode(EchoCommand.NAME, List.of("Hello"), false, Collections.emptyMap()), encodedCommand);
@@ -83,9 +82,9 @@ public class CLIEchoCommandTest {
     @Test
     public void testEncodeCLICommand_WithInsufficientArgs() throws Exception {
         String[] args = {"echo"};
-        CommandLine commandLine = new DefaultParser().parse(cliEchoCommand.getOptions(), args);
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
-        String encodedCommand = cliEchoCommand.encodeCLICommand(commandLine);
+        String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNull(encodedCommand);
     }

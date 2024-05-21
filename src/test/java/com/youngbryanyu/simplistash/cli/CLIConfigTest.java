@@ -3,6 +3,7 @@ package com.youngbryanyu.simplistash.cli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.commons.cli.CommandLineParser;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 import org.junit.jupiter.api.Test;
@@ -37,5 +38,14 @@ public class CLIConfigTest {
     public void testLineReaderBean() {
         LineReader lineReader = context.getBean(LineReader.class);
         assertTrue(lineReader instanceof LineReader);
+    }
+
+     /**
+     * Test getting the command line parser.
+     */
+    @Test
+    public void testCommandLineParser() {
+        CommandLineParser parser = context.getBean(CommandLineParser.class);
+        assertTrue(parser instanceof CommandLineParser);
     }
 }

@@ -3,6 +3,8 @@ package com.youngbryanyu.simplistash.cli;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.history.DefaultHistory;
@@ -35,7 +37,6 @@ public class CLIConfig {
      * Returns a singleton instance of the line reader.
      * 
      * @return A singleton instance of the line reader.
-     * @throws IOException If an IOException is thrown while initializing.
      */
     @Bean
     public LineReader lineReader(Terminal terminal) {
@@ -43,5 +44,15 @@ public class CLIConfig {
                 .terminal(terminal)
                 .history(new DefaultHistory())
                 .build();
+    }
+
+    /**
+     * Returns a singleton instance of the command line parser
+     * 
+     * @return A singleton instance of the command line parser.
+     */
+    @Bean
+    public CommandLineParser commandLineParser(Terminal terminal) {
+        return new DefaultParser();
     }
 }

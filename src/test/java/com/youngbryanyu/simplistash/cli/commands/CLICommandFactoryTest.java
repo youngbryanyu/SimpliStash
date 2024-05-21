@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.commands.CommandFactory;
 import com.youngbryanyu.simplistash.exceptions.InvalidCommandException;
 
 /**

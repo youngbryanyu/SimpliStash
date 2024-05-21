@@ -50,10 +50,10 @@ public class CLICommandHandler {
      * @param cliClient         The CLI client.
      */
     @Autowired
-    public CLICommandHandler(CLICommandFactory cliCommandFactory, CLIClient cliClient) {
+    public CLICommandHandler(CLICommandFactory cliCommandFactory, CLIClient cliClient, CommandLineParser parser) {
         this.cliCommandFactory = cliCommandFactory;
         this.cliClient = cliClient;
-        this.parser = new DefaultParser();
+        this.parser = parser;
     }
 
     /**
@@ -65,7 +65,7 @@ public class CLICommandHandler {
      */
     public String processCommand(String inputLine) {
         /* Parse args from input line */
-        String[] args = parseArguments(inputLine);
+        String[] args = parseArgsFromCLI(inputLine);
 
         /* Check if any command was sent at all */
         if (args.length < 1) {
@@ -76,10 +76,10 @@ public class CLICommandHandler {
         cliClient.sendCommand(ProtocolUtil.encode(PingCommand.NAME));
         try {
             if (!readAllFromBuffer().equals(ProtocolUtil.PONG_RESPONSE)) {
-                return CLI.EXIT; 
+                return CLI.EXIT;
             }
         } catch (IOException e) {
-            return CLI.EXIT; 
+            return CLI.EXIT;
         }
 
         /* Get command name in upper case */
@@ -112,7 +112,7 @@ public class CLICommandHandler {
             return "Unknown command: " + commandName;
         } catch (ParseException e) { /* Handle parse exception */
             return "Failed to process command. " + e.getMessage();
-        } catch (IOException e) { 
+        } catch (IOException e) {
             return CLI.EXIT; /* Exit if server disconnected */
         }
     }
@@ -124,7 +124,7 @@ public class CLICommandHandler {
      * @return A string containing everything read from the server.
      * @throws IOException If the read operation throws an I/O exception.
      */
-    private String readAllFromBuffer() throws IOException {
+    protected String readAllFromBuffer() throws IOException {
         BufferedReader in = cliClient.getInputStream(); /* Get client's input stream */
         StringBuilder buffer = new StringBuilder();
         Deque<String> tokens = new LinkedList<>();
@@ -134,14 +134,14 @@ public class CLICommandHandler {
             char[] buf = new char[Stash.MAX_KEY_LENGTH + Stash.MAX_VALUE_LENGTH];
             int bytesRead = in.read(buf);
             if (bytesRead == -1) {
-                break;
+                break; // if server sent EOF
             }
 
             /* Add output to buffer */
             buffer.append(buf, 0, bytesRead);
 
             /* Parse tokens */
-            parseTokens(buffer, tokens);
+            parseTokensFromServer(buffer, tokens);
 
             /* Check if we have a full response: <response_type> <response> */
             if (tokens.size() >= 2) {
@@ -170,7 +170,7 @@ public class CLICommandHandler {
      * @param buffer The buffer of data read from the server.
      * @param tokens The parsed tokens.
      */
-    private void parseTokens(StringBuilder buffer, Deque<String> tokens) {
+    protected void parseTokensFromServer(StringBuilder buffer, Deque<String> tokens) {
         String delim = ProtocolUtil.DELIM;
         int delimLength = delim.length();
         int lastEndIdx = 0; /* End of final token parsed */
@@ -202,13 +202,13 @@ public class CLICommandHandler {
     }
 
     /**
-     * Parses space separated arguments from string input from the CLI. Ensures that
-     * arguments inside double quotes are treated as one argument.
+     * Parses space separated arguments from string input from the CLI terminal.
+     * Ensures that arguments inside double quotes are treated as one argument.
      * 
      * @param input The input to parse into arguments.
      * @return The arguments parsed from the input.
      */
-    private String[] parseArguments(String input) {
+    protected String[] parseArgsFromCLI(String input) {
         List<String> arguments = new ArrayList<>();
 
         /* Use regex to match arguments */

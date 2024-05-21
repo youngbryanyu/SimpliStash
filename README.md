@@ -18,4 +18,4 @@ The setup script does the following:
 To start the server, run `sstash`.
 
 ## Running the CLI
-To run the CLI, run `sstash-cli <ip> <port>`. If running locally this is just `sstash-cli localhost 3000` by default.
+To run the CLI, run `sstash-cli <ip> <port>`. If running the server locally this is just `sstash-cli localhost 3000` by default.

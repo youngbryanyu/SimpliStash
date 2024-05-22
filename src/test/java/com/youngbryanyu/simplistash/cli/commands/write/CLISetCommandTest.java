@@ -3,9 +3,11 @@ package com.youngbryanyu.simplistash.cli.commands.write;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -14,17 +16,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.commands.write.DropCommand;
+import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * Unit tests for the CLI DROP command.
+ * Unit tests for the CLI SET command.
  */
-public class CLIDropCommandTest {
-    /**
-     * The CLI DROP command under test.
+public class CLISetCommandTest {
+     /**
+     * The CLI SET command under test.
      */
-    private CLIDropCommand command;
+    private CLISetCommand command;
 
     /**
      * Setup before each test.
@@ -32,7 +34,7 @@ public class CLIDropCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new CLIDropCommand();
+        command = new CLISetCommand();
     }
 
     /**
@@ -40,7 +42,7 @@ public class CLIDropCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(DropCommand.NAME, command.getName());
+        assertEquals(SetCommand.NAME, command.getName());
     }
 
     /**
@@ -48,7 +50,7 @@ public class CLIDropCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("drop <name>", command.getUsage());
+        assertEquals("set <key> <value> [-name <name>] [-ttl <ttl>]", command.getUsage());
     }
 
     /**
@@ -58,6 +60,9 @@ public class CLIDropCommandTest {
     public void testGetOptions() {
         Options options = command.getOptions();
         assertNotNull(options);
+        for (SetCommand.OptionalArg optArg : SetCommand.OptionalArg.values()) {
+            assertTrue(options.hasOption(optArg.name().toLowerCase()));
+        }
     }
 
     /**
@@ -65,13 +70,31 @@ public class CLIDropCommandTest {
      */
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
-        String[] args = { "drop", "stash" };
+        String[] args = { "set", "key", "val" };
         CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
         String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
-        assertEquals(ProtocolUtil.encode(DropCommand.NAME, List.of("stash"), false, Collections.emptyMap()), encodedCommand);
+        Map<String, String> optArgMap = new HashMap<>();
+        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
+    }
+
+    /**
+     * Test encoding with optional args.
+     */
+    @Test
+    public void testEncodeCLICommand_WithOptionalArgs() throws Exception {
+        String[] args = { "set", "key", "val", "--name", "stash1", "-ttl", "5000" };
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
+
+        String encodedCommand = command.encodeCLICommand(commandLine);
+
+        assertNotNull(encodedCommand);
+        Map<String, String> optArgMap = new HashMap<>();
+        optArgMap.put("name", "stash1");
+        optArgMap.put("ttl", "5000");
+        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
     }
 
     /**

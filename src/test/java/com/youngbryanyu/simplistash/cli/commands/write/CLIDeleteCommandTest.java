@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.write.DeleteCommand;
-import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**

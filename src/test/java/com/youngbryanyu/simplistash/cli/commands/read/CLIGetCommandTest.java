@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +14,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.read.GetCommand;
-import com.youngbryanyu.simplistash.commands.read.InfoCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
@@ -27,7 +24,7 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
  */
 public class CLIGetCommandTest {
     /**
-     * The CLI INFO command under test.
+     * The CLI GET command under test.
      */
     private CLIGetCommand command;
 

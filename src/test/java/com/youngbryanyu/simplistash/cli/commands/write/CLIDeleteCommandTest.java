@@ -16,17 +16,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
+import com.youngbryanyu.simplistash.commands.write.DeleteCommand;
 import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * Unit tests for the CLI SET command.
+ * Unit tests for the CLI DELETE command.
  */
-public class CLISetCommandTest {
+public class CLIDeleteCommandTest {
     /**
-     * The CLI SET command under test.
+     * The CLI DELETE command under test.
      */
-    private CLISetCommand command;
+    private CLIDeleteCommand command;
 
     /**
      * Setup before each test.
@@ -34,7 +35,7 @@ public class CLISetCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new CLISetCommand();
+        command = new CLIDeleteCommand();
     }
 
     /**
@@ -42,7 +43,7 @@ public class CLISetCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(SetCommand.NAME, command.getName());
+        assertEquals(DeleteCommand.NAME, command.getName());
     }
 
     /**
@@ -50,7 +51,7 @@ public class CLISetCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("set <key> <value> [-name <name>] [-ttl <ttl>]", command.getUsage());
+        assertEquals("delete <key> [-name <name>]", command.getUsage());
     }
 
     /**
@@ -60,7 +61,7 @@ public class CLISetCommandTest {
     public void testGetOptions() {
         Options options = command.getOptions();
         assertNotNull(options);
-        for (SetCommand.OptionalArg optArg : SetCommand.OptionalArg.values()) {
+        for (DeleteCommand.OptionalArg optArg : DeleteCommand.OptionalArg.values()) {
             assertTrue(options.hasOption(optArg.name().toLowerCase()));
         }
     }
@@ -70,14 +71,14 @@ public class CLISetCommandTest {
      */
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
-        String[] args = { "set", "key", "val" };
+        String[] args = { "delete", "key" };
         CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
         String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
         Map<String, String> optArgMap = new HashMap<>();
-        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
+        assertEquals(ProtocolUtil.encode(DeleteCommand.NAME, List.of("key"), true, optArgMap), encodedCommand);
     }
 
     /**
@@ -85,7 +86,7 @@ public class CLISetCommandTest {
      */
     @Test
     public void testEncodeCLICommand_WithOptionalArgs() throws Exception {
-        String[] args = { "set", "key", "val", "--name", "stash1", "-ttl", "5000" };
+        String[] args = { "delete", "key", "--name", "stash1" };
         CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
         String encodedCommand = command.encodeCLICommand(commandLine);
@@ -93,8 +94,7 @@ public class CLISetCommandTest {
         assertNotNull(encodedCommand);
         Map<String, String> optArgMap = new HashMap<>();
         optArgMap.put("name", "stash1");
-        optArgMap.put("ttl", "5000");
-        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
+        assertEquals(ProtocolUtil.encode(DeleteCommand.NAME, List.of("key"), true, optArgMap), encodedCommand);
     }
 
     /**

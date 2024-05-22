@@ -3,11 +3,9 @@ package com.youngbryanyu.simplistash.cli.commands.write;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -16,17 +14,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import com.youngbryanyu.simplistash.commands.write.SetCommand;
+import com.youngbryanyu.simplistash.commands.write.CreateCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
- * Unit tests for the CLI SET command.
+ * Unit tests for the CLI CREATE command.
  */
-public class CLISetCommandTest {
-    /**
-     * The CLI SET command under test.
+public class CLICreateCommandTest {
+   /**
+     * The CLI CREATE command under test.
      */
-    private CLISetCommand command;
+    private CLICreateCommand command;
 
     /**
      * Setup before each test.
@@ -34,7 +32,7 @@ public class CLISetCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new CLISetCommand();
+        command = new CLICreateCommand();
     }
 
     /**
@@ -42,7 +40,7 @@ public class CLISetCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals(SetCommand.NAME, command.getName());
+        assertEquals(CreateCommand.NAME, command.getName());
     }
 
     /**
@@ -50,7 +48,7 @@ public class CLISetCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("set <key> <value> [-name <name>] [-ttl <ttl>]", command.getUsage());
+        assertEquals("create <name>", command.getUsage());
     }
 
     /**
@@ -60,9 +58,6 @@ public class CLISetCommandTest {
     public void testGetOptions() {
         Options options = command.getOptions();
         assertNotNull(options);
-        for (SetCommand.OptionalArg optArg : SetCommand.OptionalArg.values()) {
-            assertTrue(options.hasOption(optArg.name().toLowerCase()));
-        }
     }
 
     /**
@@ -70,31 +65,13 @@ public class CLISetCommandTest {
      */
     @Test
     public void testEncodeCLICommand_WithValidArgs() throws Exception {
-        String[] args = { "set", "key", "val" };
+        String[] args = { "create", "stash" };
         CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
 
         String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
-        Map<String, String> optArgMap = new HashMap<>();
-        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
-    }
-
-    /**
-     * Test encoding with optional args.
-     */
-    @Test
-    public void testEncodeCLICommand_WithOptionalArgs() throws Exception {
-        String[] args = { "set", "key", "val", "--name", "stash1", "-ttl", "5000" };
-        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
-
-        String encodedCommand = command.encodeCLICommand(commandLine);
-
-        assertNotNull(encodedCommand);
-        Map<String, String> optArgMap = new HashMap<>();
-        optArgMap.put("name", "stash1");
-        optArgMap.put("ttl", "5000");
-        assertEquals(ProtocolUtil.encode(SetCommand.NAME, List.of("key", "val"), true, optArgMap), encodedCommand);
+        assertEquals(ProtocolUtil.encode(CreateCommand.NAME, List.of("stash"), false, Collections.emptyMap()), encodedCommand);
     }
 
     /**

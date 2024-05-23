@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.server.primary;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -79,7 +81,7 @@ public class PrimaryServerTest {
     /**
      * The read only server under test.
      */
-    private PrimaryServer primaryServer;
+    private PrimaryServer server;
 
     /**
      * Setup before each test.
@@ -98,7 +100,7 @@ public class PrimaryServerTest {
         when(mockCloseFuture.sync()).thenReturn(mockCloseFuture);
         doNothing().when(mockKeyExpirationManager).startExpirationTask(any());
 
-        primaryServer = new PrimaryServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap,
+        server = new PrimaryServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap,
                 mockChannelInitializer, mockKeyExpirationManager, mockLogger);
     }
 
@@ -107,7 +109,7 @@ public class PrimaryServerTest {
      */
     @Test
     public void testServerStart() throws Exception {
-        primaryServer.start();
+        server.start();
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
@@ -115,5 +117,20 @@ public class PrimaryServerTest {
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
         verify(mockKeyExpirationManager).startExpirationTask(any());
+    }
+
+    /**
+     * Test {@link PrimaryServer#incrementConnections()}.
+     */
+    @Test
+    public void testIncrementAndDecrementConnections() {
+        for (int i = 0; i < Server.MAX_CONNECTIONS_PRIMARY; i++) {
+            assertTrue(server.incrementConnections());
+        }
+        assertFalse(server.incrementConnections());
+        
+        /* Decrement so 1 more connection can fit */
+        server.decrementConnections();
+        assertTrue(server.incrementConnections());
     }
 }

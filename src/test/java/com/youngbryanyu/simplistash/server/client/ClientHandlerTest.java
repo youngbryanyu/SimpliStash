@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
+import com.youngbryanyu.simplistash.server.Server;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -49,6 +50,11 @@ public class ClientHandlerTest {
     @Mock
     private ChannelHandlerContext mockCtx;
     /**
+     * The mocked server.
+     */
+    @Mock
+    private Server server;
+    /**
      * Argument captor.
      */
     @Captor
@@ -66,7 +72,7 @@ public class ClientHandlerTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        clientHandler = new ClientHandler(mockCommandHandler, mockLogger, false);
+        clientHandler = new ClientHandler(mockCommandHandler, mockLogger, false, server);
     }
 
     /**
@@ -74,9 +80,27 @@ public class ClientHandlerTest {
      */
     @Test
     void testChannelActive() throws Exception {
+        when(server.incrementConnections()).thenReturn(true);
         when(mockCtx.channel()).thenReturn(mock(io.netty.channel.Channel.class));
+        
         clientHandler.channelActive(mockCtx);
+
         verify(mockLogger).debug(anyString());
+        verify(mockCtx, never()).close();
+    }
+
+    /**
+     * Test {@link ClientHandler#channelActive(ChannelHandlerContext)} when there are too many connections.
+     */
+    @Test
+    void testChannelActive_tooManyConnections() throws Exception {
+        when(server.incrementConnections()).thenReturn(false);
+        when(mockCtx.channel()).thenReturn(mock(io.netty.channel.Channel.class));
+
+        clientHandler.channelActive(mockCtx);
+
+        verify(mockLogger).debug(anyString());
+        verify(mockCtx).close();
     }
 
     /**

@@ -88,8 +88,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             logger.debug("Connection limit reached. Closing connection.");
             ctx.close();
         }
-
-        super.channelActive(ctx);
     }
 
     /**

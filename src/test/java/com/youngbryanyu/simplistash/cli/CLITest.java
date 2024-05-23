@@ -79,6 +79,7 @@ class CLITest {
                 .thenReturn("command2")
                 .thenReturn("exit");
 
+        when(mockCLICommandHandler.processCommand("ping")).thenReturn("PONG");
         when(mockCLICommandHandler.processCommand("command1")).thenReturn(null);
         when(mockCLICommandHandler.processCommand("command2")).thenReturn("response2");
 
@@ -106,6 +107,7 @@ class CLITest {
     public void testStartHandlesExitCommand() throws IOException {
         /* Simulate user input */
         when(mockTerminalHandler.readLine(anyString())).thenReturn("exit");
+        when(mockCLICommandHandler.processCommand(anyString())).thenReturn("PONG");
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
@@ -113,8 +115,11 @@ class CLITest {
         /* Verify the connection */
         verify(mockCLIClient).connect("127.0.0.1", 8080);
 
-        /* Verify that processCommand was never called */
-        verify(mockCLICommandHandler, never()).processCommand(anyString());
+        /*
+         * Verify that processCommand was only called once for the initial connection
+         * PING
+         */
+        verify(mockCLICommandHandler, times(1)).processCommand(anyString());
 
         /* Verify that CLIClient was closed */
         verify(mockCLIClient).close();
@@ -130,7 +135,9 @@ class CLITest {
                 .thenReturn("command")
                 .thenReturn("exit");
 
-        when(mockCLICommandHandler.processCommand("command")).thenReturn("exit");
+        when(mockCLICommandHandler.processCommand(anyString()))
+                .thenReturn("PONG")
+                .thenReturn("exit");
 
         /* Call the method to test */
         cli.start("127.0.0.1", "8080");
@@ -212,11 +219,11 @@ class CLITest {
             mockMain.verify(() -> CLI.startCLI(any(), any(), any()), never());
         }
 
-         /* Set system properties, port is missing */
-         System.clearProperty("ip");
+        /* Set system properties, port is missing */
+        System.clearProperty("ip");
     }
 
-     /**
+    /**
      * Test the main method when both args port and ip are missing.
      */
     @Test

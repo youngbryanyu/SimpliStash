@@ -95,7 +95,7 @@ public class ReadOnlyServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
-        if (currentConnections < MAX_CONNECTIONS_PRIMARY) {
+        if (currentConnections < MAX_CONNECTIONS_READ_ONLY) {
             currentConnections++;
             return true;
         } else {

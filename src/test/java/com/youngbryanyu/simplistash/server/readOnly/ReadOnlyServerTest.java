@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.server.readOnly;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -14,8 +16,7 @@ import org.slf4j.Logger;
 
 import com.youngbryanyu.simplistash.server.Server;
 import com.youngbryanyu.simplistash.server.client.ClientHandlerFactory;
-import com.youngbryanyu.simplistash.server.readOnly.ReadOnlyChannelInitializer;
-import com.youngbryanyu.simplistash.server.readOnly.ReadOnlyServer;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -76,7 +77,7 @@ public class ReadOnlyServerTest {
     /**
      * The read only server under test.
      */
-    private ReadOnlyServer readOnlyServer;
+    private ReadOnlyServer server;
 
     /**
      * Setup before each test.
@@ -94,7 +95,7 @@ public class ReadOnlyServerTest {
         when(mockServerChannel.closeFuture()).thenReturn(mockCloseFuture);
         when(mockCloseFuture.sync()).thenReturn(mockCloseFuture);
 
-        readOnlyServer = new ReadOnlyServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap, mockChannelInitializer,
+        server = new ReadOnlyServer(mockBossGroup, mockWorkerGroup, mockServerBootstrap, mockChannelInitializer,
                 mockLogger);
     }
 
@@ -103,12 +104,27 @@ public class ReadOnlyServerTest {
      */
     @Test
     public void testServerStart() throws Exception {
-        readOnlyServer.start();
+        server.start();
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
         verify(mockServerBootstrap).bind(Server.READ_ONLY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
+    }
+
+    /**
+     * Test {@link PrimaryServer#incrementConnections()}.
+     */
+    @Test
+    public void testIncrementAndDecrementConnections() {
+        for (int i = 0; i < Server.MAX_CONNECTIONS_READ_ONLY; i++) {
+            assertTrue(server.incrementConnections());
+        }
+        assertFalse(server.incrementConnections());
+        
+        /* Decrement so 1 more connection can fit */
+        server.decrementConnections();
+        assertTrue(server.incrementConnections());
     }
 }

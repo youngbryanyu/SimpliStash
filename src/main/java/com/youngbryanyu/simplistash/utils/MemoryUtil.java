@@ -31,8 +31,6 @@ public class MemoryUtil {
         System.out.println("Used memory (MB): " + usedMemoryMB);
     }
 
-    // TODO: add unit tests for below
-
     /**
      * Returns the max on-heap memory in bytes.
      * 
@@ -67,10 +65,5 @@ public class MemoryUtil {
      */
     public static long getUsedMemory_onHeap() {
         return getAllocatedMemory_onHeap() - getFreeMemory_onHeap();
-    }
-
-    public static long getUsedMemory_offHeap() {
-        // TODO:
-        return 0l;
     }
 }

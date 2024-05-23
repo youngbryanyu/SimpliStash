@@ -15,7 +15,7 @@ public class MemoryUtilTest {
     @Test
     public void testPrintOnHeapMemoryUsage() {
         /* Set streams */
-        PrintStream originalOut = System.out; 
+        PrintStream originalOut = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
@@ -28,8 +28,44 @@ public class MemoryUtilTest {
         assertTrue(output.contains("Total memory (MB):"));
         assertTrue(output.contains("Free memory (MB):"));
         assertTrue(output.contains("Used memory (MB):"));
-        
+
         /* Restore streams */
-        System.setOut(originalOut); 
+        System.setOut(originalOut);
+    }
+
+    /**
+     * Test {@link MemoryUtil#getMaxMemory_onHeap()}.
+     */
+    @Test
+    public void testGetMaxMemory_onHeap() {
+        Long result = MemoryUtil.getMaxMemory_onHeap();
+        assertTrue(result instanceof Long);
+    }
+
+    /**
+     * Test {@link MemoryUtil#getFreeMemory_onHeap()}.
+     */
+    @Test
+    public void testGetFreeMemory_onHeap() {
+        Long result = MemoryUtil.getFreeMemory_onHeap();
+        assertTrue(result instanceof Long);
+    }
+
+    /**
+     * Test {@link MemoryUtil#getAllocatedMemory_onHeap()}.
+     */
+    @Test
+    public void testGetAllocatedMemory_onHeap() {
+        Long result = MemoryUtil.getAllocatedMemory_onHeap();
+        assertTrue(result instanceof Long);
+    }
+
+    /**
+     * Test {@link MemoryUtil#getUsedMemory_onHeap()}.
+     */
+    @Test
+    public void testGetUsedMemory_onHeap() {
+        Long result = MemoryUtil.getUsedMemory_onHeap();
+        assertTrue(result instanceof Long);
     }
 }

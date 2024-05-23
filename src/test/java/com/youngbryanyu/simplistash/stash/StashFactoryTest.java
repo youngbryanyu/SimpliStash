@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
@@ -49,10 +51,15 @@ public class StashFactoryTest {
     @Mock
     private Logger mockLogger;
     /**
-     * The mock stash.
+     * The mock off heap stash.
      */
     @Mock
     private OffHeapStash mockOffHeapStash;
+     /**
+     * The mock on heap stash.
+     */
+    @Mock
+    private OnHeapStash mockOnHeapStash;
     /**
      * The stash factory under test.
      */
@@ -94,5 +101,26 @@ public class StashFactoryTest {
         verify(mockContext).getBean(OffHeapStash.class, mockDB, null, mockTTLTimeWheel, mockLogger, stashName);
         assertNotNull(stash);
         assertEquals(mockOffHeapStash, stash);
+    }
+
+     /**
+     * Test {@link StashFactory#createOnHeapStash(String)}.
+     */
+    @Test
+    void testCreateOnHeapStash() {
+        /* Setup */
+        String stashName = "testStash";
+        when(mockContext.getBean(eq(OnHeapStash.class), any(), any(), any(), anyString()))
+                .thenReturn(mockOnHeapStash);
+
+        /* Call method */
+        Stash stash = stashFactory.createOnHeapStash(stashName);
+
+        /* Test assertions */
+        verify(mockContext).getBean(TTLTimeWheel.class);
+        verify(mockContext).getBean(Logger.class);
+        verify(mockContext).getBean(eq(OnHeapStash.class), any(Map.class), any(TTLTimeWheel.class), any(Logger.class), anyString());
+        assertNotNull(stash);
+        assertEquals(mockOnHeapStash, stash);
     }
 }

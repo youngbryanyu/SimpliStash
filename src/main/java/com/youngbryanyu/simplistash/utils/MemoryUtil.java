@@ -30,4 +30,47 @@ public class MemoryUtil {
         System.out.println("Free memory (MB): " + freeMemoryMB);
         System.out.println("Used memory (MB): " + usedMemoryMB);
     }
+
+    // TODO: add unit tests for below
+
+    /**
+     * Returns the max on-heap memory in bytes.
+     * 
+     * @return the max on-heap memory in bytes.
+     */
+    public static long getMaxMemory_onHeap() {
+        return Runtime.getRuntime().maxMemory();
+    }
+
+    /**
+     * Returns the free on-heap memory available in bytes.
+     * 
+     * @return the free on-heap memory available in bytes.
+     */
+    public static long getFreeMemory_onHeap() {
+        return Runtime.getRuntime().freeMemory();
+    }
+
+    /**
+     * Returns the current allocated (total) on-heap memory in bytes.
+     * 
+     * @return the current allocated (total) on-heap memory in bytes.
+     */
+    public static long getAllocatedMemory_onHeap() {
+        return Runtime.getRuntime().totalMemory();
+    }
+
+    /**
+     * Returns the current used on-heap memory in bytes.
+     * 
+     * @return the current used on-heap memory in bytes.
+     */
+    public static long getUsedMemory_onHeap() {
+        return getAllocatedMemory_onHeap() - getFreeMemory_onHeap();
+    }
+
+    public static long getUsedMemory_offHeap() {
+        // TODO:
+        return 0l;
+    }
 }

@@ -12,6 +12,10 @@ public interface Command {
      * The maximum allowed TTL in milliseconds.
      */
     public static final long MAX_TTL = 157_784_630_000L;
+    /**
+     * The limit of max key count that can be set for a stash.
+     */
+    public static final long MAX_KEY_COUNT_LIMIT = Long.MAX_VALUE;
 
     /**
      * Enum for command error causes, which are part of error messages to return to
@@ -35,7 +39,10 @@ public interface Command {
         STASH_LIMIT_REACHED("The max number of stashes has been reached"),
         /* TTL errors */
         TTL_INVALID_LONG("The TTL must be a valid long"),
-        TTL_OUT_OF_RANGE("The TTL is out of the supported range");
+        TTL_OUT_OF_RANGE("The TTL is out of the supported range"),
+        /* Key limit errors */
+        MAX_KEY_COUNT_INVALID_LONG("The max key count must be a valid long"),
+        MAX_KEY_COUNT_OUT_OF_RANGE("The max key count is out of the supported range");
 
         /**
          * The enum's message

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -41,6 +42,14 @@ public class OffHeapStash implements Stash {
      * The name of the Stash.
      */
     private final String name;
+    /**
+     * The LRU key tracker.
+     */
+    private final LRUTracker lruTracker;
+    /**
+     * The max number of keys allowed in the stash.
+     */
+    private final long maxKeyCount;
 
     /**
      * Constructor for the stash.
@@ -56,13 +65,17 @@ public class OffHeapStash implements Stash {
             DB db,
             HTreeMap<String, String> cache,
             TTLTimeWheel ttlTimeWheel,
-            Logger logger,
-            String name) {
+            Logger logger, 
+            LRUTracker lruTracker,
+            String name,
+            long maxKeyCount) {
         this.db = db;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
+        this.lruTracker = lruTracker;
         this.name = name;
+        this.maxKeyCount = maxKeyCount;
 
         addShutDownHook();
     }
@@ -80,6 +93,9 @@ public class OffHeapStash implements Stash {
         }
 
         cache.put(key, value);
+        lruTracker.add(key);
+
+        evictKeys(); /* Evict keys if over memory limit */
     }
 
     /**
@@ -96,13 +112,15 @@ public class OffHeapStash implements Stash {
         try {
             /* Get value if key isn't expired */
             if (!ttlTimeWheel.isExpired(key)) {
+                lruTracker.add(key);
                 return cache.get(key);
             }
 
             /* Lazy expire if not read-only */
             if (!readOnly) {
-                ttlTimeWheel.remove(key);
                 cache.remove(key);
+                ttlTimeWheel.remove(key);
+                lruTracker.remove(key);
 
                 logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
             }
@@ -149,6 +167,7 @@ public class OffHeapStash implements Stash {
     public void delete(String key) {
         cache.remove(key);
         ttlTimeWheel.remove(key);
+        lruTracker.remove(key);
     }
 
     /**
@@ -161,6 +180,9 @@ public class OffHeapStash implements Stash {
     public void setWithTTL(String key, String value, long ttl) {
         cache.put(key, value);
         ttlTimeWheel.add(key, ttl);
+        lruTracker.add(key);
+
+        evictKeys(); /* Evict keys if over memory limit */
     }
 
     /**
@@ -177,6 +199,7 @@ public class OffHeapStash implements Stash {
         }
 
         ttlTimeWheel.add(key, ttl);
+        lruTracker.add(key);
         return true;
     }
 
@@ -204,6 +227,7 @@ public class OffHeapStash implements Stash {
         List<String> expiredKeys = ttlTimeWheel.expireKeys();
         for (String key : expiredKeys) {
             cache.remove(key);
+            lruTracker.remove(key);
         }
 
         if (!expiredKeys.isEmpty()) {
@@ -219,7 +243,26 @@ public class OffHeapStash implements Stash {
     public String getInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Number of keys: %d\n", cache.size()));
+        sb.append(String.format("Max keys allowed: %s\n", maxKeyCount));
         sb.append("Off-heap: true");
         return sb.toString();
+    }
+
+    /**
+     * Evicts keys until the number of keys is below this limit.
+     */
+    public void evictKeys() {
+        while (cache.size() > maxKeyCount) {
+            String evictedKey = lruTracker.evict();
+
+            /* No more keys to evict */
+            if (evictedKey == null) {
+                return;
+            }
+
+            cache.remove(evictedKey);
+            ttlTimeWheel.remove(evictedKey);
+            logger.debug(String.format("Evicted key from stash \"%s\": %s", name, evictedKey));
+        }
     }
 }

@@ -27,7 +27,7 @@ public class CLICreateCommand implements CLICommand {
     /**
      * The usage of the CLI command.
      */
-    public static final String USAGE = "create <name> [-off-heap <true/false>]";
+    public static final String USAGE = "create <name> [-off-heap <true/false>] [-max-keys <max_keys>]";
     /**
      * The minimum number of required arguments.
      */

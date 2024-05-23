@@ -30,3 +30,6 @@ ttl_active_expire_batch_size: 100
 # Whether or not to store in-memory values off-heap. This is true by default.
 use_off_heap_cache: true
 
+# The maximum number of keys allowed in a stash before eviction. Defaults to 1000000.
+default_max_key_count: 1000000
+

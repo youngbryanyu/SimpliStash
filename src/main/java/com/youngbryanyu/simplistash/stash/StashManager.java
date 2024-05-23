@@ -49,7 +49,7 @@ public class StashManager {
         stashes = new ConcurrentHashMap<>();
 
         /* Create default stash */
-        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY);
+        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT);
     }
 
     /**
@@ -57,20 +57,21 @@ public class StashManager {
      * Does nothing if the stash name is already taken. Fails if there are already
      * the max number of stashes supported.
      * 
-     * @param name    The name of the stash.
-     * @param offHeap Whether or not to use off-heap memory.
+     * @param name        The name of the stash.
+     * @param offHeap     Whether or not to use off-heap memory.
+     * @param maxKeyCount The max number of keys allowed.
      * @return True if the stash was created successfully or already exists, false
      *         otherwise.
      */
-    public boolean createStash(String name, boolean offHeap) {
+    public boolean createStash(String name, boolean offHeap, long maxKeyCount) {
         if (stashes.size() >= MAX_NUM_STASHES) {
             return false;
         }
 
         if (offHeap) {
-            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name));
+            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name, maxKeyCount));
         } else {
-            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name));
+            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name, maxKeyCount));
         }
 
         return true;

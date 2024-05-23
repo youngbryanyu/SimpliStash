@@ -23,7 +23,7 @@ public class CreateCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "CREATE <name> <num_opt_args> [OFF_HEAP]";
+    private static final String FORMAT = "CREATE <name> <num_opt_args> [OFF_HEAP] [MAX_KEYS]";
     /**
      * The minimum number of required arguments.
      */
@@ -37,7 +37,8 @@ public class CreateCommand implements Command {
      * The optional args.
      */
     public enum OptionalArg {
-        OFF_HEAP /* Value must be any case of "true" to be true */
+        OFF_HEAP, /* Value must be any case of "true" to be true */
+        MAX_KEYS
     }
 
     /**
@@ -107,8 +108,22 @@ public class CreateCommand implements Command {
             offHeap = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.OFF_HEAP.name()));
         }
 
+        /* Get max keys allowed (optional) */
+        long maxKeyCount = Stash.DEFAULT_MAX_KEY_COUNT;
+        if (optionalArgVals.containsKey(OptionalArg.MAX_KEYS.name())) {
+            try {
+                maxKeyCount = Long.parseLong(optionalArgVals.get(OptionalArg.MAX_KEYS.name()));
+            } catch (NumberFormatException e) {
+                return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
+            }
+
+            if (maxKeyCount <= 0 || maxKeyCount > Command.MAX_KEY_COUNT_LIMIT) {
+                return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
+            }
+        }
+
         /* Create stash */
-        boolean createdSuccessfully = stashManager.createStash(name, offHeap);
+        boolean createdSuccessfully = stashManager.createStash(name, offHeap, maxKeyCount);
         if (!createdSuccessfully) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_LIMIT_REACHED));
         }

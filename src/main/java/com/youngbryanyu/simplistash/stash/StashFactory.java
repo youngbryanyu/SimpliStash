@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -33,31 +34,35 @@ public class StashFactory {
     }
 
     /**
-     * Creates a new instance of an off-heap stash with the given name. 
+     * Creates a new instance of an off-heap stash with the given name.
      * 
      * @param The stash name.
      * @return A stash.
      */
-    public OffHeapStash createOffHeapStash(String name) {
+    public OffHeapStash createOffHeapStash(String name, long maxKeyCount) {
         DB db = context.getBean(DB.class);
-        HTreeMap<String, String> cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING).create();
+        HTreeMap<String, String> cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING)
+                .counterEnable()
+                .create();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
+        LRUTracker lruTracker = context.getBean(LRUTracker.class);
 
-        return context.getBean(OffHeapStash.class, db, cache, ttlTimeWheel, logger, name);
+        return context.getBean(OffHeapStash.class, db, cache, ttlTimeWheel, logger, lruTracker, name, maxKeyCount);
     }
 
-   /**
-     * Creates a new instance of an on-heap stash with the given name. 
+    /**
+     * Creates a new instance of an on-heap stash with the given name.
      * 
      * @param The stash name.
      * @return A stash.
      */
-    public Stash createOnHeapStash(String name) {
+    public Stash createOnHeapStash(String name, long maxKeyCount) {
         ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
+        LRUTracker lruTracker = context.getBean(LRUTracker.class);
 
-        return context.getBean(OnHeapStash.class, cache, ttlTimeWheel, logger, name);
+        return context.getBean(OnHeapStash.class, cache, ttlTimeWheel, logger, lruTracker, name, maxKeyCount);
     }
 }

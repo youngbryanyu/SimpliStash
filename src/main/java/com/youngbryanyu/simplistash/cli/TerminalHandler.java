@@ -41,7 +41,10 @@ public class TerminalHandler {
     public String readLine(String prompt) {
         try {
             return lineReader.readLine(prompt);
-        } catch (UserInterruptException | EndOfFileException e) {
+        } catch (UserInterruptException e) {
+            return ""; /* Indicate to CLI to simply print a new line */
+        }
+        catch (EndOfFileException e) {
             return CLI.EXIT;
         }
     }

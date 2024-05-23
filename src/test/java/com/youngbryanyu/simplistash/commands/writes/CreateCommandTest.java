@@ -166,6 +166,83 @@ public class CreateCommandTest {
     }
 
     /**
+     * Test execution with invalid optional args count.
+     */
+    @Test
+    public void testExecute_invalidOptionalArgsCount() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "-1"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean());
+    }
+
+    /**
+     * Test execution with not enough tokens for optional args specified.
+     */
+    @Test
+    public void testExecute_notEnoughOptionalTokens() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1"));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNull(result);
+        assertEquals(3, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean());
+    }
+
+    /**
+     * Test execution with malformed optional args.
+     */
+    @Test
+    public void testExecute_malformedOptionalArgs() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "OFF-HEAP="));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MALFORMED_OPTIONAL_ARGS));
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean());
+    }
+
+    /**
+     * Test execution with the optional arg OFF_HEAP.
+     */
+    @Test
+    public void testExecute_optionalArgOFF_HEAP() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "OFF_HEAP=false"));
+        String expectedResponse = ProtocolUtil.buildOkResponse();
+        when(mockStashManager.createStash(anyString(), anyBoolean())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean());
+    }
+
+    /**
      * Test the get name method.
      */
     @Test

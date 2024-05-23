@@ -129,5 +129,3 @@ public class AppConfig {
         return new ServerBootstrap();
     }
 }
-
-// TODO: add unit tests for new methods (appconfig and protocolUtil)

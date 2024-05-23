@@ -55,6 +55,7 @@ public class CLI {
             /* Check if connection was successful using PING */
             if (cliCommandHandler.processCommand("ping").equals(CLI.EXIT)) {
                 System.out.println("Failed to connect to the server.");
+                cliClient.close();
                 return;
             }
 

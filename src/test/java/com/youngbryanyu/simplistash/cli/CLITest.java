@@ -126,6 +126,30 @@ class CLITest {
     }
 
     /**
+     * Test when the CLI fails to connect to the server.
+     */
+    @Test
+    public void testStart_failedToConnection() throws IOException {
+        /* Simulate user input */
+        when(mockCLICommandHandler.processCommand(anyString())).thenReturn(CLI.EXIT);
+
+        /* Call the method to test */
+        cli.start("127.0.0.1", "8080");
+
+        /* Verify the connection */
+        verify(mockCLIClient).connect("127.0.0.1", 8080);
+
+        /*
+         * Verify that processCommand was only called once for the initial connection
+         * PING
+         */
+        verify(mockCLICommandHandler, times(1)).processCommand(anyString());
+
+        /* Verify that CLIClient was closed */
+        verify(mockCLIClient).close();
+    }
+
+    /**
      * Test handling server disconnect.
      */
     @Test

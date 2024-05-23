@@ -23,7 +23,7 @@ public class InfoCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "INFO <num_optional_args> [NAME]";
+    private static final String FORMAT = "INFO <num_opt_args> [NAME]";
     /**
      * The minimum number of required arguments.
      */

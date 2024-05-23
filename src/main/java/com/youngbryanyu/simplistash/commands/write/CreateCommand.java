@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class CreateCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "CREATE <name>";
+    private static final String FORMAT = "CREATE <name> <num_opt_args> [OFF_HEAP]";
     /**
      * The minimum number of required arguments.
      */
@@ -31,6 +32,13 @@ public class CreateCommand implements Command {
      * The stash manager.
      */
     private final StashManager stashManager;
+
+    /**
+     * The optional args.
+     */
+    public enum OptionalArg {
+        OFF_HEAP /* Value must be any case of "true" to be true */
+    }
 
     /**
      * Constructor for the CREATE command.
@@ -59,6 +67,21 @@ public class CreateCommand implements Command {
         /* Extract tokens */
         tokens.pollFirst();
         String name = tokens.pollFirst();
+        String numOptionalArgsStr = tokens.pollFirst();
+
+        /* Get number of optional args */
+        int numOptionalArgs = getNumOptionalArgs(numOptionalArgsStr);
+        if (numOptionalArgs == -1) {
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
+        }
+
+        /* Check if there are enough tokens for optional args */
+        if (tokens.size() < numOptionalArgs) {
+            tokens.addFirst(numOptionalArgsStr);
+            tokens.addFirst(name);
+            tokens.addFirst(NAME);
+            return null;
+        }
 
         /* Check if client is read-only */
         if (readOnly) {
@@ -72,8 +95,20 @@ public class CreateCommand implements Command {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_NAME_TAKEN));
         }
 
+        /* Process optional args */
+        Map<String, String> optionalArgVals = processOptionalArgs(tokens, numOptionalArgs);
+        if (optionalArgVals == null) {
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
+        }
+
+        /* Determine whether to use off-heap storage */
+        boolean offHeap = StashManager.USE_OFF_HEAP_MEMORY;
+        if (optionalArgVals.containsKey(OptionalArg.OFF_HEAP.name())) {
+            offHeap = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.OFF_HEAP.name()));
+        }
+
         /* Create stash */
-        boolean createdSuccessfully = stashManager.createStash(name);
+        boolean createdSuccessfully = stashManager.createStash(name, offHeap);
         if (!createdSuccessfully) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_LIMIT_REACHED));
         }

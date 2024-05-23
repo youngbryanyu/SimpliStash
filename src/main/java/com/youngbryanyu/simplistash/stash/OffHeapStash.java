@@ -45,10 +45,11 @@ public class OffHeapStash implements Stash {
     /**
      * Constructor for the stash.
      * 
-     * @param db     The DB instance.
-     * @param cache  The HTreeMap cache.
-     * @param logger The application logger.
-     * @param name   The stash's name.
+     * @param db           The DB instance.
+     * @param cache        The HTreeMap cache.
+     * @param ttlTimeWheel The ttl timer wheel.
+     * @param logger       The application logger.
+     * @param name         The stash's name.
      */
     @Autowired
     public OffHeapStash(
@@ -217,7 +218,8 @@ public class OffHeapStash implements Stash {
      */
     public String getInfo() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Number of keys: " + cache.size());
+        sb.append(String.format("Number of keys: %d\n", cache.size()));
+        sb.append("Off-heap: true");
         return sb.toString();
     }
 }

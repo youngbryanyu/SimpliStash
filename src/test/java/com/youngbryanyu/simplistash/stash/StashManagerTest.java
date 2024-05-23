@@ -48,7 +48,7 @@ public class StashManagerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        when(mockStashFactory.createStash(anyString())).thenReturn(mockStash);
+        when(mockStashFactory.createOffHeapStash(anyString())).thenReturn(mockStash);
         stashManager = new StashManager(mockStashFactory, mockLogger);
     }
 

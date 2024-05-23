@@ -1,15 +1,19 @@
 package com.youngbryanyu.simplistash.cli.commands.write;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.cli.commands.CLICommand;
 import com.youngbryanyu.simplistash.commands.write.CreateCommand;
+import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
@@ -24,7 +28,7 @@ public class CLICreateCommand implements CLICommand {
     /**
      * The usage of the CLI command.
      */
-    public static final String USAGE = "create <name>";
+    public static final String USAGE = "create <name> [-off-heap <true/false>]";
     /**
      * The minimum number of required arguments.
      */
@@ -50,11 +54,21 @@ public class CLICreateCommand implements CLICommand {
             return null;
         }
 
-        /* Get key and value */
+        /* Get name */
         String name = args.get(1);
 
+        /* Get optional args and creating arg to val mapping */
+        Map<String, String> optArgMap = new HashMap<>();
+        for (CreateCommand.OptionalArg optArg : CreateCommand.OptionalArg.values()) {
+             /* Convert to lower case and replace _ with - */
+            String optArgName = optArg.name().toLowerCase().replace("_", "-");
+
+            if (commandLine.hasOption(optArgName)) {
+                optArgMap.put(optArgName, commandLine.getOptionValue(optArgName));
+            }
+        }
         /* Encode to protocol */
-        return ProtocolUtil.encode(NAME, List.of(name), false, Collections.emptyMap());
+        return ProtocolUtil.encode(NAME, List.of(name), true, optArgMap);
     }
 
     /**
@@ -63,7 +77,16 @@ public class CLICreateCommand implements CLICommand {
      * @return The options object.
      */
     public Options getOptions() {
-        return new Options();
+        Options options = new Options();
+
+        for (CreateCommand.OptionalArg optArg : CreateCommand.OptionalArg.values()) {
+            options.addOption(Option.builder()
+                    .longOpt(optArg.name().toLowerCase().replace("_", "-"))
+                    .hasArg()
+                    .build());
+        }
+
+        return options;
     }
 
     /**

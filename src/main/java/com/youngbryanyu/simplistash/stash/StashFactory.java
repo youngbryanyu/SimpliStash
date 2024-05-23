@@ -1,5 +1,8 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.QueueLong.Node.SERIALIZER;
@@ -31,12 +34,12 @@ public class StashFactory {
     }
 
     /**
-     * Creates a new instance of a stash with the given name. 
+     * Creates a new instance of an off-heap stash with the given name. 
      * 
      * @param The stash name.
      * @return A stash.
      */
-    public Stash createStash(String name) {
+    public OffHeapStash createOffHeapStash(String name) {
         DB db = context.getBean(DB.class);
         HTreeMap<String, String> cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING).create();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
@@ -45,5 +48,17 @@ public class StashFactory {
         return context.getBean(OffHeapStash.class, db, cache, ttlTimeWheel, logger, name);
     }
 
-    // TODO: create onheap stash
+   /**
+     * Creates a new instance of an on-heap stash with the given name. 
+     * 
+     * @param The stash name.
+     * @return A stash.
+     */
+    public Stash createOnHeapStash(String name) {
+        ConcurrentMap<String, String> cache = new ConcurrentHashMap<>();
+        TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
+        Logger logger = context.getBean(Logger.class);
+
+        return context.getBean(OnHeapStash.class, cache, ttlTimeWheel, logger, name);
+    }
 }

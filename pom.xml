@@ -133,8 +133,6 @@
             <artifactId>jline</artifactId>
             <version>3.26.1</version>
         </dependency>
-
-
     </dependencies>
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may bemoved

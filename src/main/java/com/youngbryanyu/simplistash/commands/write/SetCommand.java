@@ -23,7 +23,7 @@ public class SetCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "SET <key> <value> <num_optional_args> [NAME] [TTL]";
+    private static final String FORMAT = "SET <key> <value> <num_opt_args> [NAME] [TTL]";
     /**
      * The minimum number of required arguments.
      */

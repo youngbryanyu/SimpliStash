@@ -32,6 +32,10 @@ public class StashManager {
      * The application logger.
      */
     private final Logger logger;
+    /**
+     * Whether or not to default to off-heap memory.
+     */
+    public static final boolean USE_OFF_HEAP_MEMORY = true;
 
     /**
      * Constructor for a stash manager.
@@ -45,7 +49,7 @@ public class StashManager {
         stashes = new ConcurrentHashMap<>();
 
         /* Create default stash */
-        createStash(DEFAULT_STASH_NAME);
+        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY);
     }
 
     /**
@@ -53,17 +57,22 @@ public class StashManager {
      * Does nothing if the stash name is already taken. Fails if there are already
      * the max number of stashes supported.
      * 
-     * @param name The name of the stash.
+     * @param name    The name of the stash.
+     * @param offHeap Whether or not to use off-heap memory.
      * @return True if the stash was created successfully or already exists, false
      *         otherwise.
      */
-    public boolean createStash(String name) {
+    public boolean createStash(String name, boolean offHeap) {
         if (stashes.size() >= MAX_NUM_STASHES) {
             return false;
         }
 
-        
-        stashes.putIfAbsent(name, stashFactory.createStash(name));        
+        if (offHeap) {
+            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name));
+        } else {
+            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name));
+        }
+
         return true;
     }
 
@@ -112,6 +121,7 @@ public class StashManager {
 
     /**
      * Returns the number of active stashes.
+     * 
      * @return The number of active stashes.
      */
     public int getNumStashes() {

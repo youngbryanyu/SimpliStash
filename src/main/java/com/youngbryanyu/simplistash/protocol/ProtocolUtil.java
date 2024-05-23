@@ -73,7 +73,8 @@ public final class ProtocolUtil {
     }
 
     /**
-     * Builds a response containing an fatal error message to send back to the client.
+     * Builds a response containing an fatal error message to send back to the
+     * client.
      * 
      * Errors are sent in the format: FATAL <message>
      * 
@@ -191,7 +192,11 @@ public final class ProtocolUtil {
             sb.append(ProtocolUtil.encode(Integer.toString(optionalArgs.size())));
 
             optionalArgs.forEach((arg, val) -> {
-                String optionalArg = String.format("%s=%s", arg.toUpperCase(), val); /* Use upper case arg name */
+                /* Use upper case arg name and replace "-" with "_" */
+                String optionalArg = String.format("%s=%s",
+                        arg.toUpperCase().replace("-", "_"),
+                        val);
+
                 sb.append(ProtocolUtil.encode(optionalArg));
             });
         }

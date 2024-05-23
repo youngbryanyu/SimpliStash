@@ -75,7 +75,7 @@ public class StashFactoryTest {
     }
 
     /**
-     * Test {@link StashFactory#createStash(String)}.
+     * Test {@link StashFactory#createOffHeapStash(String)}.
      */
     @Test
     void testCreateOffHeapStash() {
@@ -85,7 +85,7 @@ public class StashFactoryTest {
                 .thenReturn(mockOffHeapStash);
 
         /* Call method */
-        Stash stash = stashFactory.createStash(stashName);
+        Stash stash = stashFactory.createOffHeapStash(stashName);
 
         /* Test assertions */
         verify(mockContext).getBean(DB.class);

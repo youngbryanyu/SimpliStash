@@ -1,7 +1,6 @@
 package com.youngbryanyu.simplistash.stash;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
@@ -55,7 +54,7 @@ public class StashFactory {
      * @return A stash.
      */
     public Stash createOnHeapStash(String name) {
-        ConcurrentMap<String, String> cache = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
 

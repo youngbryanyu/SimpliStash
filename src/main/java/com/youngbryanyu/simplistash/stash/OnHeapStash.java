@@ -2,11 +2,7 @@ package com.youngbryanyu.simplistash.stash;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.mapdb.DB;
-import org.mapdb.HTreeMap;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -25,7 +21,7 @@ public class OnHeapStash implements Stash {
     /**
      * The primary cache providing O(1) direct access to values by key.
      */
-    private final ConcurrentMap<String, String> cache;
+    private final Map<String, String> cache;
     /**
      * Time wheel structure used to actively expire TTLed keys.
      */
@@ -47,7 +43,7 @@ public class OnHeapStash implements Stash {
      * @param logger       The application logger.
      * @param name         The stash's name.
      */
-    public OnHeapStash(ConcurrentMap<String, String> cache, TTLTimeWheel ttlTimeWheel, Logger logger, String name) {
+    public OnHeapStash(Map<String, String> cache, TTLTimeWheel ttlTimeWheel, Logger logger, String name) {
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;

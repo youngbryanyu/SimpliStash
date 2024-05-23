@@ -53,11 +53,24 @@ public class TerminalHandlerTest {
     }
 
     /**
-     * Test an interrupt during reading input .
+     * Test an interrupt during reading input from CLI.
      */
     @Test
     public void testReadLineUserInterrupt() {
         when(mockLineReader.readLine(anyString())).thenThrow(new UserInterruptException("interrupt"));
+
+        String result = terminalHandler.readLine("prompt");
+
+        assertEquals("", result);
+        verify(mockLineReader).readLine(anyString());
+    }
+
+    /**
+     * Test an EOF during reading input from CLI.
+     */
+    @Test
+    public void testReadLineEOF() {
+        when(mockLineReader.readLine(anyString())).thenThrow(new EndOfFileException("interrupt"));
 
         String result = terminalHandler.readLine("prompt");
 

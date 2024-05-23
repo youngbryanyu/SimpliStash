@@ -26,6 +26,7 @@ import org.mapdb.HTreeMap;
 import org.mapdb.QueueLong.Node.SERIALIZER;
 import org.slf4j.Logger;
 
+import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -52,6 +53,11 @@ class OffHeapStashTest {
     @Mock
     private Logger mockLogger;
     /**
+     * The mocked LRU tracker
+     */
+    @Mock
+    private EvictionTracker mockEvictionTracker;
+    /**
      * The stash under test.
      */
     private OffHeapStash stash;
@@ -67,7 +73,8 @@ class OffHeapStashTest {
         db = DBMaker.memoryDB().make();
         cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING).create();
 
-        stash = new OffHeapStash(db, cache, mockTTLTimeWheel, mockLogger, "testStash");
+        stash = new OffHeapStash(db, cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
+                Stash.DEFAULT_MAX_KEY_COUNT);
     }
 
     /**
@@ -331,7 +338,8 @@ class OffHeapStashTest {
     @Test
     void testGetInfo() {
         String result = stash.getInfo();
-        assertEquals("Number of keys: 0\n" +
+        assertEquals("Number of keys: 0\n" + 
+                "Max keys allowed: 1000000\n" +
                 "Off-heap: true", result);
     }
 }

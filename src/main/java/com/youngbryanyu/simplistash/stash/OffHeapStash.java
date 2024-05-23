@@ -10,7 +10,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
+import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -43,9 +43,9 @@ public class OffHeapStash implements Stash {
      */
     private final String name;
     /**
-     * The LRU key tracker.
+     * The key eviction tracker.
      */
-    private final LRUTracker lruTracker;
+    private final EvictionTracker evictionTracker;
     /**
      * The max number of keys allowed in the stash.
      */
@@ -66,14 +66,14 @@ public class OffHeapStash implements Stash {
             HTreeMap<String, String> cache,
             TTLTimeWheel ttlTimeWheel,
             Logger logger, 
-            LRUTracker lruTracker,
+            EvictionTracker evictionTracker,
             String name,
             long maxKeyCount) {
         this.db = db;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
-        this.lruTracker = lruTracker;
+        this.evictionTracker = evictionTracker;
         this.name = name;
         this.maxKeyCount = maxKeyCount;
 
@@ -93,7 +93,7 @@ public class OffHeapStash implements Stash {
         }
 
         cache.put(key, value);
-        lruTracker.add(key);
+        evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
     }
@@ -112,7 +112,7 @@ public class OffHeapStash implements Stash {
         try {
             /* Get value if key isn't expired */
             if (!ttlTimeWheel.isExpired(key)) {
-                lruTracker.add(key);
+                evictionTracker.add(key);
                 return cache.get(key);
             }
 
@@ -120,7 +120,7 @@ public class OffHeapStash implements Stash {
             if (!readOnly) {
                 cache.remove(key);
                 ttlTimeWheel.remove(key);
-                lruTracker.remove(key);
+                evictionTracker.remove(key);
 
                 logger.debug(String.format("Lazy removed key from stash \"%s\": %s", name, key));
             }
@@ -167,7 +167,7 @@ public class OffHeapStash implements Stash {
     public void delete(String key) {
         cache.remove(key);
         ttlTimeWheel.remove(key);
-        lruTracker.remove(key);
+        evictionTracker.remove(key);
     }
 
     /**
@@ -180,7 +180,7 @@ public class OffHeapStash implements Stash {
     public void setWithTTL(String key, String value, long ttl) {
         cache.put(key, value);
         ttlTimeWheel.add(key, ttl);
-        lruTracker.add(key);
+        evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
     }
@@ -199,7 +199,7 @@ public class OffHeapStash implements Stash {
         }
 
         ttlTimeWheel.add(key, ttl);
-        lruTracker.add(key);
+        evictionTracker.add(key);
         return true;
     }
 
@@ -227,7 +227,7 @@ public class OffHeapStash implements Stash {
         List<String> expiredKeys = ttlTimeWheel.expireKeys();
         for (String key : expiredKeys) {
             cache.remove(key);
-            lruTracker.remove(key);
+            evictionTracker.remove(key);
         }
 
         if (!expiredKeys.isEmpty()) {
@@ -253,7 +253,7 @@ public class OffHeapStash implements Stash {
      */
     public void evictKeys() {
         while (cache.size() > maxKeyCount) {
-            String evictedKey = lruTracker.evict();
+            String evictedKey = evictionTracker.evict();
 
             /* No more keys to evict */
             if (evictedKey == null) {

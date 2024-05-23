@@ -24,6 +24,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.slf4j.Logger;
 
+import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -49,6 +50,11 @@ public class OnHeapStashTest {
     @Mock
     private Logger mockLogger;
     /**
+     * The mocked LRU tracker
+     */
+    @Mock
+    private EvictionTracker mockEvictionTracker;
+    /**
      * The stash under test.
      */
     private OnHeapStash stash;
@@ -61,7 +67,8 @@ public class OnHeapStashTest {
         MockitoAnnotations.openMocks(this);
 
         cache = new ConcurrentHashMap<>();
-        stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, "testStash");
+        stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
+                Stash.DEFAULT_MAX_KEY_COUNT);
     }
 
     /**
@@ -326,6 +333,7 @@ public class OnHeapStashTest {
     void testGetInfo() {
         String result = stash.getInfo();
         assertEquals("Number of keys: 0\n" +
+                "Max keys allowed: 1000000\n" +
                 "Off-heap: false", result);
     }
 }

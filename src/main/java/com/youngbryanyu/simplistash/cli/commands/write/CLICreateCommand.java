@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.cli.commands.CLICommand;
 import com.youngbryanyu.simplistash.commands.write.CreateCommand;
-import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**

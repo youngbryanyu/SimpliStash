@@ -31,7 +31,7 @@ public class StashManagerTest {
      * The mocked stash.
      */
     @Mock
-    private Stash mockStash;
+    private OffHeapStash mockStash;
     /**
      * The mocked logger.
      */
@@ -57,7 +57,7 @@ public class StashManagerTest {
      */
     @Test
     public void testCreateStash() {
-        assertTrue(stashManager.createStash("stash1"));
+        assertTrue(stashManager.createStash("stash1", true));
         assertTrue(stashManager.containsStash("stash1"));
     }
 
@@ -67,10 +67,10 @@ public class StashManagerTest {
      */
     @Test
     public void testCreateStashAlreadyExists() {
-        stashManager.createStash(StashManager.DEFAULT_STASH_NAME);
+        stashManager.createStash(StashManager.DEFAULT_STASH_NAME, true);
         assertEquals(1, stashManager.getNumStashes());
-        stashManager.createStash("stash2");
-        stashManager.createStash("stash2");
+        stashManager.createStash("stash2", true);
+        stashManager.createStash("stash2", true);
         assertEquals(2, stashManager.getNumStashes());
     }
 
@@ -81,9 +81,9 @@ public class StashManagerTest {
     @Test
     public void testCreateStashMaxLimitReached() {
         for (int i = 0; i < StashManager.MAX_NUM_STASHES; i++) {
-            stashManager.createStash("Stash" + i);
+            stashManager.createStash("Stash" + i, true);
         }
-        assertFalse(stashManager.createStash("StashLimitExceeded"));
+        assertFalse(stashManager.createStash("StashLimitExceeded", true));
     }
 
     /**
@@ -109,7 +109,7 @@ public class StashManagerTest {
      */
     @Test
     public void testDropStash() {
-        stashManager.createStash("stash1");
+        stashManager.createStash("stash1", true);
         stashManager.dropStash("stash1");
         assertFalse(stashManager.containsStash("stash1"));
         verify(mockStash).drop();
@@ -129,8 +129,8 @@ public class StashManagerTest {
      */
     @Test
     public void testExpireTTLKeys() {
-        stashManager.createStash("stash1");
-        stashManager.createStash("stash2");
+        stashManager.createStash("stash1", true);
+        stashManager.createStash("stash2", true);
         stashManager.expireTTLKeys();
         verify(mockStash, atLeast(2)).expireTTLKeys();
     }

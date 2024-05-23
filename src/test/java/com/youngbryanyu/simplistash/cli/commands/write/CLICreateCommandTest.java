@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.write.CreateCommand;
+import com.youngbryanyu.simplistash.commands.write.SetCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 /**
@@ -48,7 +51,7 @@ public class CLICreateCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("create <name>", command.getUsage());
+        assertEquals("create <name> [-off-heap <true/false>]", command.getUsage());
     }
 
     /**
@@ -71,7 +74,23 @@ public class CLICreateCommandTest {
         String encodedCommand = command.encodeCLICommand(commandLine);
 
         assertNotNull(encodedCommand);
-        assertEquals(ProtocolUtil.encode(CreateCommand.NAME, List.of("stash"), false, Collections.emptyMap()), encodedCommand);
+        assertEquals(ProtocolUtil.encode(CreateCommand.NAME, List.of("stash"), true, Collections.emptyMap()), encodedCommand);
+    }
+
+     /**
+     * Test encoding with optional args.
+     */
+    @Test
+    public void testEncodeCLICommand_WithOptionalArgs() throws Exception {
+        String[] args = { "create", "stash", "-off-heap", "false"};
+        CommandLine commandLine = new DefaultParser().parse(command.getOptions(), args);
+
+        String encodedCommand = command.encodeCLICommand(commandLine);
+
+        assertNotNull(encodedCommand);
+        Map<String, String> optArgMap = new HashMap<>();
+        optArgMap.put("off-heap", "false");
+        assertEquals(ProtocolUtil.encode(CreateCommand.NAME, List.of("stash"), true, optArgMap), encodedCommand);
     }
 
     /**

@@ -51,6 +51,13 @@ public class CLI {
     public void start(String ip, String port) {
         try {
             cliClient.connect(ip, Integer.parseInt(port));
+
+            /* Check if connection was successful using PING */
+            if (cliCommandHandler.processCommand("ping").equals(CLI.EXIT)) {
+                System.out.println("Failed to connect to the server.");
+                return;
+            }
+
             System.out.println("Connected to the server. Enter your commands: ");
 
             while (true) {

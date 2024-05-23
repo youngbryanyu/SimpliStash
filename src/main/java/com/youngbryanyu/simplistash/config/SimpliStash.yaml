@@ -6,6 +6,12 @@ primary_server_port: 3000
 # The port that the read-only server listens on. Defaults to 3001.
 read_only_server_port: 3001
 
+# The maximum number of client connections to the primary server. Defaults to 1000.
+max_connections_primary_server: 1000
+
+# The maximum number of client connections to the read only server. Defaults to 1000.
+max_connections_read_only_server: 1000
+
 # The maximum size allowed for a key in bytes. This is 256 by default.
 max_key_size_b: 256
 

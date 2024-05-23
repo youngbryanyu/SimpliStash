@@ -49,6 +49,10 @@ public class PrimaryServer implements Server {
      * The application logger.
      */
     private final Logger logger;
+    /**
+     * The number of current client connections.
+     */
+    private int currentConnections;
 
     /**
      * Constructor for the server.
@@ -68,6 +72,8 @@ public class PrimaryServer implements Server {
         this.channelInitializer = channelInitializer;
         this.keyExpirationManager = keyExpirationManager;
         this.logger = logger;
+
+        currentConnections = 0;
     }
 
     /**
@@ -102,5 +108,28 @@ public class PrimaryServer implements Server {
             workerGroup.shutdownGracefully();
             keyExpirationManager.stopExpirationTask();
         }
+    }
+
+    /**
+     * Increment the number of server connections. Does nothing and returns false if
+     * the max number of connections has been reached.
+     * 
+     * @return False if the max number of connections has been reached, true
+     *         otherwise.
+     */
+    public synchronized boolean incrementConnections() {
+        if (currentConnections < MAX_CONNECTIONS_PRIMARY) {
+            currentConnections++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Decrement the number of server connections.
+     */
+    public synchronized void decrementConnections() {
+        currentConnections--;
     }
 }

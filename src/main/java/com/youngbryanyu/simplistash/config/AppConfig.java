@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.server.client.ClientHandler;
 import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
+import com.youngbryanyu.simplistash.server.readOnly.ReadOnlyServer;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -60,12 +61,13 @@ public class AppConfig {
      * 
      * @param commandHandler The command handler.
      * @param logger         The application logger.
+     * @param readOnlyServer The read only server.
      * @return A new instance of a client handler.
      */
     @Bean(READ_ONLY_CLIENT_HANDLER)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ClientHandler readOnlyClientHandler(CommandHandler commandHandler, Logger logger) {
-        return new ClientHandler(commandHandler, logger, true);
+    public ClientHandler readOnlyClientHandler(CommandHandler commandHandler, Logger logger, ReadOnlyServer readOnlyServer) {
+        return new ClientHandler(commandHandler, logger, true, readOnlyServer);
     }
 
     /**
@@ -78,12 +80,13 @@ public class AppConfig {
      * 
      * @param commandHandler The command handler.
      * @param logger         The application logger.
+     * @param primaryServer  The primary server.
      * @return A new instance of a client handler.
      */
     @Bean(PRIMARY_CLIENT_HANDLER)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public ClientHandler primaryClientHandler(CommandHandler commandHandler, Logger logger) {
-        return new ClientHandler(commandHandler, logger, false);
+    public ClientHandler primaryClientHandler(CommandHandler commandHandler, Logger logger, PrimaryServer primaryServer) {
+        return new ClientHandler(commandHandler, logger, false, primaryServer);
     }
 
     /**

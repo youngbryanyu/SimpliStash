@@ -11,6 +11,8 @@ import com.youngbryanyu.simplistash.commands.CommandHandler;
 import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.server.Server;
+import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
 import com.youngbryanyu.simplistash.stash.Stash;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -48,6 +50,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * Whether the client is read-only.
      */
     private final boolean readOnly;
+    /**
+     * The server associated with the client handler.
+     */
+    private final Server server;
 
     /**
      * Constructor for the client handler.
@@ -55,22 +61,34 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * @param commandHandler The command handler used to execute commands.
      * @param logger         The application logger to use.
      * @param readOnly       Whether or not the client is read-only.
+     * @param server         The server associated with the client handler.
      */
     @Autowired
-    public ClientHandler(CommandHandler commandHandler, Logger logger, boolean readOnly) {
+    public ClientHandler(CommandHandler commandHandler, Logger logger, boolean readOnly, Server server) {
         this.commandHandler = commandHandler;
         this.logger = logger;
         this.readOnly = readOnly;
+        this.server = server;
+
         buffer = new StringBuilder();
         tokens = new LinkedList<>();
     }
 
     /**
-     * Called when a client connects and their channel is opened.
+     * Called when a client connects and their channel is opened. Disconnects the
+     * client the the max number of connections has already been reached for the
+     * server.
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.debug(String.format("Client connected: %s", ctx.channel()));
+        if (server.incrementConnections()) {
+            logger.debug(String.format("Client connected: %s", ctx.channel()));
+            super.channelActive(ctx);
+        } else {
+            logger.debug("Connection limit reached. Closing connection.");
+            ctx.close();
+        }
+
         super.channelActive(ctx);
     }
 
@@ -99,6 +117,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
      * Called when the client disconnects and their channel is closed.
      */
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        server.decrementConnections();
         logger.debug(String.format("Client disconnected: %s", ctx.channel()));
         super.channelInactive(ctx);
     }
@@ -175,9 +194,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             buffer.delete(0, lastEndIdx);
         }
     }
-    
+
     /**
      * Returns the client's current tokens.
+     * 
      * @return The client's tokens.
      */
     public Deque<String> getTokens() {
@@ -186,6 +206,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Returns the client's current buffer.
+     * 
      * @return The client's current buffer.
      */
     public StringBuilder getBuffer() {

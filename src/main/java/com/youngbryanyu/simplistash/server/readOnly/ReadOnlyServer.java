@@ -37,6 +37,10 @@ public class ReadOnlyServer implements Server {
      * The read only channel initializer.
      */
     private final ReadOnlyChannelInitializer channelInitializer;
+     /**
+     * The number of current client connections.
+     */
+    private int currentConnections;
 
     /**
      * Constructor for the server.
@@ -81,5 +85,28 @@ public class ReadOnlyServer implements Server {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+    }
+
+     /**
+     * Increment the number of server connections. Does nothing and returns false if
+     * the max number of connections has been reached.
+     * 
+     * @return False if the max number of connections has been reached, true
+     *         otherwise.
+     */
+    public synchronized boolean incrementConnections() {
+        if (currentConnections < MAX_CONNECTIONS_PRIMARY) {
+            currentConnections++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Decrement the number of server connections.
+     */
+    public synchronized void decrementConnections() {
+        currentConnections--;
     }
 }

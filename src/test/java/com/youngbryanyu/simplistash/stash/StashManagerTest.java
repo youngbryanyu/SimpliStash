@@ -28,10 +28,15 @@ public class StashManagerTest {
     @Mock
     private StashFactory mockStashFactory;
     /**
-     * The mocked stash.
+     * The mocked off heap stash.
      */
     @Mock
-    private OffHeapStash mockStash;
+    private OffHeapStash mockOffHeapStash;
+    /**
+     * The mocked on heap stash.
+     */
+    @Mock
+    private OnHeapStash mockOnHeapStash;
     /**
      * The mocked logger.
      */
@@ -48,16 +53,26 @@ public class StashManagerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        when(mockStashFactory.createOffHeapStash(anyString())).thenReturn(mockStash);
+        when(mockStashFactory.createOffHeapStash(anyString())).thenReturn(mockOffHeapStash);
+        when(mockStashFactory.createOnHeapStash(anyString())).thenReturn(mockOnHeapStash);
         stashManager = new StashManager(mockStashFactory, mockLogger);
     }
 
     /**
-     * Test {@link StashManager#createStash(String)}.
+     * Test {@link StashManager#createStash(String, boolean)} with an off heap stash.
      */
     @Test
-    public void testCreateStash() {
+    public void testCreateStash_offHeap() {
         assertTrue(stashManager.createStash("stash1", true));
+        assertTrue(stashManager.containsStash("stash1"));
+    }
+
+    /**
+     * Test {@link StashManager#createStash(String, boolean)} with an on heap stash.
+     */
+    @Test
+    public void testCreateStash_onHeap() {
+        assertTrue(stashManager.createStash("stash1", false));
         assertTrue(stashManager.containsStash("stash1"));
     }
 
@@ -66,7 +81,7 @@ public class StashManagerTest {
      * taken.
      */
     @Test
-    public void testCreateStashAlreadyExists() {
+    public void testCreateStash_alreadyExists() {
         stashManager.createStash(StashManager.DEFAULT_STASH_NAME, true);
         assertEquals(1, stashManager.getNumStashes());
         stashManager.createStash("stash2", true);
@@ -79,7 +94,7 @@ public class StashManagerTest {
      * reached.
      */
     @Test
-    public void testCreateStashMaxLimitReached() {
+    public void testCreateStash_maxLimitReached() {
         for (int i = 0; i < StashManager.MAX_NUM_STASHES; i++) {
             stashManager.createStash("Stash" + i, true);
         }
@@ -112,7 +127,7 @@ public class StashManagerTest {
         stashManager.createStash("stash1", true);
         stashManager.dropStash("stash1");
         assertFalse(stashManager.containsStash("stash1"));
-        verify(mockStash).drop();
+        verify(mockOffHeapStash).drop();
     }
 
     /**
@@ -121,7 +136,7 @@ public class StashManagerTest {
     @Test
     public void testDropStash_doesntExist() {
         stashManager.dropStash("stash1");
-        verify(mockStash, never()).drop();
+        verify(mockOffHeapStash, never()).drop();
     }
 
     /**
@@ -132,6 +147,6 @@ public class StashManagerTest {
         stashManager.createStash("stash1", true);
         stashManager.createStash("stash2", true);
         stashManager.expireTTLKeys();
-        verify(mockStash, atLeast(2)).expireTTLKeys();
+        verify(mockOffHeapStash, atLeast(2)).expireTTLKeys();
     }
 }

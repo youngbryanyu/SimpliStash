@@ -146,7 +146,8 @@ public final class ProtocolUtil {
     /**
      * Encodes a command, required args, optional args into a format that follows
      * the protocol. Converts all command names and optional arg names to upper case
-     * since the server is case-sensitive.
+     * since the server is case-sensitive. Also converts all '-' to '_' since CLI
+     * arguments use '-' in place of all '_' in the protocol.
      * 
      * Example 1:
      * - command: set

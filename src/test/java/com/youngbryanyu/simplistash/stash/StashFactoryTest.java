@@ -52,7 +52,7 @@ public class StashFactoryTest {
      * The mock stash.
      */
     @Mock
-    private Stash mockStash;
+    private OffHeapStash mockOffHeapStash;
     /**
      * The stash factory under test.
      */
@@ -78,11 +78,11 @@ public class StashFactoryTest {
      * Test {@link StashFactory#createStash(String)}.
      */
     @Test
-    void testCreateStash() {
+    void testCreateOffHeapStash() {
         /* Setup */
         String stashName = "testStash";
-        when(mockContext.getBean(eq(Stash.class), any(), any(), any(), any(), anyString()))
-                .thenReturn(mockStash);
+        when(mockContext.getBean(eq(OffHeapStash.class), any(), any(), any(), any(), anyString()))
+                .thenReturn(mockOffHeapStash);
 
         /* Call method */
         Stash stash = stashFactory.createStash(stashName);
@@ -91,8 +91,8 @@ public class StashFactoryTest {
         verify(mockContext).getBean(DB.class);
         verify(mockContext).getBean(TTLTimeWheel.class);
         verify(mockContext).getBean(Logger.class);
-        verify(mockContext).getBean(Stash.class, mockDB, null, mockTTLTimeWheel, mockLogger, stashName);
+        verify(mockContext).getBean(OffHeapStash.class, mockDB, null, mockTTLTimeWheel, mockLogger, stashName);
         assertNotNull(stash);
-        assertEquals(mockStash, stash);
+        assertEquals(mockOffHeapStash, stash);
     }
 }

@@ -30,9 +30,9 @@ import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
- * Unit tests for the stash class.
+ * Unit tests for the off-heap stash class.
  */
-class StashTest {
+class OffHeapStashTest {
     /**
      * The DB. Cannot mock this.
      */
@@ -54,7 +54,7 @@ class StashTest {
     /**
      * The stash under test.
      */
-    private Stash stash;
+    private OffHeapStash stash;
 
     /**
      * Setup before each test.
@@ -67,7 +67,7 @@ class StashTest {
         db = DBMaker.memoryDB().make();
         cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING).create();
 
-        stash = new Stash(db, cache, mockTTLTimeWheel, mockLogger, "testStash");
+        stash = new OffHeapStash(db, cache, mockTTLTimeWheel, mockLogger, "testStash");
     }
 
     /**
@@ -79,7 +79,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#set(String, String)} when the key has expired previously.
+     * Test {@link OffHeapStash#set(String, String)} when the key has expired previously.
      */
     @Test
     void testSet_expired() {
@@ -98,7 +98,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#set(String, String)}.
+     * Test {@link OffHeapStash#set(String, String)}.
      */
     @Test
     void testSetAndGet() {
@@ -110,7 +110,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#get(String, boolean)} when the key has expired.
+     * Test {@link OffHeapStash#get(String, boolean)} when the key has expired.
      */
     @Test
     void testGet_keyExpired() {
@@ -130,7 +130,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#get(String, boolean)} when the key has expired but the
+     * Test {@link OffHeapStash#get(String, boolean)} when the key has expired but the
      * client is read only.
      */
     @Test
@@ -151,7 +151,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#get(String, boolean)} when a null pointer exception is
+     * Test {@link OffHeapStash#get(String, boolean)} when a null pointer exception is
      * thrown. We should be mocking the behavior of HTreeMap.get(), but it cannot be
      * mocked so we throw the null pointer elsewhere instead.
      */
@@ -169,11 +169,11 @@ class StashTest {
         String result = stash.get("key1", false);
 
         /* Test assertions */
-        assertEquals(ProtocolUtil.buildErrorResponse(Stash.DB_CLOSED_ERROR), result);
+        assertEquals(ProtocolUtil.buildErrorResponse(OffHeapStash.DB_CLOSED_ERROR), result);
     }
 
     /**
-     * Test {@link Stash#get(String, boolean)} when an illegal access error is
+     * Test {@link OffHeapStash#get(String, boolean)} when an illegal access error is
      * thrown. We should be mocking the behavior of HTreeMap.get(), but it cannot be
      * mocked so we throw the null pointer elsewhere instead.
      */
@@ -191,11 +191,11 @@ class StashTest {
         String result = stash.get("key1", false);
 
         /* Test assertions */
-        assertEquals(ProtocolUtil.buildErrorResponse(Stash.DB_CLOSED_ERROR), result);
+        assertEquals(ProtocolUtil.buildErrorResponse(OffHeapStash.DB_CLOSED_ERROR), result);
     }
 
     /**
-     * Test {@link Stash#contains(String)}.
+     * Test {@link OffHeapStash#contains(String)}.
      */
     @Test
     void testContains() {
@@ -212,7 +212,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#delete(String)}.
+     * Test {@link OffHeapStash#delete(String)}.
      */
     @Test
     void testDelete() {
@@ -232,7 +232,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#setWithTTL(String, String, long)}.
+     * Test {@link OffHeapStash#setWithTTL(String, String, long)}.
      */
     @Test
     void testSetWithTTL() {
@@ -249,7 +249,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#updateTTL(String, long)}.
+     * Test {@link OffHeapStash#updateTTL(String, long)}.
      */
     @Test
     void testUpdateTTL() {
@@ -265,7 +265,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#updateTTL(String, long)} when the key doesn't exist.
+     * Test {@link OffHeapStash#updateTTL(String, long)} when the key doesn't exist.
      */
     @Test
     void testUpdateTTL_keyDoesntExist() {
@@ -278,7 +278,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#drop()}.
+     * Test {@link OffHeapStash#drop()}.
      */
     @Test
     void testDrop() {
@@ -286,11 +286,11 @@ class StashTest {
        stash.drop();
 
        /* Test assertions */
-       assertEquals(ProtocolUtil.buildErrorResponse(Stash.DB_CLOSED_ERROR), stash.get("key1", false));
+       assertEquals(ProtocolUtil.buildErrorResponse(OffHeapStash.DB_CLOSED_ERROR), stash.get("key1", false));
     }
 
     /**
-     * Test {@link Stash#updateTTL(String, long)}.
+     * Test {@link OffHeapStash#updateTTL(String, long)}.
      */
     @Test
     void testExpireTTLKeys() {
@@ -306,7 +306,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#updateTTL(String, long)} when no keys were expired.
+     * Test {@link OffHeapStash#updateTTL(String, long)} when no keys were expired.
      */
     @Test
     void testExpireTTLKeys_noneExpired() {
@@ -322,7 +322,7 @@ class StashTest {
     }
 
     /**
-     * Test {@link Stash#getInfo()}.
+     * Test {@link OffHeapStash#getInfo()}.
      */
     @Test
     void testGetInfo() {       

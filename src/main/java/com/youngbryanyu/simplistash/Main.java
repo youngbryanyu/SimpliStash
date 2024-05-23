@@ -31,6 +31,7 @@ public class Main {
             context.close();
         }));
 
+        
         /* Start application */
         start(primaryServer, readOnlyServer, serverMonitor, logger);
     }

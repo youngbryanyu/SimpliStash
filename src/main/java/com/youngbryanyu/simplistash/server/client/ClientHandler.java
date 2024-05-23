@@ -12,7 +12,6 @@ import com.youngbryanyu.simplistash.exceptions.BrokenProtocolException;
 import com.youngbryanyu.simplistash.exceptions.BufferOverflowException;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.server.Server;
-import com.youngbryanyu.simplistash.server.primary.PrimaryServer;
 import com.youngbryanyu.simplistash.stash.Stash;
 
 import io.netty.channel.ChannelHandlerContext;

@@ -21,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.commands.Command.ErrorCause;
 import com.youngbryanyu.simplistash.commands.read.InfoCommand;
-import com.youngbryanyu.simplistash.commands.read.PingCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;

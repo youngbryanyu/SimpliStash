@@ -42,6 +42,8 @@ public class StashFactory {
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
 
-        return context.getBean(Stash.class, db, cache, ttlTimeWheel, logger, name);
+        return context.getBean(OffHeapStash.class, db, cache, ttlTimeWheel, logger, name);
     }
+
+    // TODO: create onheap stash
 }

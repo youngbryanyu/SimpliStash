@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.commands.write.DeleteCommand;
 import com.youngbryanyu.simplistash.commands.write.ExpireCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;

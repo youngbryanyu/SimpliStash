@@ -117,7 +117,8 @@ public class CreateCommand implements Command {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
             }
 
-            /* Max is Long.MAX_VALUE so going above causes NumberFormatException */
+            // Max is Long.MAX_VALUE so going above causes NumberFormatException. The 2nd
+            // block of the if statement would never be true, but is here to be safe.
             if (maxKeyCount <= 0 || maxKeyCount > Command.MAX_KEY_COUNT_LIMIT) {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
             }

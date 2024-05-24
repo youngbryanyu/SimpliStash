@@ -100,4 +100,15 @@ public class LRUTrackerTest {
         evictionTracker.clear();
         assertEquals(0, evictionTracker.size());
     }
+
+    /**
+     * Test the size method.
+     */
+    @Test
+    public void testSize() {
+        evictionTracker.add("key1");
+        evictionTracker.add("key2");
+        evictionTracker.add("key3");
+        assertEquals(3, evictionTracker.size());
+    }
 }

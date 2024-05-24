@@ -379,4 +379,27 @@ public class OnHeapStashTest {
         /* Stash size should be 3 since evictKeys returned null */
         assertEquals(3, cache.size());
     }
+
+    /**
+     * Test {@link OnHeapStash#clear()}.
+     */
+    @Test
+    public void testClear() {
+        cache.put("key1", "val1");
+        cache.put("key2", "val2");
+        cache.put("key3", "val3");
+        stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
+                Stash.DEFAULT_MAX_KEY_COUNT);
+
+        doNothing().when(mockEvictionTracker).clear();
+        doNothing().when(mockTTLTimeWheel).clear();
+
+        /* Evict keys */
+        stash.clear();
+
+        /* Stash size should be 3 since evictKeys returned null */
+        assertEquals(0, cache.size());
+        verify(mockEvictionTracker).clear();
+        verify(mockTTLTimeWheel).clear();
+    }
 }

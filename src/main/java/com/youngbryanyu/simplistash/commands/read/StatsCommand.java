@@ -32,13 +32,6 @@ public class StatsCommand implements Command {
     private final StashManager stashManager;
 
     /**
-     * The optional args.
-     */
-    public enum OptionalArg {
-        NAME;
-    }
-
-    /**
      * Constructor for the STATS command.
      * 
      * @param stashManager The stash manager.

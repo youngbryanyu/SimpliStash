@@ -87,7 +87,7 @@ public class StashManagerTest {
         assertEquals(1, stashManager.getNumStashes());
         stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
-        assertEquals(2, stashManager.getNumStashes());
+        assertEquals(2, stashManager.getNumStashes()); 
     }
 
     /**

@@ -88,7 +88,7 @@ public class OnHeapStash implements Stash {
 
         this.snapshotWriterFactory = snapshotWriterFactory;
 
-        snapshotManager = new SnapshotManager(name, maxKeyCount, cache, ttlTimeWheel,
+        snapshotManager = new SnapshotManager(name, maxKeyCount, false, cache, ttlTimeWheel,
                 snapshotWriterFactory.createSnapshotWriter(name, enableSnapshots), logger);
 
         /* Start snapshot manager thread if enabled */
@@ -266,7 +266,7 @@ public class OnHeapStash implements Stash {
             } catch (IOException e) {
                 logger.debug("Failed to close the snapshot manager: " + e.getMessage());
             }
-            
+
             cache.clear();
         }));
     }

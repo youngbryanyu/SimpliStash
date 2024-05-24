@@ -13,6 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.utils.FileUtil;
 import com.youngbryanyu.simplistash.utils.SerializationUtil;
 
 /**
@@ -22,13 +23,13 @@ import com.youngbryanyu.simplistash.utils.SerializationUtil;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SnapshotWriter {
     /**
-     * The WAL file extension.
+     * The snapshot file extension.
      */
-    private static final String EXTENSION = "snapshot";
+    public static final String EXTENSION = "snapshot";
     /**
      * The path to the directory holding the WAL files.
      */
-    private static final String DIR = "./snapshot_files/";
+    public static final String DIR = "./snapshot_files/";
     /**
      * The temp file path before committing.
      */
@@ -60,18 +61,6 @@ public class SnapshotWriter {
     public SnapshotWriter(String name, boolean enableSnapshots) throws IOException {
         this.name = name;
         this.enableSnapshots = enableSnapshots;
-
-        if (enableSnapshots) {
-            /* Ensure base DIR exists */
-            ensureDirectoryExists(DIR);
-
-            /* Create temp and final file */
-            tempFilePath = Path.of(DIR, name + "_new." + EXTENSION);
-            finalFilePath = Path.of(DIR, name + "." + EXTENSION);
-
-            /* Initialize writer with temp file in truncate mode */
-            writer = new BufferedWriter(new FileWriter(tempFilePath.toFile(), false));
-        }
     }
 
     /**
@@ -82,7 +71,9 @@ public class SnapshotWriter {
     public void open() throws IOException {
         if (enableSnapshots) {
             /* Ensure base DIR exists */
-            ensureDirectoryExists(DIR);
+            if (enableSnapshots) {
+                FileUtil.ensureDirectoryExists(DIR);
+            }
 
             /* Create temp and final file */
             tempFilePath = Path.of(DIR, name + "_new." + EXTENSION);
@@ -97,14 +88,20 @@ public class SnapshotWriter {
      * Writes metadata to the snapshot about a stash. Backups are enabled is
      * implied. Uses prefixed strings.
      * 
+     * Metadata is serialized in the order:
+     * - Name
+     * - Max key count
+     * - Off heap flag
+     * 
      * @param stashName   The stash's name.
      * @param maxKeyCount The max key count.
      * @throws IOException
      */
-    public void writeMetadata(String stashName, long maxKeyCount) throws IOException {
+    public void writeMetadata(String stashName, long maxKeyCount, boolean offHeap) throws IOException {
         if (enableSnapshots) {
             writer.write(SerializationUtil.encode(stashName));
             writer.write(SerializationUtil.encode(Long.toString(maxKeyCount)));
+            writer.write(SerializationUtil.encode(Boolean.toString(offHeap)));
         }
     }
 
@@ -143,22 +140,5 @@ public class SnapshotWriter {
     public void commit() throws IOException {
         writer.flush();
         Files.move(tempFilePath, finalFilePath, StandardCopyOption.REPLACE_EXISTING);
-    }
-
-    /**
-     * Ensures that a directory exists and creates if it it doesn't.
-     * 
-     * @param directoryPath The directory path.
-     * @throws IOException If an IOException occurs.
-     */
-    public void ensureDirectoryExists(String directoryPath) throws IOException {
-        if (enableSnapshots) {
-            File directory = new File(directoryPath);
-            if (!directory.exists()) {
-                if (!directory.mkdirs()) {
-                    throw new IOException("Failed to create directories: " + directoryPath);
-                }
-            }
-        }
     }
 }

@@ -37,17 +37,22 @@ public class SnapshotManager {
      */
     private boolean backupNeeded;
     /**
+     * Whether the data is stored off heap.
+     */
+    private final boolean offHeap;
+    /**
      * The stash name.
      */
-    private String name;
+    private final String name;
     /**
      * The max key count.
      */
-    private long maxKeyCount;
+    private final long maxKeyCount;
     /**
      * The logger.
      */
-    private Logger logger;
+    private final Logger logger;
+
 
     /**
      * The constructor
@@ -58,10 +63,11 @@ public class SnapshotManager {
      * @param ttlTimeWheel   The TTL data structure
      * @param snapshotWriter The snap shot writer.
      */
-    public SnapshotManager(String name, long maxKeyCount, Map<String, String> cache, TTLTimeWheel ttlTimeWheel,
+    public SnapshotManager(String name, long maxKeyCount, boolean offHeap, Map<String, String> cache, TTLTimeWheel ttlTimeWheel,
             SnapshotWriter snapshotWriter, Logger logger) {
         this.name = name;
         this.maxKeyCount = maxKeyCount;
+        this.offHeap = offHeap;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.snapshotWriter = snapshotWriter;
@@ -97,7 +103,7 @@ public class SnapshotManager {
                 snapshotWriter.open(); 
 
                 /* Write metadata first */
-                snapshotWriter.writeMetadata(name, maxKeyCount);
+                snapshotWriter.writeMetadata(name, maxKeyCount, offHeap);
 
                 /* Write each entry with ttl */
                 for (Map.Entry<String, String> entry : cache.entrySet()) {

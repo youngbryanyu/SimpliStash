@@ -1,6 +1,9 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
@@ -10,6 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriter;
+import com.youngbryanyu.simplistash.utils.FileUtil;
+import com.youngbryanyu.simplistash.utils.SerializationUtil;
 
 /**
  * A class to manage all the stashes.
@@ -56,8 +63,17 @@ public class StashManager {
         this.logger = logger;
         stashes = new ConcurrentHashMap<>();
 
-        /* Create default stash */
-        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT, DEFAULT_ENABLE_BACKUPS);
+        /* Recover backups */
+        try {
+            initializeFromSnapshots();
+        } catch (IOException e) {
+            logger.warn("Failed to initialize stashes from snapshots: " + e.getMessage());
+        }
+
+        /* Create default stash if not recovered from backups */
+        if (!stashes.containsKey(DEFAULT_STASH_NAME)) {
+            createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT, DEFAULT_ENABLE_BACKUPS);
+        }
     }
 
     /**
@@ -65,9 +81,9 @@ public class StashManager {
      * Does nothing if the stash name is already taken. Fails if there are already
      * the max number of stashes supported.
      * 
-     * @param name        The name of the stash.
-     * @param offHeap     Whether or not to use off-heap memory.
-     * @param maxKeyCount The max number of keys allowed.
+     * @param name            The name of the stash.
+     * @param offHeap         Whether or not to use off-heap memory.
+     * @param maxKeyCount     The max number of keys allowed.
      * @param enableSnapshots Whether or not to enable periodic snapshots.
      * @return True if the stash was created successfully or already exists, false
      *         otherwise.
@@ -206,5 +222,67 @@ public class StashManager {
         stats.deleteCharAt(stats.length() - 1); // delete extra newline at end
 
         return stats.toString();
+    }
+
+    protected void initializeFromSnapshots() throws IOException {
+        logger.info("Initializing stashes from snapshots...");
+
+        /* Prepare directory */
+        FileUtil.ensureDirectoryExists(SnapshotWriter.DIR);
+        File directory = new File(SnapshotWriter.DIR);
+        File[] snapshotFiles = directory.listFiles((dir, name) -> name.endsWith("." + SnapshotWriter.EXTENSION));
+        
+
+        /* No snapshots */
+        if (snapshotFiles == null) {
+            return;
+        }
+
+        /* Loop over files */
+        for (File snapshotFile : snapshotFiles) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(snapshotFile))) {
+                /* Get metadata in order*/
+                String stashName = SerializationUtil.decode(reader);
+                long maxKeyCount = Long.parseLong(SerializationUtil.decode(reader));
+                boolean offHeap = Boolean.parseBoolean(SerializationUtil.decode(reader));
+
+                logger.info(String.format("Initializing stash \"%s\" from snapshot...", stashName));
+
+                /* Create stash */
+                Stash stash;
+                if (offHeap) {
+                    stash = stashFactory.createOffHeapStash(stashName, maxKeyCount, true);
+                } else {
+                    stash = stashFactory.createOnHeapStash(stashName, maxKeyCount, true);
+                }
+
+                /* Populate stash */
+                while (true) {
+                    /* Parse key */
+                    String key = SerializationUtil.decode(reader);
+                    if (key == null) break; /* Nothing left to parse */
+
+                    /* Parse value */
+                    String value = SerializationUtil.decode(reader);
+
+                    /* Parse ttl */
+                    String expirationString = SerializationUtil.decode(reader);
+                    long expirationTime = Long.parseLong(expirationString);
+                   
+                    /* Store the entry */
+                    if (expirationTime == -1) {
+                        stash.set(key, value);
+                    } else {
+                        /* TTL is expiration time minus current time */
+                        stash.setWithTTL(key, value, expirationTime - System.currentTimeMillis());
+                    }
+                }
+                
+                /* Save stash */
+                stashes.put(stashName, stash);
+            } catch (IOException e) {
+                System.out.println("Failed to initialize a stash from snapshot: " + e.getMessage());
+            }
+        }
     }
 }

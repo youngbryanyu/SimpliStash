@@ -20,15 +20,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.youngbryanyu.simplistash.commands.Command;
-import com.youngbryanyu.simplistash.commands.write.DeleteCommand;
+import com.youngbryanyu.simplistash.commands.write.ClearCommand;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * Unit tests for the DELETE command.
+ * Unit tests for the CLEAR command.
  */
-public class DeleteCommandTest {
+public class ClearCommandTest {
     /**
      * The mock stash manager.
      */
@@ -40,7 +40,7 @@ public class DeleteCommandTest {
     @Mock
     Stash mockStash;
     /**
-     * The DELETE command under test.
+     * The CLEAR command under test.
      */
     private Command command;
 
@@ -50,7 +50,7 @@ public class DeleteCommandTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        command = new DeleteCommand(mockStashManager);
+        command = new ClearCommand(mockStashManager);
     }
 
     /**
@@ -61,7 +61,7 @@ public class DeleteCommandTest {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
         doNothing().when(mockStash).delete(anyString());
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "0"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "0"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
         /* Call method */
@@ -71,7 +71,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(1)).delete(anyString());
+        verify(mockStash, times(1)).clear();
     }
 
     /**
@@ -91,7 +91,7 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_invalidOptionalArgsCount() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "-1"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "-1"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.INVALID_OPTIONAL_ARGS_COUNT));
 
@@ -102,7 +102,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, never()).delete(anyString());
+        verify(mockStash, never()).clear();
     }
 
     /**
@@ -111,15 +111,15 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_notEnoughOptionalTokens() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "1"));
 
         /* Call method */
         String result = command.execute(tokens, false);
 
         /* Perform assertions */
         assertNull(result);
-        assertEquals(3, tokens.size());
-        verify(mockStash, never()).delete(anyString());
+        assertEquals(2, tokens.size());
+        verify(mockStash, never()).clear();
     }
 
     /**
@@ -127,13 +127,13 @@ public class DeleteCommandTest {
      */
     @Test
     public void testExecute_readOnly() {
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "0"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "0"));
         String result = command.execute(tokens, true);
         String expected = ProtocolUtil.buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.READ_ONLY_MODE));
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, never()).delete(anyString());
+        verify(mockStash, never()).clear();
     }
 
     /**
@@ -142,7 +142,7 @@ public class DeleteCommandTest {
     @Test
     public void testExecute_malformedOptionalArgs() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1", "NAME="));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "1", "NAME="));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MALFORMED_OPTIONAL_ARGS));
 
@@ -153,7 +153,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, never()).delete(anyString());
+        verify(mockStash, never()).clear();
     }
 
     /**
@@ -163,7 +163,7 @@ public class DeleteCommandTest {
     public void testExecute_optionalArgNAME() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(mockStash);
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1", "NAME=stash1"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
         /* Call method */
@@ -173,7 +173,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, times(1)).delete(anyString());
+        verify(mockStash, times(1)).clear();
     }
 
     /**
@@ -183,7 +183,7 @@ public class DeleteCommandTest {
     public void testExecute_stashDoesntExist() {
         /* Setup */
         when(mockStashManager.getStash(anyString())).thenReturn(null);
-        Deque<String> tokens = new LinkedList<>(List.of("DELETE", "burger", "1", "NAME=stash1"));
+        Deque<String> tokens = new LinkedList<>(List.of("CLEAR", "1", "NAME=stash1"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_DOESNT_EXIST));
 
@@ -194,7 +194,7 @@ public class DeleteCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStash, never()).delete(anyString());
+        verify(mockStash, never()).clear();;
     }
 
     /**
@@ -202,6 +202,6 @@ public class DeleteCommandTest {
      */
     @Test
     public void testGetName() {
-        assertEquals("DELETE", command.getName());
+        assertEquals("CLEAR", command.getName());
     }
 }

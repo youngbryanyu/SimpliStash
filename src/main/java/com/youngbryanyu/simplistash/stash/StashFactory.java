@@ -38,10 +38,10 @@ public class StashFactory {
      * 
      * @param name          stash name.
      * @param maxKeyCount   The max key count.
-     * @param enableBackups Whether to enable periodic backups.
+     * @param enableSnapshots Whether to enable periodic snapshots.
      * @return An off heap stash.
      */
-    public OffHeapStash createOffHeapStash(String name, long maxKeyCount, boolean enableBackups) {
+    public OffHeapStash createOffHeapStash(String name, long maxKeyCount, boolean enableSnapshots) {
         DB db = context.getBean(DB.class);
         HTreeMap<String, String> cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING)
                 .counterEnable()
@@ -58,7 +58,7 @@ public class StashFactory {
                 lruTracker,
                 name,
                 maxKeyCount,
-                enableBackups);
+                enableSnapshots);
     }
 
     /**
@@ -66,10 +66,10 @@ public class StashFactory {
      * 
      * @param name          stash name.
      * @param maxKeyCount   The max key count.
-     * @param enableBackups Whether to enable periodic backups.
+     * @param enableSnapshots Whether to enable periodic snapshots.
      * @return An on heap stash.
      */
-    public Stash createOnHeapStash(String name, long maxKeyCount, boolean enableBackups) {
+    public Stash createOnHeapStash(String name, long maxKeyCount, boolean enableSnapshots) {
         ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
@@ -82,6 +82,6 @@ public class StashFactory {
                 lruTracker,
                 name,
                 maxKeyCount,
-                enableBackups);
+                enableSnapshots);
     }
 }

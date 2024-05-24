@@ -1,6 +1,8 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.stash.backups.BackupWriterFactory;
+import com.youngbryanyu.simplistash.stash.backups.Backupable;
+import com.youngbryanyu.simplistash.stash.backups.SnapshotWriter;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -20,7 +25,7 @@ import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OffHeapStash implements Stash {
+public class OffHeapStash implements Stash, Backupable {
     /**
      * A single DB store instance tied to the stash.
      */
@@ -29,7 +34,7 @@ public class OffHeapStash implements Stash {
      * The primary cache providing O(1) direct access to values by key, and off-heap
      * storage.
      */
-    private final HTreeMap<String, String> cache;
+    private final Map<String, String> cache;
     /**
      * Time wheel structure used to actively expire TTLed keys.
      */
@@ -50,10 +55,10 @@ public class OffHeapStash implements Stash {
      * The max number of keys allowed in the stash.
      */
     private final long maxKeyCount;
-     /**
-     * Whether to enable periodic backups.
+    /**
+     * Whether to enable periodic snapshots.
      */
-    private final boolean enableBackups;
+    private final boolean enableSnapshots;
 
     /**
      * Constructor for the stash.
@@ -63,17 +68,19 @@ public class OffHeapStash implements Stash {
      * @param ttlTimeWheel The ttl timer wheel.
      * @param logger       The application logger.
      * @param name         The stash's name.
+     * @throws IOException 
      */
     @Autowired
     public OffHeapStash(
             DB db,
             HTreeMap<String, String> cache,
             TTLTimeWheel ttlTimeWheel,
-            Logger logger, 
+            Logger logger,
             EvictionTracker evictionTracker,
             String name,
             long maxKeyCount,
-            boolean enableBackups) {
+            boolean enableSnapshots
+            ) throws IOException {
         this.db = db;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
@@ -81,7 +88,7 @@ public class OffHeapStash implements Stash {
         this.evictionTracker = evictionTracker;
         this.name = name;
         this.maxKeyCount = maxKeyCount;
-        this.enableBackups = enableBackups; // TODO: implement backup logic
+        this.enableSnapshots = enableSnapshots;
 
         addShutDownHook();
     }
@@ -214,6 +221,8 @@ public class OffHeapStash implements Stash {
      */
     public void drop() {
         db.close();
+
+        // TODO: interrupt backup job
     }
 
     /**
@@ -251,7 +260,7 @@ public class OffHeapStash implements Stash {
         sb.append(String.format("- Number of keys: \t%d\n", cache.size()));
         sb.append(String.format("- Max keys allowed: \t%s\n", maxKeyCount));
         sb.append("- Off-heap: \t\ttrue\n");
-        sb.append(String.format("- Backups enabled: \t%b\n", enableBackups));
+        sb.append(String.format("- Snapshots enabled: \t%b\n", enableSnapshots));
         return sb.toString();
     }
 
@@ -280,5 +289,49 @@ public class OffHeapStash implements Stash {
         cache.clear();
         ttlTimeWheel.clear();
         evictionTracker.clear();
+    }
+
+    /**
+     * Returns the stash's name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the stash's max key count.
+     * 
+     * @return The stash's max key count.
+     */
+    public long getMaxKeyCount() {
+        return maxKeyCount;
+    }
+
+    /**
+     * Returns whether or not backups are enabled.
+     * 
+     * @return True if backups are enabled, false otherwise.
+     */
+    public boolean isBackupEnabled() {
+        return enableSnapshots;
+    }
+
+    /**
+     * Returns the expiration time assoicated with the key. Returns -1 if there is
+     * no TTL associated.
+     * 
+     * @return Returns the expiration time assoicated with the key.
+     */
+    public long getExpirationTime(String key) {
+        return ttlTimeWheel.getExpirationTime(key);
+    }
+
+    /**
+     * Returns a map of all entries inside the stash.
+     * 
+     * @return A map of all entries inside the stash.
+     */
+    public Map<String, String> getAllEntries() {
+        return cache;
     }
 }

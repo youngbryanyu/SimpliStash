@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.stash.backups.Backupable;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -19,7 +20,7 @@ import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OnHeapStash implements Stash {
+public class OnHeapStash implements Stash, Backupable {
     /**
      * The primary cache providing O(1) direct access to values by key.
      */
@@ -45,9 +46,9 @@ public class OnHeapStash implements Stash {
      */
     private final long maxKeyCount;
     /**
-     * Whether to enable periodic backups.
+     * Whether to enable periodic snapshots.
      */
-    private final boolean enableBackups;
+    private final boolean enableSnapshots;
 
     /**
      * Constructor for the stash.
@@ -65,15 +66,14 @@ public class OnHeapStash implements Stash {
             EvictionTracker evictionTracker,
             String name,
             long maxKeyCount,
-            boolean enableBackups
-            ) {
+            boolean enableSnapshots) {
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
         this.evictionTracker = evictionTracker;
         this.name = name;
         this.maxKeyCount = maxKeyCount;
-        this.enableBackups = enableBackups; // TODO: implement the logic
+        this.enableSnapshots = enableSnapshots;
 
         addShutDownHook();
     }
@@ -243,7 +243,7 @@ public class OnHeapStash implements Stash {
         sb.append(String.format("- Number of keys: \t%d\n", cache.size()));
         sb.append(String.format("- Max keys allowed: \t%s\n", maxKeyCount));
         sb.append("- Off-heap: \t\tfalse\n");
-        sb.append(String.format("- Backups enabled: \t%b\n", enableBackups));
+        sb.append(String.format("- Snapshots enabled: \t%b\n", enableSnapshots));
         return sb.toString();
     }
 
@@ -272,5 +272,49 @@ public class OnHeapStash implements Stash {
         cache.clear();
         ttlTimeWheel.clear();
         evictionTracker.clear();
+    }
+
+    /**
+     * Returns the stash's name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the stash's max key count.
+     * 
+     * @return The stash's max key count.
+     */
+    public long getMaxKeyCount() {
+        return maxKeyCount;
+    }
+
+    /**
+     * Returns whether or not backups are enabled.
+     * 
+     * @return True if backups are enabled, false otherwise.
+     */
+    public boolean isBackupEnabled() {
+        return enableSnapshots;
+    }
+
+    /**
+     * Returns the expiration time assoicated with the key. Returns -1 if there is
+     * no TTL associated.
+     * 
+     * @return Returns the expiration time assoicated with the key.
+     */
+    public long getExpirationTime(String key) {
+        return ttlTimeWheel.getExpirationTime(key);
+    }
+
+    /**
+     * Returns a map of all entries inside the stash.
+     * 
+     * @return A map of all entries inside the stash.
+     */
+    public Map<String, String> getAllEntries() {
+        return cache;
     }
 }

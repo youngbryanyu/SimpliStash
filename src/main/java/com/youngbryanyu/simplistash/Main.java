@@ -19,6 +19,7 @@ public class Main {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
+
         /* Initialize Spring DI */
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
         Server primaryServer = context.getBean(PrimaryServer.class);

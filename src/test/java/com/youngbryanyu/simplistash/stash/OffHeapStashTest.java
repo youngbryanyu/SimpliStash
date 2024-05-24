@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,9 +65,10 @@ class OffHeapStashTest {
 
     /**
      * Setup before each test.
+     * @throws IOException 
      */
     @BeforeEach
-    public void setup() {
+    public void setup() throws IOException {
         MockitoAnnotations.openMocks(this);
 
         /* Create real DB and HTreeMap since they cannot be mocked */
@@ -341,14 +343,15 @@ class OffHeapStashTest {
         assertEquals("- Number of keys: \t0\n" + //
                 "- Max keys allowed: \t1000000\n" + //
                 "- Off-heap: \t\ttrue\n" + //
-                "- Backups enabled: \tfalse\n", result);
+                "- Snapshots enabled: \tfalse\n", result);
     }
 
     /**
      * Test {@link OffHeapStash#evictKeys()}.
+     * @throws IOException 
      */
     @Test
-    public void testEvict() {
+    public void testEvict() throws IOException {
         cache.put("key1", "val1");
         cache.put("key2", "val2");
         cache.put("key3", "val3");
@@ -368,9 +371,10 @@ class OffHeapStashTest {
 
     /**
      * Test {@link OffHeapStash#evictKeys()} when there's no more keys to evict.
+     * @throws IOException 
      */
     @Test
-    public void testEvict_noMoreToEvict() {
+    public void testEvict_noMoreToEvict() throws IOException {
         cache.put("key1", "val1");
         cache.put("key2", "val2");
         cache.put("key3", "val3");
@@ -389,9 +393,10 @@ class OffHeapStashTest {
 
     /**
      * Test {@link OffHeapStash#clear()}.
+     * @throws IOException 
      */
     @Test
-    public void testClear() {
+    public void testClear() throws IOException {
         cache.put("key1", "val1");
         cache.put("key2", "val2");
         cache.put("key3", "val3");

@@ -211,4 +211,19 @@ public class TTLTimeWheel {
     public int size() {
         return ttlMap.size();
     }
+
+    /**
+     * Returns the expiration time associated with a key. Returns -1 if there is no
+     * TTL associated with the key.
+     * 
+     * @param key The key.
+     * @return The expiration time associated with a key.
+     */
+    public long getExpirationTime(String key) {
+        if (!ttlMap.containsKey(key)) {
+            return -1;
+        }
+
+        return ttlMap.get(key).getExpirationTime();
+    }
 }

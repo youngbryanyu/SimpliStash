@@ -68,19 +68,19 @@ public class StashManager {
      * @param name        The name of the stash.
      * @param offHeap     Whether or not to use off-heap memory.
      * @param maxKeyCount The max number of keys allowed.
-     * @param enableBackups Whether or not to enable periodic backups.
+     * @param enableSnapshots Whether or not to enable periodic snapshots.
      * @return True if the stash was created successfully or already exists, false
      *         otherwise.
      */
-    public boolean createStash(String name, boolean offHeap, long maxKeyCount, boolean enableBackups) {
+    public boolean createStash(String name, boolean offHeap, long maxKeyCount, boolean enableSnapshots) {
         if (stashes.size() >= MAX_NUM_STASHES) {
             return false;
         }
 
         if (offHeap) {
-            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name, maxKeyCount, enableBackups));
+            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name, maxKeyCount, enableSnapshots));
         } else {
-            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name, maxKeyCount, enableBackups));
+            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name, maxKeyCount, enableSnapshots));
         }
 
         return true;

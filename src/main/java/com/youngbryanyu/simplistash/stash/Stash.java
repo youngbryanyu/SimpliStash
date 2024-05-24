@@ -24,6 +24,10 @@ public interface Stash {
      * The max number of keys allowed in the cache before eviction.
      */
     public static final long DEFAULT_MAX_KEY_COUNT = 1_000_000;
+    /**
+     * The delay between backups in seconcds.
+     */
+    public static final int BACKUP_DELAY_S = 900;
 
     /**
      * Set a key to a value.

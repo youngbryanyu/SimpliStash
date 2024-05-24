@@ -335,7 +335,7 @@ public class OnHeapStashTest {
         assertEquals("- Number of keys: \t0\n" + //
                 "- Max keys allowed: \t1000000\n" + //
                 "- Off-heap: \t\tfalse\n" + //
-                "- Backups enabled: \tfalse\n", result);
+                "- Snapshots enabled: \tfalse\n", result);
     }
 
     /**

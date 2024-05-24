@@ -36,3 +36,5 @@ default_max_key_count: 1000000
 # Whether to enable backups by default. Defaults to false.
 enable_backups: false
 
+# The delay in seconds after the end of each backup operation before the start of the next. Defaults to 900.
+backups_delay_s: 900

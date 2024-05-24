@@ -50,7 +50,7 @@ public class CLICreateCommandTest {
      */
     @Test
     public void testGetUsage() {
-        assertEquals("create <name> [-off-heap <true/false>] [-max-keys <max_keys>]", command.getUsage());
+        assertEquals("create <name> [-off-heap <true/false>] [-max-keys <max_keys>] [-snapshots <true/false>]", command.getUsage());
     }
 
     /**

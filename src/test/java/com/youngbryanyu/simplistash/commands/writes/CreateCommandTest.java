@@ -326,6 +326,26 @@ public class CreateCommandTest {
         verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
+     /**
+     * Test execution with the optional arg BACKUPS.
+     */
+    @Test
+    public void testExecute_optionalArgBACKUPS() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "BACKUPS=true"));
+        String expectedResponse = ProtocolUtil.buildOkResponse();
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
+    }
+
     /**
      * Test the get name method.
      */

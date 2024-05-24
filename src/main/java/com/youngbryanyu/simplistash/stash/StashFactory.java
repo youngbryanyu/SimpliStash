@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriterFactory;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -49,6 +50,7 @@ public class StashFactory {
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
         LRUTracker lruTracker = context.getBean(LRUTracker.class);
+        SnapshotWriterFactory snapshotWriterFactory = context.getBean(SnapshotWriterFactory.class);
 
         return context.getBean(OffHeapStash.class,
                 db,
@@ -58,7 +60,8 @@ public class StashFactory {
                 lruTracker,
                 name,
                 maxKeyCount,
-                enableSnapshots);
+                enableSnapshots,
+                snapshotWriterFactory);
     }
 
     /**
@@ -74,6 +77,7 @@ public class StashFactory {
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
         LRUTracker lruTracker = context.getBean(LRUTracker.class);
+        SnapshotWriterFactory snapshotWriterFactory = context.getBean(SnapshotWriterFactory.class);
 
         return context.getBean(OnHeapStash.class,
                 cache,
@@ -82,6 +86,7 @@ public class StashFactory {
                 lruTracker,
                 name,
                 maxKeyCount,
-                enableSnapshots);
+                enableSnapshots,
+                snapshotWriterFactory);
     }
 }

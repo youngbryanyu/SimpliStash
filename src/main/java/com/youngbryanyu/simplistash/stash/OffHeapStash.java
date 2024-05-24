@@ -14,9 +14,8 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.backups.BackupWriterFactory;
-import com.youngbryanyu.simplistash.stash.backups.Backupable;
-import com.youngbryanyu.simplistash.stash.backups.SnapshotWriter;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotManager;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriterFactory;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -25,7 +24,7 @@ import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OffHeapStash implements Stash, Backupable {
+public class OffHeapStash implements Stash {
     /**
      * A single DB store instance tied to the stash.
      */
@@ -59,6 +58,14 @@ public class OffHeapStash implements Stash, Backupable {
      * Whether to enable periodic snapshots.
      */
     private final boolean enableSnapshots;
+    /**
+     * The snap shot manager.
+     */
+    private final SnapshotManager snapshotManager;
+    /**
+     * The snapshot writer factory.
+     */
+    private final SnapshotWriterFactory snapshotWriterFactory;
 
     /**
      * Constructor for the stash.
@@ -68,7 +75,7 @@ public class OffHeapStash implements Stash, Backupable {
      * @param ttlTimeWheel The ttl timer wheel.
      * @param logger       The application logger.
      * @param name         The stash's name.
-     * @throws IOException 
+     * @throws IOException
      */
     @Autowired
     public OffHeapStash(
@@ -79,8 +86,8 @@ public class OffHeapStash implements Stash, Backupable {
             EvictionTracker evictionTracker,
             String name,
             long maxKeyCount,
-            boolean enableSnapshots
-            ) throws IOException {
+            boolean enableSnapshots,
+            SnapshotWriterFactory snapshotWriterFactory) throws IOException {
         this.db = db;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
@@ -89,6 +96,15 @@ public class OffHeapStash implements Stash, Backupable {
         this.name = name;
         this.maxKeyCount = maxKeyCount;
         this.enableSnapshots = enableSnapshots;
+        this.snapshotWriterFactory = snapshotWriterFactory;
+
+        snapshotManager = new SnapshotManager(name, maxKeyCount, cache, ttlTimeWheel,
+                snapshotWriterFactory.createSnapshotWriter(name, enableSnapshots), logger);
+
+        /* Start snapshot manager thread if enabled */
+        if (enableSnapshots) {
+            snapshotManager.start();
+        }
 
         addShutDownHook();
     }
@@ -109,6 +125,10 @@ public class OffHeapStash implements Stash, Backupable {
         evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -181,6 +201,10 @@ public class OffHeapStash implements Stash, Backupable {
         cache.remove(key);
         ttlTimeWheel.remove(key);
         evictionTracker.remove(key);
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -196,6 +220,10 @@ public class OffHeapStash implements Stash, Backupable {
         evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -213,6 +241,11 @@ public class OffHeapStash implements Stash, Backupable {
 
         ttlTimeWheel.add(key, ttl);
         evictionTracker.add(key);
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
+
         return true;
     }
 
@@ -220,9 +253,16 @@ public class OffHeapStash implements Stash, Backupable {
      * Drops the stash. Closes its DB.
      */
     public void drop() {
-        db.close();
+        if (enableSnapshots) {
+            try {
+                snapshotManager.close(); /* Set backup needed */
+            } catch (IOException e) {
+                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
+            }
+           
+        }
 
-        // TODO: interrupt backup job
+        db.close();
     }
 
     /**
@@ -232,6 +272,11 @@ public class OffHeapStash implements Stash, Backupable {
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             db.close();
+            try {
+                snapshotManager.close(); /* Set backup needed */
+            } catch (IOException e) {
+                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
+            }
         }));
     }
 
@@ -289,49 +334,5 @@ public class OffHeapStash implements Stash, Backupable {
         cache.clear();
         ttlTimeWheel.clear();
         evictionTracker.clear();
-    }
-
-    /**
-     * Returns the stash's name.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns the stash's max key count.
-     * 
-     * @return The stash's max key count.
-     */
-    public long getMaxKeyCount() {
-        return maxKeyCount;
-    }
-
-    /**
-     * Returns whether or not backups are enabled.
-     * 
-     * @return True if backups are enabled, false otherwise.
-     */
-    public boolean isBackupEnabled() {
-        return enableSnapshots;
-    }
-
-    /**
-     * Returns the expiration time assoicated with the key. Returns -1 if there is
-     * no TTL associated.
-     * 
-     * @return Returns the expiration time assoicated with the key.
-     */
-    public long getExpirationTime(String key) {
-        return ttlTimeWheel.getExpirationTime(key);
-    }
-
-    /**
-     * Returns a map of all entries inside the stash.
-     * 
-     * @return A map of all entries inside the stash.
-     */
-    public Map<String, String> getAllEntries() {
-        return cache;
     }
 }

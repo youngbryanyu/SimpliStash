@@ -27,7 +27,7 @@ public interface Stash {
     /**
      * The delay between backups in seconcds.
      */
-    public static final int BACKUP_DELAY_S = 900;
+    public static final int BACKUP_DELAY_S = 5; // TODO set to 900 after testing
 
     /**
      * Set a key to a value.

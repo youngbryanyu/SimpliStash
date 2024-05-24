@@ -45,9 +45,7 @@ public class KeyExpirationManager {
      */
     public void startExpirationTask(EventLoopGroup group) {
         if (expireTask == null || expireTask.isDone()) {
-            expireTask = group.scheduleWithFixedDelay(() -> {
-                stashManager.expireTTLKeys();
-            }, 0, TTL_EXPIRE_DELAY, TimeUnit.SECONDS);
+            expireTask = group.scheduleWithFixedDelay(stashManager::expireTTLKeys, 0, TTL_EXPIRE_DELAY, TimeUnit.SECONDS);
         }
     }
 

@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriterFactory;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -71,6 +72,11 @@ public class StashFactoryTest {
     @Mock
     private LRUTracker mockEvictionTracker;
     /**
+     * The mocked snapshot writer factory.
+     */
+    @Mock
+    private SnapshotWriterFactory mockSnapshotWriterFactory;
+    /**
      * The stash factory under test.
      */
     private StashFactory stashFactory;
@@ -86,6 +92,7 @@ public class StashFactoryTest {
         when(mockContext.getBean(TTLTimeWheel.class)).thenReturn(mockTTLTimeWheel);
         when(mockContext.getBean(Logger.class)).thenReturn(mockLogger);
         when(mockContext.getBean(LRUTracker.class)).thenReturn(mockEvictionTracker);
+        when(mockContext.getBean(SnapshotWriterFactory.class)).thenReturn(mockSnapshotWriterFactory);
         when(mockDB.hashMap(anyString(), any(), any())).thenReturn(mockHashmapMaker);
         when(mockHashmapMaker.counterEnable()).thenReturn(mockHashmapMaker);
         when(mockHashmapMaker.create()).thenReturn(null); /* HTreeMap cannot be mocked */
@@ -100,7 +107,7 @@ public class StashFactoryTest {
     void testCreateOffHeapStash() {
         /* Setup */
         String stashName = "testStash";
-        when(mockContext.getBean(eq(OffHeapStash.class), any(), any(), any(), any(), any(), anyString(), anyLong(), anyBoolean()))
+        when(mockContext.getBean(eq(OffHeapStash.class), any(), any(), any(), any(), any(), anyString(), anyLong(), anyBoolean(), any()))
                 .thenReturn(mockOffHeapStash);
 
         /* Call method */
@@ -120,7 +127,8 @@ public class StashFactoryTest {
                 mockEvictionTracker,
                 stashName,
                 Stash.DEFAULT_MAX_KEY_COUNT,
-                StashManager.DEFAULT_ENABLE_BACKUPS);
+                StashManager.DEFAULT_ENABLE_BACKUPS,
+                mockSnapshotWriterFactory);
         assertNotNull(stash);
         assertEquals(mockOffHeapStash, stash);
     }
@@ -133,7 +141,7 @@ public class StashFactoryTest {
         /* Setup */
         String stashName = "testStash";
         when(mockContext.getBean(eq(OnHeapStash.class), any(), any(), any(), any(), anyString(), anyLong(),
-                anyBoolean()))
+                anyBoolean(), any()))
                 .thenReturn(mockOnHeapStash);
 
         /* Call method */
@@ -151,7 +159,8 @@ public class StashFactoryTest {
                 any(LRUTracker.class),
                 anyString(),
                 anyLong(),
-                anyBoolean());
+                anyBoolean(),
+                any(SnapshotWriterFactory.class));
         assertNotNull(stash);
         assertEquals(mockOnHeapStash, stash);
     }

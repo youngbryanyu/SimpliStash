@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.backups.Backupable;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotManager;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriterFactory;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
 /**
@@ -20,7 +22,7 @@ import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OnHeapStash implements Stash, Backupable {
+public class OnHeapStash implements Stash {
     /**
      * The primary cache providing O(1) direct access to values by key.
      */
@@ -49,6 +51,14 @@ public class OnHeapStash implements Stash, Backupable {
      * Whether to enable periodic snapshots.
      */
     private final boolean enableSnapshots;
+    /**
+     * The snap shot manager.
+     */
+    private final SnapshotManager snapshotManager;
+    /**
+     * The snapshot writer factory.
+     */
+    private final SnapshotWriterFactory snapshotWriterFactory;
 
     /**
      * Constructor for the stash.
@@ -66,7 +76,8 @@ public class OnHeapStash implements Stash, Backupable {
             EvictionTracker evictionTracker,
             String name,
             long maxKeyCount,
-            boolean enableSnapshots) {
+            boolean enableSnapshots,
+            SnapshotWriterFactory snapshotWriterFactory) throws IOException {
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
@@ -74,6 +85,16 @@ public class OnHeapStash implements Stash, Backupable {
         this.name = name;
         this.maxKeyCount = maxKeyCount;
         this.enableSnapshots = enableSnapshots;
+
+        this.snapshotWriterFactory = snapshotWriterFactory;
+
+        snapshotManager = new SnapshotManager(name, maxKeyCount, cache, ttlTimeWheel,
+                snapshotWriterFactory.createSnapshotWriter(name, enableSnapshots), logger);
+
+        /* Start snapshot manager thread if enabled */
+        if (enableSnapshots) {
+            snapshotManager.start();
+        }
 
         addShutDownHook();
     }
@@ -94,6 +115,10 @@ public class OnHeapStash implements Stash, Backupable {
         evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -166,6 +191,10 @@ public class OnHeapStash implements Stash, Backupable {
         cache.remove(key);
         ttlTimeWheel.remove(key);
         evictionTracker.remove(key);
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -181,6 +210,10 @@ public class OnHeapStash implements Stash, Backupable {
         evictionTracker.add(key);
 
         evictKeys(); /* Evict keys if over memory limit */
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
     }
 
     /**
@@ -198,6 +231,11 @@ public class OnHeapStash implements Stash, Backupable {
 
         ttlTimeWheel.add(key, ttl);
         evictionTracker.add(key);
+
+        if (enableSnapshots) {
+            snapshotManager.markBackupNeeded(); /* Set backup needed */
+        }
+
         return true;
     }
 
@@ -205,6 +243,15 @@ public class OnHeapStash implements Stash, Backupable {
      * Drops the stash. Closes its DB.
      */
     public void drop() {
+        if (enableSnapshots) {
+            try {
+                snapshotManager.close(); /* Set backup needed */
+            } catch (IOException e) {
+                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
+            }
+           
+        }
+
         cache.clear();
     }
 
@@ -214,6 +261,12 @@ public class OnHeapStash implements Stash, Backupable {
      */
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                snapshotManager.close(); /* Set backup needed */
+            } catch (IOException e) {
+                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
+            }
+            
             cache.clear();
         }));
     }
@@ -318,3 +371,5 @@ public class OnHeapStash implements Stash, Backupable {
         return cache;
     }
 }
+
+// TODO: implement snapshots like off heap stash

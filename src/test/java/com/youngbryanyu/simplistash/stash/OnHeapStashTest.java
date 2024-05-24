@@ -68,7 +68,7 @@ public class OnHeapStashTest {
 
         cache = new ConcurrentHashMap<>();
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                Stash.DEFAULT_MAX_KEY_COUNT);
+                Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
     }
 
     /**
@@ -346,7 +346,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                1); /* Set max key count to 1 */
+                1, StashManager.DEFAULT_ENABLE_BACKUPS); /* Set max key count to 1 */
 
         when(mockEvictionTracker.evict())
                 .thenReturn("key1")
@@ -368,7 +368,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                1); /* Set max key count to 1 */
+                1, StashManager.DEFAULT_ENABLE_BACKUPS); /* Set max key count to 1 */
 
         when(mockEvictionTracker.evict())
                 .thenReturn(null);
@@ -389,7 +389,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                Stash.DEFAULT_MAX_KEY_COUNT);
+                Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
 
         doNothing().when(mockEvictionTracker).clear();
         doNothing().when(mockTTLTimeWheel).clear();

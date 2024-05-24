@@ -37,8 +37,9 @@ public class CreateCommand implements Command {
      * The optional args.
      */
     public enum OptionalArg {
-        OFF_HEAP, /* Value must be any case of "true" to be true */
-        MAX_KEYS
+        OFF_HEAP, /* Must be any case of "true" to be true */
+        MAX_KEYS,
+        BACKUPS /* Must be any case of "true" to be true */
     }
 
     /**
@@ -108,6 +109,13 @@ public class CreateCommand implements Command {
             offHeap = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.OFF_HEAP.name()));
         }
 
+        // TODO: 
+        /* Determine whether to enable backups (optional arg)*/
+        boolean enableBackups = false;
+        if (optionalArgVals.containsKey(OptionalArg.BACKUPS.name())) {
+            enableBackups = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.BACKUPS.name()));
+        }
+
         /* Get max keys allowed (optional arg) */
         long maxKeyCount = Stash.DEFAULT_MAX_KEY_COUNT;
         if (optionalArgVals.containsKey(OptionalArg.MAX_KEYS.name())) {
@@ -125,7 +133,7 @@ public class CreateCommand implements Command {
         }
 
         /* Create stash */
-        boolean createdSuccessfully = stashManager.createStash(name, offHeap, maxKeyCount);
+        boolean createdSuccessfully = stashManager.createStash(name, offHeap, maxKeyCount, enableBackups);
         if (!createdSuccessfully) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.STASH_LIMIT_REACHED));
         }

@@ -25,6 +25,10 @@ public class StashManager {
      */
     public static final int MAX_NUM_STASHES = 100;
     /**
+     * Whether or not to enable backups by default.
+     */
+    public static final boolean DEFAULT_ENABLE_BACKUPS = false;
+    /**
      * The factory used to create new stash instances.
      */
     private final StashFactory stashFactory;
@@ -53,7 +57,7 @@ public class StashManager {
         stashes = new ConcurrentHashMap<>();
 
         /* Create default stash */
-        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT);
+        createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT, DEFAULT_ENABLE_BACKUPS);
     }
 
     /**
@@ -64,18 +68,19 @@ public class StashManager {
      * @param name        The name of the stash.
      * @param offHeap     Whether or not to use off-heap memory.
      * @param maxKeyCount The max number of keys allowed.
+     * @param enableBackups Whether or not to enable periodic backups.
      * @return True if the stash was created successfully or already exists, false
      *         otherwise.
      */
-    public boolean createStash(String name, boolean offHeap, long maxKeyCount) {
+    public boolean createStash(String name, boolean offHeap, long maxKeyCount, boolean enableBackups) {
         if (stashes.size() >= MAX_NUM_STASHES) {
             return false;
         }
 
         if (offHeap) {
-            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name, maxKeyCount));
+            stashes.putIfAbsent(name, stashFactory.createOffHeapStash(name, maxKeyCount, enableBackups));
         } else {
-            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name, maxKeyCount));
+            stashes.putIfAbsent(name, stashFactory.createOnHeapStash(name, maxKeyCount, enableBackups));
         }
 
         return true;

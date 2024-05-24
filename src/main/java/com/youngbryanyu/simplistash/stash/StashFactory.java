@@ -36,10 +36,12 @@ public class StashFactory {
     /**
      * Creates a new instance of an off-heap stash with the given name.
      * 
-     * @param The stash name.
-     * @return A stash.
+     * @param name          stash name.
+     * @param maxKeyCount   The max key count.
+     * @param enableBackups Whether to enable periodic backups.
+     * @return An off heap stash.
      */
-    public OffHeapStash createOffHeapStash(String name, long maxKeyCount) {
+    public OffHeapStash createOffHeapStash(String name, long maxKeyCount, boolean enableBackups) {
         DB db = context.getBean(DB.class);
         HTreeMap<String, String> cache = db.hashMap("primary", SERIALIZER.STRING, SERIALIZER.STRING)
                 .counterEnable()
@@ -48,21 +50,38 @@ public class StashFactory {
         Logger logger = context.getBean(Logger.class);
         LRUTracker lruTracker = context.getBean(LRUTracker.class);
 
-        return context.getBean(OffHeapStash.class, db, cache, ttlTimeWheel, logger, lruTracker, name, maxKeyCount);
+        return context.getBean(OffHeapStash.class,
+                db,
+                cache,
+                ttlTimeWheel,
+                logger,
+                lruTracker,
+                name,
+                maxKeyCount,
+                enableBackups);
     }
 
     /**
      * Creates a new instance of an on-heap stash with the given name.
      * 
-     * @param The stash name.
-     * @return A stash.
+     * @param name          stash name.
+     * @param maxKeyCount   The max key count.
+     * @param enableBackups Whether to enable periodic backups.
+     * @return An on heap stash.
      */
-    public Stash createOnHeapStash(String name, long maxKeyCount) {
+    public Stash createOnHeapStash(String name, long maxKeyCount, boolean enableBackups) {
         ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
         TTLTimeWheel ttlTimeWheel = context.getBean(TTLTimeWheel.class);
         Logger logger = context.getBean(Logger.class);
         LRUTracker lruTracker = context.getBean(LRUTracker.class);
 
-        return context.getBean(OnHeapStash.class, cache, ttlTimeWheel, logger, lruTracker, name, maxKeyCount);
+        return context.getBean(OnHeapStash.class,
+                cache,
+                ttlTimeWheel,
+                logger,
+                lruTracker,
+                name,
+                maxKeyCount,
+                enableBackups);
     }
 }

@@ -3,6 +3,7 @@ package com.youngbryanyu.simplistash.stash;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -99,20 +100,27 @@ public class StashFactoryTest {
     void testCreateOffHeapStash() {
         /* Setup */
         String stashName = "testStash";
-        when(mockContext.getBean(eq(OffHeapStash.class), any(), any(), any(), any(), any(), anyString(), anyLong()))
+        when(mockContext.getBean(eq(OffHeapStash.class), any(), any(), any(), any(), any(), anyString(), anyLong(), anyBoolean()))
                 .thenReturn(mockOffHeapStash);
 
         /* Call method */
-        Stash stash = stashFactory.createOffHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT);
+        Stash stash = stashFactory.createOffHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT,
+                StashManager.DEFAULT_ENABLE_BACKUPS);
 
         /* Test assertions */
         verify(mockContext).getBean(DB.class);
         verify(mockContext).getBean(TTLTimeWheel.class);
         verify(mockContext).getBean(Logger.class);
         verify(mockContext).getBean(LRUTracker.class);
-        verify(mockContext).getBean(OffHeapStash.class, mockDB, null, mockTTLTimeWheel, mockLogger, mockEvictionTracker,
+        verify(mockContext).getBean(OffHeapStash.class,
+                mockDB,
+                null,
+                mockTTLTimeWheel,
+                mockLogger,
+                mockEvictionTracker,
                 stashName,
-                Stash.DEFAULT_MAX_KEY_COUNT);
+                Stash.DEFAULT_MAX_KEY_COUNT,
+                StashManager.DEFAULT_ENABLE_BACKUPS);
         assertNotNull(stash);
         assertEquals(mockOffHeapStash, stash);
     }
@@ -124,11 +132,13 @@ public class StashFactoryTest {
     void testCreateOnHeapStash() {
         /* Setup */
         String stashName = "testStash";
-        when(mockContext.getBean(eq(OnHeapStash.class), any(), any(), any(), any(), anyString(), anyLong()))
+        when(mockContext.getBean(eq(OnHeapStash.class), any(), any(), any(), any(), anyString(), anyLong(),
+                anyBoolean()))
                 .thenReturn(mockOnHeapStash);
 
         /* Call method */
-        Stash stash = stashFactory.createOnHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT);
+        Stash stash = stashFactory.createOnHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT,
+                StashManager.DEFAULT_ENABLE_BACKUPS);
 
         /* Test assertions */
         verify(mockContext).getBean(TTLTimeWheel.class);
@@ -137,10 +147,11 @@ public class StashFactoryTest {
                 eq(OnHeapStash.class),
                 any(Map.class),
                 any(TTLTimeWheel.class),
-                any(Logger.class), 
+                any(Logger.class),
                 any(LRUTracker.class),
                 anyString(),
-                anyLong());
+                anyLong(),
+                anyBoolean());
         assertNotNull(stash);
         assertEquals(mockOnHeapStash, stash);
     }

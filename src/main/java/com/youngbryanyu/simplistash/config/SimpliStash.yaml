@@ -33,3 +33,6 @@ use_off_heap_cache: true
 # The maximum number of keys allowed in a stash before eviction. Defaults to 1000000.
 default_max_key_count: 1000000
 
+# Whether to enable backups by default. Defaults to false.
+enable_backups: false
+

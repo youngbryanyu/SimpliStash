@@ -60,7 +60,7 @@ public class CreateCommandTest {
     @Test
     public void testExecute_success() {
         /* Setup */
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "0"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
 
@@ -71,7 +71,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -82,7 +82,7 @@ public class CreateCommandTest {
         Deque<String> tokens = new LinkedList<>();
         String result = command.execute(tokens, false);
         assertNull(result);
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -96,7 +96,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -120,7 +120,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -130,7 +130,7 @@ public class CreateCommandTest {
     public void testExecute_stashNameToken() {
         /* Setup */
         when(mockStashManager.containsStash(anyString())).thenReturn(true);
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "0"));
         String expected = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_NAME_TAKEN));
@@ -142,7 +142,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -151,7 +151,7 @@ public class CreateCommandTest {
     @Test
     public void testExecute_stashLimitReached() {
         /* Setup */
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(false);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(false);
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "0"));
         String expected = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.STASH_LIMIT_REACHED));
@@ -163,7 +163,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -183,7 +183,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -200,7 +200,7 @@ public class CreateCommandTest {
         /* Perform assertions */
         assertNull(result);
         assertEquals(3, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -220,7 +220,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -231,7 +231,7 @@ public class CreateCommandTest {
         /* Setup */
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "OFF_HEAP=false"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -240,7 +240,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -251,7 +251,7 @@ public class CreateCommandTest {
         /* Setup */
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=100"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -260,7 +260,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -272,7 +272,7 @@ public class CreateCommandTest {
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=not_a_long"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -281,7 +281,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**
@@ -293,7 +293,7 @@ public class CreateCommandTest {
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=-5"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -302,7 +302,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
      /**
@@ -314,7 +314,7 @@ public class CreateCommandTest {
         Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=9_223_372_036_854_775_807_999_999"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
-        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 
         /* Call method */
         String result = command.execute(tokens, false);
@@ -323,7 +323,7 @@ public class CreateCommandTest {
         assertNotNull(result);
         assertEquals(expectedResponse, result);
         assertEquals(0, tokens.size());
-        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
     /**

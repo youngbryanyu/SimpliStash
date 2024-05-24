@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
-import com.youngbryanyu.simplistash.eviction.lru.LRUTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -45,6 +44,10 @@ public class OnHeapStash implements Stash {
      * The max number of keys allowed in the stash.
      */
     private final long maxKeyCount;
+    /**
+     * Whether to enable periodic backups.
+     */
+    private final boolean enableBackups;
 
     /**
      * Constructor for the stash.
@@ -61,13 +64,16 @@ public class OnHeapStash implements Stash {
             Logger logger,
             EvictionTracker evictionTracker,
             String name,
-            long maxKeyCount) {
+            long maxKeyCount,
+            boolean enableBackups
+            ) {
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
         this.logger = logger;
         this.evictionTracker = evictionTracker;
         this.name = name;
         this.maxKeyCount = maxKeyCount;
+        this.enableBackups = enableBackups; // TODO: implement the logic
 
         addShutDownHook();
     }

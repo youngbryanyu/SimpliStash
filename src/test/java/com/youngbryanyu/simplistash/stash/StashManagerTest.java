@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
@@ -53,8 +54,8 @@ public class StashManagerTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        when(mockStashFactory.createOffHeapStash(anyString(), anyLong())).thenReturn(mockOffHeapStash);
-        when(mockStashFactory.createOnHeapStash(anyString(), anyLong())).thenReturn(mockOnHeapStash);
+        when(mockStashFactory.createOffHeapStash(anyString(), anyLong(), anyBoolean())).thenReturn(mockOffHeapStash);
+        when(mockStashFactory.createOnHeapStash(anyString(), anyLong(), anyBoolean())).thenReturn(mockOnHeapStash);
         stashManager = new StashManager(mockStashFactory, mockLogger);
     }
 
@@ -63,7 +64,7 @@ public class StashManagerTest {
      */
     @Test
     public void testCreateStash_offHeap() {
-        assertTrue(stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT));
+        assertTrue(stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS));
         assertTrue(stashManager.containsStash("stash1"));
     }
 
@@ -72,7 +73,7 @@ public class StashManagerTest {
      */
     @Test
     public void testCreateStash_onHeap() {
-        assertTrue(stashManager.createStash("stash1", false, Stash.DEFAULT_MAX_KEY_COUNT));
+        assertTrue(stashManager.createStash("stash1", false, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS));
         assertTrue(stashManager.containsStash("stash1"));
     }
 
@@ -82,10 +83,10 @@ public class StashManagerTest {
      */
     @Test
     public void testCreateStash_alreadyExists() {
-        stashManager.createStash(StashManager.DEFAULT_STASH_NAME, true, Stash.DEFAULT_MAX_KEY_COUNT);
+        stashManager.createStash(StashManager.DEFAULT_STASH_NAME, true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         assertEquals(1, stashManager.getNumStashes());
-        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT);
-        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT);
+        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
+        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         assertEquals(2, stashManager.getNumStashes());
     }
 
@@ -96,9 +97,9 @@ public class StashManagerTest {
     @Test
     public void testCreateStash_maxLimitReached() {
         for (int i = 0; i < StashManager.MAX_NUM_STASHES; i++) {
-            stashManager.createStash("Stash" + i, true, Stash.DEFAULT_MAX_KEY_COUNT);
+            stashManager.createStash("Stash" + i, true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         }
-        assertFalse(stashManager.createStash("StashLimitExceeded", true, Stash.DEFAULT_MAX_KEY_COUNT));
+        assertFalse(stashManager.createStash("StashLimitExceeded", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS));
     }
 
     /**
@@ -124,7 +125,7 @@ public class StashManagerTest {
      */
     @Test
     public void testDropStash() {
-        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT);
+        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         stashManager.dropStash("stash1");
         assertFalse(stashManager.containsStash("stash1"));
         verify(mockOffHeapStash).drop();
@@ -144,8 +145,8 @@ public class StashManagerTest {
      */
     @Test
     public void testExpireTTLKeys() {
-        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT);
-        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT);
+        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
+        stashManager.createStash("stash2", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         stashManager.expireTTLKeys();
         verify(mockOffHeapStash, atLeast(2)).expireTTLKeys();
     }
@@ -155,7 +156,7 @@ public class StashManagerTest {
      */
     @Test
     public void testGetStats() {
-        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT);
+        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS);
         String result = stashManager.getStats();
         when (mockOffHeapStash.getInfo()).thenReturn("info");
         assertNotNull(result);

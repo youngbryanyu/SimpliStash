@@ -50,6 +50,10 @@ public class OffHeapStash implements Stash {
      * The max number of keys allowed in the stash.
      */
     private final long maxKeyCount;
+     /**
+     * Whether to enable periodic backups.
+     */
+    private final boolean enableBackups;
 
     /**
      * Constructor for the stash.
@@ -68,7 +72,8 @@ public class OffHeapStash implements Stash {
             Logger logger, 
             EvictionTracker evictionTracker,
             String name,
-            long maxKeyCount) {
+            long maxKeyCount,
+            boolean enableBackups) {
         this.db = db;
         this.cache = cache;
         this.ttlTimeWheel = ttlTimeWheel;
@@ -76,6 +81,7 @@ public class OffHeapStash implements Stash {
         this.evictionTracker = evictionTracker;
         this.name = name;
         this.maxKeyCount = maxKeyCount;
+        this.enableBackups = enableBackups; // TODO: implement backup logic
 
         addShutDownHook();
     }

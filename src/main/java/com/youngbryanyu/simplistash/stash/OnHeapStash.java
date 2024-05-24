@@ -257,4 +257,13 @@ public class OnHeapStash implements Stash {
             logger.debug(String.format("Evicted key from stash \"%s\": %s", name, evictedKey));
         }
     }
+
+    /**
+     * Clears all keys from the stash.
+     */
+    public void clear() {
+        cache.clear();
+        ttlTimeWheel.clear();
+        evictionTracker.clear();
+    }
 }

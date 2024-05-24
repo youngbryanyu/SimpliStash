@@ -94,9 +94,14 @@ public interface Stash {
      * @return info about the stash.
      */
     public String getInfo();
-    
+
     /**
      * Evicts keys when not enough memory is left.
      */
     public void evictKeys();
+
+    /**
+     * Clears an entire stash.
+     */
+    public void clear();
 }

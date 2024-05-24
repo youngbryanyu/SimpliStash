@@ -33,10 +33,12 @@ public class TTLTimeWheel {
     public static final int MAX_EXPIRE_LIMIT = 100;
     /**
      * Map of keys to their compound ttl key consisting of (key, expirationTime).
+     * Only 1 thread handles writes so no need to make thread-safe yet.
      */
     private final Map<String, TTLKey> ttlMap;
     /**
-     * Buckets containing a tree set of compound ttl keys consisting of (key, expirationTime).
+     * Buckets containing a tree set of compound ttl keys consisting of (key,
+     * expirationTime).
      */
     private final TreeSet<TTLKey>[] buckets;
     /**
@@ -151,11 +153,11 @@ public class TTLTimeWheel {
         /* Expire up to the max expire limit */
         while (!ttlMap.isEmpty() && numExpired < MAX_EXPIRE_LIMIT) {
             TreeSet<TTLKey> bucket = buckets[currentBucketIndex];
-            
+
             if (bucket != null) {
                 while (!bucket.isEmpty()) {
                     TTLKey ttlKey = bucket.first();
-                    
+
                     /* No more expired keys from current bucket so break */
                     if (ttlKey.getExpirationTime() > currentTime) {
                         break;
@@ -186,5 +188,20 @@ public class TTLTimeWheel {
         }
 
         return expiredKeys;
+    }
+
+    /**
+     * Clears all values from the TTL time wheel.
+     */
+    public void clear() {
+        /* Clear TTL map */
+        ttlMap.clear();
+
+        /* Clear all buckets */
+        for (TreeSet<TTLKey> bucket : buckets) {
+            if (bucket != null) {
+                bucket.clear();
+            }
+        }
     }
 }

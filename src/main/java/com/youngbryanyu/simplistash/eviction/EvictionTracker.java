@@ -32,4 +32,9 @@ public interface EvictionTracker {
      * @return The key evicted, or null if nothing was evicted.
      */
     public String evict();
+
+    /**
+     * Removes all keys from the eviction tracker.
+     */
+    public void clear();
 }

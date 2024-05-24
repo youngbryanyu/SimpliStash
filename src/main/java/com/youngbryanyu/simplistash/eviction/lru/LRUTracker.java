@@ -1,11 +1,8 @@
 package com.youngbryanyu.simplistash.eviction.lru;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -22,9 +19,9 @@ import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 public class LRUTracker implements EvictionTracker {
     /**
      * The linked hash map for LRU tracking. Only 1 thread handles writes so no need
-     * to make thread-safe.
+     * to make thread-safe yet.
      */
-    private final LinkedHashSet<String> lruKeys;
+    private final Set<String> lruKeys;
 
     /**
      * Constructor for LRU tracker.
@@ -70,14 +67,21 @@ public class LRUTracker implements EvictionTracker {
      * 
      * @return The key evicted, or null if nothing was evicted.
      */
-    public String evict() {
+    public synchronized String evict() {
         Iterator<String> iterator = lruKeys.iterator();
         if (iterator.hasNext()) {
             String lruKey = lruKeys.iterator().next();
             lruKeys.remove(lruKey);
             return lruKey;
         }
-        
+
         return null;
+    }
+
+    /**
+     * Removes all keys from the eviction tracker.
+     */
+    public void clear() {
+        lruKeys.clear();
     }
 }

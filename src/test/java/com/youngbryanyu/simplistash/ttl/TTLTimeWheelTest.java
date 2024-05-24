@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.ttl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -90,7 +91,7 @@ public class TTLTimeWheelTest {
      * Test {@link TTLTimeWheel#expireKeys()}.
      */
     @Test
-    void testExpireKeys() {
+    public void testExpireKeys() {
         /* Add keys with staggered TTLs */
         for (int i = 0; i < 10; i++) {
             ttlTimeWheel.add("key" + i, 0);
@@ -116,7 +117,7 @@ public class TTLTimeWheelTest {
      * Test {@link TTLTimeWheel#expireKeys()} when the expire limit is reached in a single call.
      */
     @Test
-    void testExpireKeys_reachedExpireLimit() {
+    public void testExpireKeys_reachedExpireLimit() {
         /* Add keys with staggered TTLs */
         for (int i = 0; i < TTLTimeWheel.MAX_EXPIRE_LIMIT + 5; i++) {
             ttlTimeWheel.add("key" + i, 0);
@@ -140,7 +141,7 @@ public class TTLTimeWheelTest {
      * Test {@link TTLTimeWheel#expireKeys()} when there's multiple buckets used.
      */
     @Test
-    void testExpireKeys_multipleBuckets() {
+    public void testExpireKeys_multipleBuckets() {
         /* Add keys with staggered TTLs */
         ttlTimeWheel.add("key1", 0);
         ttlTimeWheel.add("key2", TTLTimeWheel.BUCKET_WINDOW_SIZE + 100); 
@@ -157,5 +158,26 @@ public class TTLTimeWheelTest {
 
         /* Check expired keys */
         assertTrue(expiredKeys.size() == 1);
+    }
+
+    /**
+     * Test {@link TTLTimeWheel#size()}.
+     */
+    @Test
+    public void testSize() {
+        ttlTimeWheel.add("key1", 1000);
+        ttlTimeWheel.add("key2", 1000);
+        assertEquals(2, ttlTimeWheel.size());
+    }
+
+    /**
+     * Test {@link TTLTimeWheel#clear()}.
+     */
+    @Test
+    public void testClear() {
+        ttlTimeWheel.add("key1", 1000);
+        ttlTimeWheel.add("key2", 1000);
+        ttlTimeWheel.clear();
+        assertEquals(0, ttlTimeWheel.size());
     }
 }

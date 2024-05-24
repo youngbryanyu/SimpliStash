@@ -204,4 +204,11 @@ public class TTLTimeWheel {
             }
         }
     }
+
+    /**
+     * Returns the size of the TTL time wheel.
+     */
+    public int size() {
+        return ttlMap.size();
+    }
 }

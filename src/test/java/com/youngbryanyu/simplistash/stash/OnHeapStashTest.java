@@ -84,7 +84,7 @@ public class OnHeapStashTest {
      * previously.
      */
     @Test
-    void testSet_expired() {
+    public void testSet_expired() {
         /* Setup */
         when(mockTTLTimeWheel.isExpired(anyString()))
                 .thenReturn(true) /* Return true in set() */
@@ -103,7 +103,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#set(String, String)}.
      */
     @Test
-    void testSetAndGet() {
+    public void testSetAndGet() {
         stash.set("key1", "value1");
         stash.set("key1", "valueX");
         stash.set("key2", "value2");
@@ -115,7 +115,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#get(String, boolean)} when the key has expired.
      */
     @Test
-    void testGet_keyExpired() {
+    public void testGet_keyExpired() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -137,7 +137,7 @@ public class OnHeapStashTest {
      * client is read only.
      */
     @Test
-    void testGet_keyExpired_readOnly() {
+    public void testGet_keyExpired_readOnly() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -160,7 +160,7 @@ public class OnHeapStashTest {
      * mocked so we throw the null pointer elsewhere instead.
      */
     @Test
-    void testGet_nullPointerException() {
+    public void testGet_nullPointerException() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -183,7 +183,7 @@ public class OnHeapStashTest {
      * mocked so we throw the null pointer elsewhere instead.
      */
     @Test
-    void testGet_IllegalAccessError() {
+    public void testGet_IllegalAccessError() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -203,7 +203,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#contains(String)}.
      */
     @Test
-    void testContains() {
+    public void testContains() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -220,7 +220,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#delete(String)}.
      */
     @Test
-    void testDelete() {
+    public void testDelete() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -240,7 +240,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#setWithTTL(String, String, long)}.
      */
     @Test
-    void testSetWithTTL() {
+    public void testSetWithTTL() {
         /* Setup */
         when(mockTTLTimeWheel.isExpired(anyString()))
                 .thenReturn(false);
@@ -257,7 +257,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#updateTTL(String, long)}.
      */
     @Test
-    void testUpdateTTL() {
+    public void testUpdateTTL() {
         /* Populate stash */
         stash.set("key1", "value1");
 
@@ -273,7 +273,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#updateTTL(String, long)} when the key doesn't exist.
      */
     @Test
-    void testUpdateTTL_keyDoesntExist() {
+    public void testUpdateTTL_keyDoesntExist() {
         /* Call method */
         boolean updatedTTL = stash.updateTTL("key1", 100L);
 
@@ -286,7 +286,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#drop()}.
      */
     @Test
-    void testDrop() {
+    public void testDrop() {
         /* Call method */
         stash.drop();
 
@@ -298,7 +298,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#updateTTL(String, long)}.
      */
     @Test
-    void testExpireTTLKeys() {
+    public void testExpireTTLKeys() {
         /* Setup */
         when(mockTTLTimeWheel.expireKeys()).thenReturn(List.of("key1", "key2"));
 
@@ -314,7 +314,7 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#updateTTL(String, long)} when no keys were expired.
      */
     @Test
-    void testExpireTTLKeys_noneExpired() {
+    public void testExpireTTLKeys_noneExpired() {
         /* Setup */
         when(mockTTLTimeWheel.expireKeys()).thenReturn(Collections.emptyList());
 
@@ -330,10 +330,53 @@ public class OnHeapStashTest {
      * Test {@link OnHeapStash#getInfo()}.
      */
     @Test
-    void testGetInfo() {
+    public void testGetInfo() {
         String result = stash.getInfo();
         assertEquals("Number of keys: 0\n" +
                 "Max keys allowed: 1000000\n" +
                 "Off-heap: false", result);
+    }
+
+    /**
+     * Test {@link OnHeapStash#evictKeys()}.
+     */
+    @Test
+    public void testEvict() {
+        cache.put("key1", "val1");
+        cache.put("key2", "val2");
+        cache.put("key3", "val3");
+        stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
+                1); /* Set max key count to 1 */
+
+        when(mockEvictionTracker.evict())
+                .thenReturn("key1")
+                .thenReturn("key2");
+
+        /* Evict keys */
+        stash.evictKeys();
+
+        /* Stash size should be 1 now */
+        assertEquals(1, cache.size());
+    }
+
+    /**
+     * Test {@link OnHeapStash#evictKeys()} when there's no more keys to evict.
+     */
+    @Test
+    public void testEvict_noMoreToEvict() {
+        cache.put("key1", "val1");
+        cache.put("key2", "val2");
+        cache.put("key3", "val3");
+        stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
+                1); /* Set max key count to 1 */
+
+        when(mockEvictionTracker.evict())
+                .thenReturn(null);
+
+        /* Evict keys */
+        stash.evictKeys();
+
+        /* Stash size should be 3 since evictKeys returned null */
+        assertEquals(3, cache.size());
     }
 }

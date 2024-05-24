@@ -102,13 +102,13 @@ public class CreateCommand implements Command {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MALFORMED_OPTIONAL_ARGS));
         }
 
-        /* Determine whether to use off-heap storage */
+        /* Determine whether to use off-heap storage (optional arg) */
         boolean offHeap = StashManager.USE_OFF_HEAP_MEMORY;
         if (optionalArgVals.containsKey(OptionalArg.OFF_HEAP.name())) {
             offHeap = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.OFF_HEAP.name()));
         }
 
-        /* Get max keys allowed (optional) */
+        /* Get max keys allowed (optional arg) */
         long maxKeyCount = Stash.DEFAULT_MAX_KEY_COUNT;
         if (optionalArgVals.containsKey(OptionalArg.MAX_KEYS.name())) {
             try {
@@ -117,6 +117,7 @@ public class CreateCommand implements Command {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
             }
 
+            /* Max is Long.MAX_VALUE so going above causes NumberFormatException */
             if (maxKeyCount <= 0 || maxKeyCount > Command.MAX_KEY_COUNT_LIMIT) {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
             }

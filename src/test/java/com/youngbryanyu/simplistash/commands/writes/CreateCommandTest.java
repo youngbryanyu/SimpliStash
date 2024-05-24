@@ -244,6 +244,89 @@ public class CreateCommandTest {
     }
 
     /**
+     * Test execution with the optional arg MAX_KEYS.
+     */
+    @Test
+    public void testExecute_optionalArgMAX_KEYS() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=100"));
+        String expectedResponse = ProtocolUtil.buildOkResponse();
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, times(1)).createStash(anyString(), anyBoolean(), anyLong());
+    }
+
+    /**
+     * Test execution with the optional arg MAX_KEYS with an invalid long.
+     */
+    @Test
+    public void testExecute_optionalArgMAX_KEYS_invalidLong() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=not_a_long"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+    }
+
+    /**
+     * Test execution with the optional arg MAX_KEYS with a long lower than the lowest supported value.
+     */
+    @Test
+    public void testExecute_optionalArgMAX_KEYS_outOfRange_below() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=-5"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+    }
+
+     /**
+     * Test execution with the optional arg MAX_KEYS with a long greater than the highest supported value.
+     */
+    @Test
+    public void testExecute_optionalArgMAX_KEYS_outOfRange_above() {
+        /* Setup */
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=9_223_372_036_854_775_807_999_999"));
+        String expectedResponse = ProtocolUtil
+                .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
+        when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong())).thenReturn(true);
+
+        /* Call method */
+        String result = command.execute(tokens, false);
+
+        /* Perform assertions */
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+        assertEquals(0, tokens.size());
+        verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong());
+    }
+
+    /**
      * Test the get name method.
      */
     @Test

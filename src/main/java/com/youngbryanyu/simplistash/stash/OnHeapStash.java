@@ -234,9 +234,9 @@ public class OnHeapStash implements Stash {
      */
     public String getInfo() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Number of keys: %d\n", cache.size()));
-        sb.append(String.format("Max keys allowed: %s\n", maxKeyCount));
-        sb.append("Off-heap: false");
+        sb.append(String.format("- Number of keys: \t%d\n", cache.size()));
+        sb.append(String.format("- Max keys allowed: \t%s\n", maxKeyCount));
+        sb.append("- Off-heap: \t\tfalse\n");
         return sb.toString();
     }
 

@@ -1,5 +1,9 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -127,5 +131,75 @@ public class StashManager {
      */
     public int getNumStashes() {
         return stashes.size();
+    }
+
+    /**
+     * Get stats about the overall system:
+     * - memory stats
+     * - disk stats
+     * - stash stats
+     * 
+     * @return A string containing overal stats info about the system.
+     */
+    public String getStats() {
+        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+        File file = new File("/");
+
+        /* Get on-heap memory info */
+        MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
+        long heapUsed = heapMemoryUsage.getUsed();
+        long heapMax = heapMemoryUsage.getMax(); /* -1 if undefined */
+        long heapAvailable = (heapMax == -1) ? -1 : (heapMax - heapUsed);
+        long heapCommitted = heapMemoryUsage.getCommitted();
+
+        /* Get off-heap memory info */
+        MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
+        long nonHeapUsed = nonHeapMemoryUsage.getUsed();
+        long nonHeapMax = nonHeapMemoryUsage.getMax(); /* -1 if undefined */
+        long nonHeapAvailable = (nonHeapMax == -1) ? -1 : (nonHeapMax - nonHeapUsed);
+
+        /* Get disk info */
+        long freeDiskSpace = file.getFreeSpace();
+        long totalDiskSpace = file.getTotalSpace();
+        long usableDiskSpace = file.getUsableSpace();
+
+        /* Build stats response */
+        StringBuilder stats = new StringBuilder();
+
+        stats.append("Heap memory stats (bytes):\n");
+        stats.append(String.format("- Used: \t\t%d\n", heapUsed));
+        stats.append(String.format("- Max: \t\t\t%d\n", heapMax));
+        stats.append(String.format("- Available: \t\t%d\n", heapAvailable));
+        stats.append(String.format("- Committed: \t\t%d\n", heapCommitted));
+        stats.append("\n");
+
+        stats.append("Non-heap memory stats (bytes):\n");
+        stats.append(String.format("- Used: \t\t%d\n", nonHeapUsed));
+        stats.append(String.format("- Max: \t\t\t%d\n", nonHeapMax));
+        stats.append(String.format("- Available: \t\t%d\n", nonHeapAvailable));
+        stats.append("\n");
+
+        stats.append("Disk stats (bytes):\n");
+        stats.append(String.format("- Free space: \t\t%d\n", freeDiskSpace));
+        stats.append(String.format("- Total space: \t\t%d\n", totalDiskSpace));
+        stats.append(String.format("- Usable space: \t%d\n", usableDiskSpace));
+        stats.append("\n");
+
+        stats.append("General stash stats:\n");
+        stats.append(String.format("- Number of stashes: \t%d\n", stashes.size()));
+        stats.append(String.format("- Stash limit: \t\t%d\n", StashManager.MAX_NUM_STASHES));
+        stats.append("\n");
+
+        stats.append("Specific stash stats:\n\n");
+        for (String name : stashes.keySet()) {
+            Stash stash = stashes.get(name);
+            stats.append(String.format("Name: %s\n", name));
+            stats.append(stash.getInfo());
+            stats.append("\n");
+        }
+
+        stats.deleteCharAt(stats.length() - 1); // delete extra newline at end
+
+        return stats.toString();
     }
 }

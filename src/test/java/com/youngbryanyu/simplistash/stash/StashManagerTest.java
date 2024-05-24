@@ -149,4 +149,20 @@ public class StashManagerTest {
         stashManager.expireTTLKeys();
         verify(mockOffHeapStash, atLeast(2)).expireTTLKeys();
     }
+
+    /**
+     * Test {@link StashManager#getStats()}.
+     */
+    @Test
+    public void testGetStats() {
+        stashManager.createStash("stash1", true, Stash.DEFAULT_MAX_KEY_COUNT);
+        String result = stashManager.getStats();
+        when (mockOffHeapStash.getInfo()).thenReturn("info");
+        assertNotNull(result);
+        assertTrue(result.contains("Heap memory stats"));
+        assertTrue(result.contains("Non-heap memory stats"));
+        assertTrue(result.contains("Disk stats"));
+        assertTrue(result.contains("General stash stats"));
+        assertTrue(result.contains("Specific stash stats"));
+    }
 }

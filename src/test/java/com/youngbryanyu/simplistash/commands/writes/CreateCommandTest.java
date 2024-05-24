@@ -285,7 +285,8 @@ public class CreateCommandTest {
     }
 
     /**
-     * Test execution with the optional arg MAX_KEYS with a long lower than the lowest supported value.
+     * Test execution with the optional arg MAX_KEYS with a long lower than the
+     * lowest supported value.
      */
     @Test
     public void testExecute_optionalArgMAX_KEYS_outOfRange_below() {
@@ -305,13 +306,15 @@ public class CreateCommandTest {
         verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
-     /**
-     * Test execution with the optional arg MAX_KEYS with a long greater than the highest supported value.
+    /**
+     * Test execution with the optional arg MAX_KEYS with a long greater than the
+     * highest supported value.
      */
     @Test
     public void testExecute_optionalArgMAX_KEYS_outOfRange_above() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "MAX_KEYS=9_223_372_036_854_775_807_999_999"));
+        Deque<String> tokens = new LinkedList<>(
+                List.of("CREATE", "stash1", "1", "MAX_KEYS=9_223_372_036_854_775_807_999_999"));
         String expectedResponse = ProtocolUtil
                 .buildErrorResponse(command.buildErrorMessage(Command.ErrorCause.MAX_KEY_COUNT_INVALID_LONG));
         when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
@@ -326,7 +329,7 @@ public class CreateCommandTest {
         verify(mockStashManager, never()).createStash(anyString(), anyBoolean(), anyLong(), anyBoolean());
     }
 
-     /**
+    /**
      * Test execution with the optional arg BACKUPS.
      */
     @Test

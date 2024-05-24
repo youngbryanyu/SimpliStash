@@ -37,4 +37,9 @@ public interface EvictionTracker {
      * Removes all keys from the eviction tracker.
      */
     public void clear();
+
+    /**
+     * Gets the number of keys in the eviction tracker.
+     */
+    public int size();
 }

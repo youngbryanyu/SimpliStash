@@ -84,4 +84,11 @@ public class LRUTracker implements EvictionTracker {
     public void clear() {
         lruKeys.clear();
     }
+
+    /**
+     * Gets the size of the stash.
+     */
+    public int size() {
+        return lruKeys.size();
+    }
 }

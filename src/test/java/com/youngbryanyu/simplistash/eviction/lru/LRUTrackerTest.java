@@ -88,4 +88,16 @@ public class LRUTrackerTest {
     public void testEvict_nothingEvicted() {
         assertNull(evictionTracker.evict());
     }
+
+    /**
+     * Test the contains method.
+     */
+    @Test
+    public void testClear() {
+        evictionTracker.add("key1");
+        evictionTracker.add("key2");
+        evictionTracker.add("key3");
+        evictionTracker.clear();
+        assertEquals(0, evictionTracker.size());
+    }
 }

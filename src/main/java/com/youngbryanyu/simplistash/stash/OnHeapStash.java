@@ -243,6 +243,7 @@ public class OnHeapStash implements Stash {
         sb.append(String.format("- Number of keys: \t%d\n", cache.size()));
         sb.append(String.format("- Max keys allowed: \t%s\n", maxKeyCount));
         sb.append("- Off-heap: \t\tfalse\n");
+        sb.append(String.format("- Backups enabled: \t%b\n", enableBackups));
         return sb.toString();
     }
 

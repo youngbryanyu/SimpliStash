@@ -334,7 +334,8 @@ public class OnHeapStashTest {
         String result = stash.getInfo();
         assertEquals("- Number of keys: \t0\n" + //
                 "- Max keys allowed: \t1000000\n" + //
-                "- Off-heap: \t\tfalse\n", result);
+                "- Off-heap: \t\tfalse\n" + //
+                "- Backups enabled: \tfalse\n", result);
     }
 
     /**

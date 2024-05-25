@@ -118,12 +118,13 @@ public class ReadOnlyServerTest {
      */
     @Test
     public void testIncrementAndDecrementConnections() {
-        for (int i = 0; i < Server.MAX_CONNECTIONS_READ_ONLY; i++) {
+        for (int i = 0; i < Server.MAX_CONNECTIONS_READ_ONLY - 1; i++) {
             assertTrue(server.incrementConnections());
         }
         assertFalse(server.incrementConnections());
         
         /* Decrement so 1 more connection can fit */
+        server.decrementConnections();
         server.decrementConnections();
         assertTrue(server.incrementConnections());
     }

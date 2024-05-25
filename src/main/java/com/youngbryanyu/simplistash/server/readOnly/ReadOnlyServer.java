@@ -117,8 +117,8 @@ public class ReadOnlyServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
+        currentConnections++;
         if (currentConnections < maxConnections) {
-            currentConnections++;
             return true;
         } else {
             return false;

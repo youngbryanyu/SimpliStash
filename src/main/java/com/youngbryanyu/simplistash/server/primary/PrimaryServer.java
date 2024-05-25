@@ -168,8 +168,9 @@ public class PrimaryServer implements Server {
      * @param masterPort The master's port.
      * @param string     The current node's IP.
      * @param port       The current node's port
+     * @throws IOException 
      */
-    private void registerAsReplica(String masterIp, int masterPort, String ip, int port) {
+    private void registerAsReplica(String masterIp, int masterPort, String ip, int port) throws IOException {
         /* Send replica command to server */
         String command = ProtocolUtil.encode(ReplicaCommand.NAME, List.of(ip, Integer.toString(port)), false,
                 Collections.emptyMap());
@@ -183,6 +184,7 @@ public class PrimaryServer implements Server {
             maxConnections = REPLICA_PRIMARY_CONNECTION_LIMIT;
         } catch (IOException e) {
             logger.warn("Failed to contact master node to set up read-replication.");
+            throw e;
         }
     }
 
@@ -194,8 +196,8 @@ public class PrimaryServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
+        currentConnections++;
         if (currentConnections < maxConnections) {
-            currentConnections++;
             return true;
         } else {
             return false;

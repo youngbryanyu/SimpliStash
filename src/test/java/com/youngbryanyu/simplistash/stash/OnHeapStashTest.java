@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.stash;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 
 import com.youngbryanyu.simplistash.eviction.EvictionTracker;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriter;
 import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriterFactory;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 
@@ -62,22 +64,33 @@ public class OnHeapStashTest {
     @Mock
     private SnapshotWriterFactory mockSnapshotWriterFactory;
     /**
+     * The mock snapshot writer.
+     */
+    @Mock
+    private SnapshotWriter mockSnapshotWriter;
+
+    /**
      * The stash under test.
      */
     private OnHeapStash stash;
-    
 
     /**
      * Setup before each test.
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     @BeforeEach
     public void setup() throws IOException {
         MockitoAnnotations.openMocks(this);
 
         cache = new ConcurrentHashMap<>();
+
+        /* Create snapshot writer */
+        when(mockSnapshotWriterFactory.createSnapshotWriter(anyString(), anyBoolean())).thenReturn(mockSnapshotWriter);
+
+        /* Default enable backups */
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS, mockSnapshotWriterFactory);
+                Stash.DEFAULT_MAX_KEY_COUNT, true, mockSnapshotWriterFactory);
     }
 
     /**
@@ -304,6 +317,19 @@ public class OnHeapStashTest {
     }
 
     /**
+     * Test {@link OffHeapStash#drop()} with an IO exception..
+     */
+    @Test
+    public void testDrop_IOException() throws IOException {
+        doThrow(IOException.class).when(mockSnapshotWriter).close();
+        /* Call method */
+        stash.drop();
+
+        /* Test assertions */
+        assertEquals(null, stash.get("key1", false));
+    }
+
+    /**
      * Test {@link OnHeapStash#updateTTL(String, long)}.
      */
     @Test
@@ -344,12 +370,13 @@ public class OnHeapStashTest {
         assertEquals("- Number of keys: \t0\n" + //
                 "- Max keys allowed: \t1000000\n" + //
                 "- Off-heap: \t\tfalse\n" + //
-                "- Snapshots enabled: \tfalse\n", result);
+                "- Snapshots enabled: \ttrue\n", result);
     }
 
     /**
      * Test {@link OnHeapStash#evictKeys()}.
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     @Test
     public void testEvict() throws IOException {
@@ -357,7 +384,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                1, StashManager.DEFAULT_ENABLE_BACKUPS, mockSnapshotWriterFactory); /* Set max key count to 1 */
+                1, StashManager.DEFAULT_STASH_ENABLE_BACKUPS, mockSnapshotWriterFactory); /* Set max key count to 1 */
 
         when(mockEvictionTracker.evict())
                 .thenReturn("key1")
@@ -372,7 +399,8 @@ public class OnHeapStashTest {
 
     /**
      * Test {@link OnHeapStash#evictKeys()} when there's no more keys to evict.
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     @Test
     public void testEvict_noMoreToEvict() throws IOException {
@@ -380,7 +408,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                1, StashManager.DEFAULT_ENABLE_BACKUPS, mockSnapshotWriterFactory); /* Set max key count to 1 */
+                1, StashManager.DEFAULT_STASH_ENABLE_BACKUPS, mockSnapshotWriterFactory); /* Set max key count to 1 */
 
         when(mockEvictionTracker.evict())
                 .thenReturn(null);
@@ -394,7 +422,8 @@ public class OnHeapStashTest {
 
     /**
      * Test {@link OnHeapStash#clear()}.
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     @Test
     public void testClear() throws IOException {
@@ -402,7 +431,7 @@ public class OnHeapStashTest {
         cache.put("key2", "val2");
         cache.put("key3", "val3");
         stash = new OnHeapStash(cache, mockTTLTimeWheel, mockLogger, mockEvictionTracker, "testStash",
-                Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_ENABLE_BACKUPS, mockSnapshotWriterFactory);
+                Stash.DEFAULT_MAX_KEY_COUNT, StashManager.DEFAULT_STASH_ENABLE_BACKUPS, mockSnapshotWriterFactory);
 
         doNothing().when(mockEvictionTracker).clear();
         doNothing().when(mockTTLTimeWheel).clear();

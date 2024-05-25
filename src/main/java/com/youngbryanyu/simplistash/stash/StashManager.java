@@ -36,9 +36,9 @@ public class StashManager {
      */
     public static final int MAX_NUM_STASHES = 100;
     /**
-     * Whether or not to enable backups by default.
+     * Whether or not to enable backups for the default stash.
      */
-    public static final boolean DEFAULT_ENABLE_BACKUPS = false;
+    public static final boolean DEFAULT_STASH_ENABLE_BACKUPS = false;
     /**
      * The factory used to create new stash instances.
      */
@@ -77,15 +77,12 @@ public class StashManager {
         stashes = new ConcurrentHashMap<>();
 
         /* Recover backups */
-        try {
-            initializeFromSnapshots();
-        } catch (IOException e) {
-            logger.warn("Failed to initialize stashes from snapshots: " + e.getMessage());
-        }
+        initializeFromSnapshots();
 
         /* Create default stash if not recovered from backups */
         if (!stashes.containsKey(DEFAULT_STASH_NAME)) {
-            createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT, DEFAULT_ENABLE_BACKUPS);
+            createStash(DEFAULT_STASH_NAME, USE_OFF_HEAP_MEMORY, Stash.DEFAULT_MAX_KEY_COUNT,
+                    DEFAULT_STASH_ENABLE_BACKUPS);
         }
     }
 
@@ -139,6 +136,7 @@ public class StashManager {
      * Drops a stash. Does nothing if the stash has already been dropped.
      * 
      * @param name The name of the stash to delete.
+     * @throws IOException
      */
     public void dropStash(String name) {
         Stash stash = getStash(name);
@@ -267,18 +265,13 @@ public class StashManager {
         return stats.toString();
     }
 
-    protected void initializeFromSnapshots() throws IOException {
+    protected void initializeFromSnapshots() {
         logger.info("Initializing stashes from snapshots...");
 
         /* Prepare directory */
-        FileUtil.ensureDirectoryExists(SnapshotWriter.DIR);
+        FileUtil.ensureDirectoryExists(SnapshotWriter.DIR); /* Create if doesn't exist */
         File directory = new File(SnapshotWriter.DIR);
         File[] snapshotFiles = directory.listFiles((dir, name) -> name.endsWith("." + SnapshotWriter.EXTENSION));
-
-        /* No snapshots */
-        if (snapshotFiles == null) {
-            return;
-        }
 
         /* Loop over files */
         for (File snapshotFile : snapshotFiles) {
@@ -324,7 +317,7 @@ public class StashManager {
                 /* Save stash */
                 stashes.put(stashName, stash);
             } catch (IOException e) {
-                System.out.println("Failed to initialize a stash from snapshot: " + e.getMessage());
+                logger.info("Failed to initialize a stash from snapshot: " + e.getMessage());
             }
         }
     }
@@ -353,5 +346,12 @@ public class StashManager {
         for (ReplicaHandler replica : replicaHandlers) {
             replica.forwardCommand(encodedCommand);
         }
+    }
+
+    /**
+     * Get the list of replica handlers.
+     */
+    public List<ReplicaHandler> getReplicaHandlers() {
+        return replicaHandlers;
     }
 }

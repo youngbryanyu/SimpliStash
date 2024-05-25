@@ -19,12 +19,10 @@ public class FileUtil {
      * @param directoryPath The directory path.
      * @throws IOException If an IOException occurs.
      */
-    public static void ensureDirectoryExists(String directoryPath) throws IOException {
+    public static void ensureDirectoryExists(String directoryPath) {
         File directory = new File(directoryPath);
         if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                throw new IOException("Failed to create directories: " + directoryPath);
-            }
+            directory.mkdirs();
         }
     }
 }

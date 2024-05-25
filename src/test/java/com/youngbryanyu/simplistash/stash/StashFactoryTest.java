@@ -112,7 +112,7 @@ public class StashFactoryTest {
 
         /* Call method */
         Stash stash = stashFactory.createOffHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT,
-                StashManager.DEFAULT_ENABLE_BACKUPS);
+                StashManager.DEFAULT_STASH_ENABLE_BACKUPS);
 
         /* Test assertions */
         verify(mockContext).getBean(DB.class);
@@ -127,7 +127,7 @@ public class StashFactoryTest {
                 mockEvictionTracker,
                 stashName,
                 Stash.DEFAULT_MAX_KEY_COUNT,
-                StashManager.DEFAULT_ENABLE_BACKUPS,
+                StashManager.DEFAULT_STASH_ENABLE_BACKUPS,
                 mockSnapshotWriterFactory);
         assertNotNull(stash);
         assertEquals(mockOffHeapStash, stash);
@@ -146,7 +146,7 @@ public class StashFactoryTest {
 
         /* Call method */
         Stash stash = stashFactory.createOnHeapStash(stashName, Stash.DEFAULT_MAX_KEY_COUNT,
-                StashManager.DEFAULT_ENABLE_BACKUPS);
+                StashManager.DEFAULT_STASH_ENABLE_BACKUPS);
 
         /* Test assertions */
         verify(mockContext).getBean(TTLTimeWheel.class);

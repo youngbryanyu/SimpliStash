@@ -262,12 +262,6 @@ public class OnHeapStash implements Stash {
      */
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                snapshotManager.close(); /* Set backup needed */
-            } catch (IOException e) {
-                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
-            }
-
             cache.clear();
         }));
     }
@@ -326,49 +320,5 @@ public class OnHeapStash implements Stash {
         cache.clear();
         ttlTimeWheel.clear();
         evictionTracker.clear();
-    }
-
-    /**
-     * Returns the stash's name.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns the stash's max key count.
-     * 
-     * @return The stash's max key count.
-     */
-    public long getMaxKeyCount() {
-        return maxKeyCount;
-    }
-
-    /**
-     * Returns whether or not backups are enabled.
-     * 
-     * @return True if backups are enabled, false otherwise.
-     */
-    public boolean isBackupEnabled() {
-        return enableSnapshots;
-    }
-
-    /**
-     * Returns the expiration time assoicated with the key. Returns -1 if there is
-     * no TTL associated.
-     * 
-     * @return Returns the expiration time assoicated with the key.
-     */
-    public long getExpirationTime(String key) {
-        return ttlTimeWheel.getExpirationTime(key);
-    }
-
-    /**
-     * Returns a map of all entries inside the stash.
-     * 
-     * @return A map of all entries inside the stash.
-     */
-    public Map<String, String> getAllEntries() {
-        return cache;
     }
 }

@@ -1,6 +1,5 @@
 package com.youngbryanyu.simplistash.stash.snapshots;
 
-import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.ttl.TTLTimeWheel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

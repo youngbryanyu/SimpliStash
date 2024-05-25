@@ -272,11 +272,6 @@ public class OffHeapStash implements Stash {
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             db.close();
-            try {
-                snapshotManager.close(); /* Set backup needed */
-            } catch (IOException e) {
-                logger.debug("Failed to close the snapshot manager: " + e.getMessage());
-            }
         }));
     }
 

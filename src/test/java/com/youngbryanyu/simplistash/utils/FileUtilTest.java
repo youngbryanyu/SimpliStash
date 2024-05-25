@@ -86,23 +86,4 @@ public class FileUtilTest {
         File directory = new File(NEW_DIR);
         assertTrue(directory.exists() && directory.isDirectory());
     }
-
-    /**
-     * Test ensuring the directory exists but a failure occurs.
-     */
-    @Test
-    public void testEnsureDirectoryExists_Failure() throws IOException {
-        // Simulate a scenario where directory creation fails
-        FileUtil.ensureDirectoryExists(NEW_DIR + "/nestedDir");
-        File directory = new File(NEW_DIR + "/nestedDir");
-        assertTrue(directory.exists() && directory.isDirectory());
-        directory.setReadOnly(); // Make the directory read-only to simulate failure
-
-        IOException exception = assertThrows(IOException.class, () -> {
-            FileUtil.ensureDirectoryExists(NEW_DIR + "/nestedDir/failureTest");
-        });
-
-        assertEquals("Failed to create directories: " + NEW_DIR + "/nestedDir/failureTest", exception.getMessage());
-        directory.setWritable(true); // Clean up by making the directory writable again
-    }
 }

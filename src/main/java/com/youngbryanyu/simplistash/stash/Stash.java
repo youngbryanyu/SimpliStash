@@ -1,5 +1,7 @@
 package com.youngbryanyu.simplistash.stash;
 
+import java.io.IOException;
+
 /**
  * The stash interface.
  */
@@ -84,6 +86,7 @@ public interface Stash {
 
     /**
      * Drops the stash.
+     * @throws IOException 
      */
     public void drop();
 

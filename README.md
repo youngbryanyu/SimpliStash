@@ -29,4 +29,4 @@ To run the CLI, run `sstash-cli <ip> <port>`. See [Example](#example) for an exa
 For more details, see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
 ## Contributing
-~~If you are interested in contributing, reach out to `youngyu2002@gmail.com`~~. This project has currently been paused. If you are interested in running it or extending it, you will need to fork the repo. Reach out to `youngyu2002@gmail.com` for any questions.
+This project has currently been paused. If you are interested in running it or extending it, you will need to fork the repo. Reach out to `youngyu2002@gmail.com` for any questions.

@@ -15,7 +15,12 @@ The setup script does the following:
 - Creates symbolic links to executables
 
 ## Running SimpliStash
-To start the server, run `sstash`.
+To start the server, run `sstash <primaryPort> <readOnlyPort> [masterIp] [masterPort]`. See [Example](#example) for an example.
 
 ## Running the CLI
-To run the CLI, run `sstash-cli <ip> <port>`. If running the server locally this is just `sstash-cli localhost 3000` by default.
+To run the CLI, run `sstash-cli <ip> <port>`. See [Example](#example) for an example.
+
+## Example
+1. `sstash 3000 3001`: Starts a single node with its main server on port 3000 and read-only server on port 3001 using.
+2. `sstash-cli localhost 3000`: Connects to the primary port.
+3. `sstash 4000 4001 localhost 3000`: Spins up a read-replica of the master node listening on port 3000.

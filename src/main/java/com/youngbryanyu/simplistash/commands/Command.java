@@ -42,7 +42,9 @@ public interface Command {
         TTL_OUT_OF_RANGE("The TTL is out of the supported range"),
         /* Key limit errors */
         MAX_KEY_COUNT_INVALID_LONG("The max key count must be a valid long"),
-        MAX_KEY_COUNT_OUT_OF_RANGE("The max key count is out of the supported range");
+        MAX_KEY_COUNT_OUT_OF_RANGE("The max key count is out of the supported range"),
+        /* Invalid port error */
+        INVALID_PORT("The port provided is an invalid int");
 
         /**
          * The enum's message

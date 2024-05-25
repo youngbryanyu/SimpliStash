@@ -1,6 +1,8 @@
 package com.youngbryanyu.simplistash.commands.write;
 
+import java.util.Collections;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +128,10 @@ public class ExpireCommand implements Command {
         if (!updatedTTL) {
             return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.KEY_DOESNT_EXIST));
         }
+
+        /* Forward to replica */
+        stashManager
+                .forwardCommandToReadReplicas(ProtocolUtil.encode(NAME, List.of(key, ttlStr), true, optionalArgVals));
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();

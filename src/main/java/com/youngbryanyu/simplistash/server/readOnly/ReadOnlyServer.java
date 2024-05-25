@@ -41,6 +41,14 @@ public class ReadOnlyServer implements Server {
      * The number of current client connections.
      */
     private int currentConnections;
+    /**
+     * The port the server listens on.
+     */
+    private int port;
+     /**
+     * The max allowed server connections.
+     */
+    private int maxConnections;
 
     /**
      * Constructor for the server.
@@ -58,6 +66,10 @@ public class ReadOnlyServer implements Server {
         this.bootstrap = bootstrap;
         this.channelInitializer = channelInitializer;
         this.logger = logger;
+
+        currentConnections = 0;
+        port = DEFAULT_READ_ONLY_PORT;
+        maxConnections = MAX_CONNECTIONS_READ_ONLY;
     }
 
     /**
@@ -69,14 +81,24 @@ public class ReadOnlyServer implements Server {
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
+        /* Get custom port */
+        String readOnlyPortString = System.getProperty("readOnlyPort");
+        if (readOnlyPortString != null) {
+            try {
+                port = Integer.parseInt(readOnlyPortString);
+            } catch (NumberFormatException e) {
+                logger.debug("Invalid read only port, falling back to default: " + DEFAULT_READ_ONLY_PORT);
+            }
+        }
+
         try {
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(channelInitializer);
 
             /* Bind to port and listen for connections */
-            ChannelFuture f = bootstrap.bind(Server.READ_ONLY_PORT).sync();
-            logger.info("Read-only server started on port: " + Server.READ_ONLY_PORT);
+            ChannelFuture f = bootstrap.bind(port).sync();
+            logger.info("Read-only server started on port: " + port);
 
             /* Wait until server is closed */
             f.channel().closeFuture().sync();
@@ -95,7 +117,7 @@ public class ReadOnlyServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
-        if (currentConnections < MAX_CONNECTIONS_READ_ONLY) {
+        if (currentConnections < maxConnections) {
             currentConnections++;
             return true;
         } else {

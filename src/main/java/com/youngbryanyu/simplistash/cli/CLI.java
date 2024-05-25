@@ -83,7 +83,7 @@ public class CLI {
 
             cliClient.close();
         } catch (IOException e) {
-            System.out.println("IOException occurred while running of closing the CLI client: " + e.getMessage());
+            System.out.println("Couldn't run or close the CLI client properly: " + e.getMessage());
         }
     }
 

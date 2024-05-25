@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,9 @@ public class DeleteCommand implements Command {
 
         /* Delete key */
         stash.delete(key);
+
+        /* Forward to replica */
+        stashManager.forwardCommandToReadReplicas(ProtocolUtil.encode(NAME, List.of(key), true, optionalArgVals));
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();

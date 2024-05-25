@@ -1,13 +1,24 @@
 package com.youngbryanyu.simplistash.server.primary;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Collections;
+import java.util.List;
+
 import org.slf4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.commands.replica.ReplicaCommand;
 import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
+import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -20,6 +31,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 @Component
 public class PrimaryServer implements Server {
+    /**
+     * The number of "clients" that are allowed to connect to the server that
+     * handles writes. Is 1 for read replicas since only the master node should be
+     * able to connect and forward writes.
+     */
+    private static final int REPLICA_PRIMARY_CONNECTION_LIMIT = 1;
     /**
      * Number of worker threads to use to handle commands. We use a single thread
      * (similar to Redis).
@@ -53,6 +70,14 @@ public class PrimaryServer implements Server {
      * The number of current client connections.
      */
     private int currentConnections;
+    /**
+     * The port the server listens on.
+     */
+    private int port;
+    /**
+     * The max allowed server connections.
+     */
+    private int maxConnections;
 
     /**
      * Constructor for the server.
@@ -74,6 +99,8 @@ public class PrimaryServer implements Server {
         this.logger = logger;
 
         currentConnections = 0;
+        port = DEFAULT_PRIMARY_PORT;
+        maxConnections = MAX_CONNECTIONS_PRIMARY;
     }
 
     /**
@@ -88,6 +115,16 @@ public class PrimaryServer implements Server {
      * @throws Exception If the server fails to start.
      */
     public void start() throws Exception {
+        /* Get custom port */
+        String primaryPortString = System.getProperty("primaryPort");
+        if (primaryPortString != null) {
+            try {
+                port = Integer.parseInt(primaryPortString);
+            } catch (NumberFormatException e) {
+                logger.debug("Invalid primary port, falling back to default: " + DEFAULT_PRIMARY_PORT);
+            }
+        }
+
         /* Set up periodic task to expire TTLed keys */
         keyExpirationManager.startExpirationTask(workerGroup);
 
@@ -97,8 +134,21 @@ public class PrimaryServer implements Server {
                     .childHandler(channelInitializer);
 
             /* Bind to port and listen for connections */
-            ChannelFuture f = bootstrap.bind(Server.PRIMARY_PORT).sync();
-            logger.info("Primary server started on port: " + Server.PRIMARY_PORT);
+            ChannelFuture f = bootstrap.bind(port).sync();
+            logger.info("Primary server started on port: " + port);
+
+            /* Deterine if we should register as read replica */
+            String masterIp = System.getProperty("masterIp");
+            String masterPortStr = System.getProperty("masterPort");
+            if (masterIp != null && !masterIp.isEmpty() && masterPortStr != null && !masterPortStr.isEmpty()) {
+                try {
+                    /* Register node as read replica */
+                    int masterPort = Integer.parseInt(masterPortStr);
+                    registerAsReplica(masterIp, masterPort, InetAddress.getLocalHost().getHostAddress(), port);
+                } catch (NumberFormatException e) {
+                    logger.warn("Failed to register node as a read-replica.");
+                }
+            }
 
             /* Wait until server is closed */
             f.channel().closeFuture().sync();
@@ -111,6 +161,32 @@ public class PrimaryServer implements Server {
     }
 
     /**
+     * Registers the current node as a read-replica with the master by sending the
+     * REPLICA <ip> <port> command to the master.
+     * 
+     * @param masterIp   The master's IP.
+     * @param masterPort The master's port.
+     * @param string     The current node's IP.
+     * @param port       The current node's port
+     */
+    private void registerAsReplica(String masterIp, int masterPort, String ip, int port) {
+        /* Send replica command to server */
+        String command = ProtocolUtil.encode(ReplicaCommand.NAME, List.of(ip, Integer.toString(port)), false,
+                Collections.emptyMap());
+        try (Socket socket = new Socket(masterIp, masterPort);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            out.print(command);
+            out.flush();
+
+            /* Set max connections to 1 as a read replica so only the master can connect */
+            maxConnections = REPLICA_PRIMARY_CONNECTION_LIMIT;
+        } catch (IOException e) {
+            logger.warn("Failed to contact master node to set up read-replication.");
+        }
+    }
+
+    /**
      * Increment the number of server connections. Does nothing and returns false if
      * the max number of connections has been reached.
      * 
@@ -118,7 +194,7 @@ public class PrimaryServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
-        if (currentConnections < MAX_CONNECTIONS_PRIMARY) {
+        if (currentConnections < maxConnections) {
             currentConnections++;
             return true;
         } else {

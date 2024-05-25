@@ -108,7 +108,7 @@ public class ReadOnlyServerTest {
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
-        verify(mockServerBootstrap).bind(Server.READ_ONLY_PORT);
+        verify(mockServerBootstrap).bind(Server.DEFAULT_READ_ONLY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
     }

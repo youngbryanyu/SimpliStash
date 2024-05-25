@@ -113,7 +113,7 @@ public class PrimaryServerTest {
         verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
         verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
         verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
-        verify(mockServerBootstrap).bind(Server.PRIMARY_PORT);
+        verify(mockServerBootstrap).bind(Server.DEFAULT_PRIMARY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
         verify(mockKeyExpirationManager).startExpirationTask(any());

@@ -76,7 +76,7 @@ public class SnapshotWriter {
             }
 
             /* Create temp and final file */
-            tempFilePath = Path.of(DIR, name + "_new." + EXTENSION);
+            tempFilePath = Path.of(DIR, name + "_temp." + EXTENSION);
             finalFilePath = Path.of(DIR, name + "." + EXTENSION);
 
             /* Initialize writer with temp file in truncate mode */
@@ -122,7 +122,8 @@ public class SnapshotWriter {
     }
 
     /**
-     * Closes the writer. Should flush to disk first before closing.
+     * Closes the writer. Should flush to disk first before closing. Deletes the
+     * snapshot file.
      * 
      * @throws IOException If an IOException occurs.
      */
@@ -130,6 +131,16 @@ public class SnapshotWriter {
         if (enableSnapshots) {
             writer.close();
         }
+    }
+
+    /**
+     * Deletes the snapshot files.
+     * 
+     * @throws IOException If an IOException occurs.
+     */
+    public void delete() throws IOException {
+        Files.deleteIfExists(finalFilePath);
+        Files.deleteIfExists(tempFilePath);
     }
 
     /**

@@ -245,7 +245,8 @@ public class OnHeapStash implements Stash {
     public void drop() {
         if (enableSnapshots) {
             try {
-                snapshotManager.close(); /* Set backup needed */
+                snapshotManager.close();
+                snapshotManager.delete(); /* Delete snapshots */
             } catch (IOException e) {
                 logger.debug("Failed to close the snapshot manager: " + e.getMessage());
             }
@@ -371,5 +372,3 @@ public class OnHeapStash implements Stash {
         return cache;
     }
 }
-
-// TODO: implement snapshots like off heap stash

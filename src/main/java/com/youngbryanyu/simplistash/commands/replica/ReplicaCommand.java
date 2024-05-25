@@ -1,29 +1,29 @@
-package com.youngbryanyu.simplistash.commands.write;
+package com.youngbryanyu.simplistash.commands.replica;
 
-import java.util.Collections;
 import java.util.Deque;
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
+import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
- * The DROP command. Drops a stash.
+ * The REPLICA command. Registers a read replica
  */
 @Component
-public class DropCommand implements Command {
+public class ReplicaCommand implements Command {
     /**
      * The command's name.
      */
-    public static final String NAME = "DROP";
+    public static final String NAME = "REPLICA";
     /**
      * The command's format.
      */
-    private static final String FORMAT = "DROP <name>";
+    private static final String FORMAT = "REPLICA <ip> <port>";
     /**
      * The minimum number of required arguments.
      */
@@ -34,18 +34,18 @@ public class DropCommand implements Command {
     private final StashManager stashManager;
 
     /**
-     * Constructor for the DROP command.
+     * Constructor for the REPLICA command.
      * 
      * @param stashManager The stash manager.
      */
     @Autowired
-    public DropCommand(StashManager stashManager) {
+    public ReplicaCommand(StashManager stashManager) {
         this.stashManager = stashManager;
         minRequiredArgs = ProtocolUtil.getMinRequiredArgs(FORMAT);
     }
 
     /**
-     * Executes the DROP command. Returns null if there aren't enough tokens.
+     * Executes the SET command. Returns null if there aren't enough tokens.
      * 
      * @param tokens   The client's tokens.
      * @param readOnly Whether the client is read-only.
@@ -59,24 +59,17 @@ public class DropCommand implements Command {
 
         /* Extract tokens */
         tokens.pollFirst();
-        String name = tokens.pollFirst();
-
-        /* Check if client is read-only */
-        if (readOnly) {
-            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.READ_ONLY_MODE));
+        String ip = tokens.pollFirst();
+        String portString = tokens.pollFirst();
+        int port;
+        try {
+            port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.INVALID_PORT));
         }
 
-        /* Check if attempting to drop default stash */
-        if (name.equals(StashManager.DEFAULT_STASH_NAME)) {
-            return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.CANNOT_DROP_DEFAULT_STASH));
-        }
-
-        /* Drop stash */
-        stashManager.dropStash(name);
-
-        /* Forward to replica */
-        stashManager
-                .forwardCommandToReadReplicas(ProtocolUtil.encode(NAME, List.of(name), true, Collections.emptyMap()));
+        /* Register as read replica */
+        stashManager.registerReadReplica(ip, port);
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();
@@ -85,7 +78,7 @@ public class DropCommand implements Command {
     /**
      * Returns the command's name.
      * 
-     * @return The command's name.
+     * @return The command name
      */
     public String getName() {
         return NAME;

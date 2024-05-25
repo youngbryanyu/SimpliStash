@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.commands.write;
 
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Map;
 
@@ -108,6 +109,9 @@ public class ClearCommand implements Command {
 
         /* Clear stash */
         stash.clear();
+
+        /* Forward to replica */
+        stashManager.forwardCommandToReadReplicas(ProtocolUtil.encode(NAME, Collections.emptyList(), true, optionalArgVals));
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();

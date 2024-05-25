@@ -53,7 +53,6 @@ public class SnapshotManager {
      */
     private final Logger logger;
 
-
     /**
      * The constructor
      * 
@@ -63,7 +62,8 @@ public class SnapshotManager {
      * @param ttlTimeWheel   The TTL data structure
      * @param snapshotWriter The snap shot writer.
      */
-    public SnapshotManager(String name, long maxKeyCount, boolean offHeap, Map<String, String> cache, TTLTimeWheel ttlTimeWheel,
+    public SnapshotManager(String name, long maxKeyCount, boolean offHeap, Map<String, String> cache,
+            TTLTimeWheel ttlTimeWheel,
             SnapshotWriter snapshotWriter, Logger logger) {
         this.name = name;
         this.maxKeyCount = maxKeyCount;
@@ -100,7 +100,7 @@ public class SnapshotManager {
                 logger.debug("Snapshot started for stash: " + name);
 
                 /* Open the writer */
-                snapshotWriter.open(); 
+                snapshotWriter.open();
 
                 /* Write metadata first */
                 snapshotWriter.writeMetadata(name, maxKeyCount, offHeap);
@@ -115,7 +115,7 @@ public class SnapshotManager {
 
                 /* Commit and writer */
                 snapshotWriter.commit();
-                snapshotWriter.close(); 
+                snapshotWriter.close();
                 backupNeeded = false;
 
                 logger.debug("Snapshot finished for stash: " + name);
@@ -136,9 +136,19 @@ public class SnapshotManager {
 
     /**
      * Closes the snapshot writer.
+     * 
      * @throws IOException If an IO exception occurs.
      */
     public void close() throws IOException {
         snapshotWriter.close();
+    }
+
+    /**
+     * Deletes the snapshot files.
+     * 
+     * @throws IOException If an IO exception occurs.
+     */
+    public void delete() throws IOException {
+        snapshotWriter.delete();
     }
 }

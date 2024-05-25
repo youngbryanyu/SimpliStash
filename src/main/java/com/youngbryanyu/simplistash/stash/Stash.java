@@ -13,7 +13,7 @@ public interface Stash {
      */
     public static final int MAX_VALUE_LENGTH = 65536;
     /**
-     * The max alloed length of a stash's name.
+     * The max allowed length of a stash's name.
      */
     public static final int MAX_NAME_LENGTH = 64;
     /**
@@ -27,7 +27,7 @@ public interface Stash {
     /**
      * The delay between backups in seconcds.
      */
-    public static final int BACKUP_DELAY_S = 5; // TODO set to 900 after testing
+    public static final int BACKUP_DELAY_S = 900;
 
     /**
      * Set a key to a value.

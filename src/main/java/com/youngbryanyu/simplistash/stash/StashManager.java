@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,6 +17,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.server.primary.Replica;
 import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriter;
 import com.youngbryanyu.simplistash.utils.FileUtil;
 import com.youngbryanyu.simplistash.utils.SerializationUtil;
@@ -51,6 +55,10 @@ public class StashManager {
      * Whether or not to default to off-heap memory.
      */
     public static final boolean USE_OFF_HEAP_MEMORY = true;
+    /**
+     * The current registered read replicas.
+     */
+    private final List<Replica> replicas = new ArrayList<>();
 
     /**
      * Constructor for a stash manager.
@@ -184,6 +192,19 @@ public class StashManager {
         long totalDiskSpace = file.getTotalSpace();
         long usableDiskSpace = file.getUsableSpace();
 
+        /* Get read replica and master info */
+        String masterIp = System.getProperty("masterIp");
+        String masterPortStr = System.getProperty("masterPort");
+        int masterPort = -1;
+        if (masterIp != null && !masterIp.isEmpty() && masterPortStr != null && !masterPortStr.isEmpty()) {
+            try {
+                /* Register node as read replica */
+                masterPort = Integer.parseInt(masterPortStr);
+            } catch (NumberFormatException e) {
+                logger.warn("Failed to register node as a read-replica.");
+            }
+        }
+
         /* Build stats response */
         StringBuilder stats = new StringBuilder();
 
@@ -219,6 +240,17 @@ public class StashManager {
             stats.append("\n");
         }
 
+        stats.append("Replication:\n");
+        if (masterPort != -1) {
+            stats.append(String.format("- Read replica: \t%b\n", true));
+            stats.append(String.format("- Master port: \t\t%d\n", masterPort));
+            stats.append(String.format("- Master ip: \t\t%s\n", masterIp));
+        } else {
+             /* Master */
+             stats.append(String.format("- Read replica: \t%b\n", false));
+             stats.append(String.format("- Read replica count: \t%d\n", replicas.size()));
+        }
+
         stats.deleteCharAt(stats.length() - 1); // delete extra newline at end
 
         return stats.toString();
@@ -231,7 +263,6 @@ public class StashManager {
         FileUtil.ensureDirectoryExists(SnapshotWriter.DIR);
         File directory = new File(SnapshotWriter.DIR);
         File[] snapshotFiles = directory.listFiles((dir, name) -> name.endsWith("." + SnapshotWriter.EXTENSION));
-        
 
         /* No snapshots */
         if (snapshotFiles == null) {
@@ -241,7 +272,7 @@ public class StashManager {
         /* Loop over files */
         for (File snapshotFile : snapshotFiles) {
             try (BufferedReader reader = new BufferedReader(new FileReader(snapshotFile))) {
-                /* Get metadata in order*/
+                /* Get metadata in order */
                 String stashName = SerializationUtil.decode(reader);
                 long maxKeyCount = Long.parseLong(SerializationUtil.decode(reader));
                 boolean offHeap = Boolean.parseBoolean(SerializationUtil.decode(reader));
@@ -260,7 +291,8 @@ public class StashManager {
                 while (true) {
                     /* Parse key */
                     String key = SerializationUtil.decode(reader);
-                    if (key == null) break; /* Nothing left to parse */
+                    if (key == null)
+                        break; /* Nothing left to parse */
 
                     /* Parse value */
                     String value = SerializationUtil.decode(reader);
@@ -268,7 +300,7 @@ public class StashManager {
                     /* Parse ttl */
                     String expirationString = SerializationUtil.decode(reader);
                     long expirationTime = Long.parseLong(expirationString);
-                   
+
                     /* Store the entry */
                     if (expirationTime == -1) {
                         stash.set(key, value);
@@ -277,12 +309,38 @@ public class StashManager {
                         stash.setWithTTL(key, value, expirationTime - System.currentTimeMillis());
                     }
                 }
-                
+
                 /* Save stash */
                 stashes.put(stashName, stash);
             } catch (IOException e) {
                 System.out.println("Failed to initialize a stash from snapshot: " + e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Registers a read replica.
+     * 
+     * @param port The port.
+     * @param ip   The ip.
+     */
+    public void registerReadReplica(String ip, int port) {
+        /* Connect to replica */
+        Replica replica = new Replica(ip, port);
+        replica.connect();
+        replicas.add(replica);
+
+        logger.info(String.format("Replica registered from: %s/%d", ip, port));
+    }
+
+    /**
+     * Forwards a command to a read replica.
+     * 
+     * @param encodedCommand The command to forward, already encoded.
+     */
+    public void forwardCommandToReadReplicas(String encodedCommand) {
+        for (Replica replica : replicas) {
+            replica.forwardCommand(encodedCommand);
         }
     }
 }

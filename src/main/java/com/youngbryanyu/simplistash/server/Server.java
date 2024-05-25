@@ -7,11 +7,11 @@ public interface Server {
     /**
      * The port to use for the main server.
      */
-    public static final int PRIMARY_PORT = 3000;
+    public static final int DEFAULT_PRIMARY_PORT = 3000; 
     /**
      * The port to use for the server that can only perform reads.
      */
-    public static final int READ_ONLY_PORT = 3001;
+    public static final int DEFAULT_READ_ONLY_PORT = 3001;    
     /**
      * The max number of connections allowed concurrently with the primary server.
      */

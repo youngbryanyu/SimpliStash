@@ -1,6 +1,7 @@
 package com.youngbryanyu.simplistash.commands.write;
 
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +139,10 @@ public class SetCommand implements Command {
         } else {
             stash.setWithTTL(key, value, ttl); /* Set with TTL if specified */
         }
+
+        /* Forward to replica */
+        stashManager
+                .forwardCommandToReadReplicas(ProtocolUtil.encode(NAME, List.of(key, value), true, optionalArgVals));
 
         /* Build response */
         return ProtocolUtil.buildOkResponse();

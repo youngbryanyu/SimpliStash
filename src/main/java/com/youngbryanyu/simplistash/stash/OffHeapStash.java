@@ -255,11 +255,11 @@ public class OffHeapStash implements Stash {
     public void drop() {
         if (enableSnapshots) {
             try {
-                snapshotManager.close(); /* Set backup needed */
+                snapshotManager.close();
+                snapshotManager.delete(); /* Delete snapshots */
             } catch (IOException e) {
                 logger.debug("Failed to close the snapshot manager: " + e.getMessage());
             }
-
         }
 
         db.close();

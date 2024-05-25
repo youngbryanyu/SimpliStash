@@ -24,8 +24,11 @@ public class FileUtilTest {
      */
     private static final String NEW_DIR = "testDirNew";
 
+    /**
+     * Setup before each test.
+     */
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setup() throws IOException {
         /* Create a directory that already exists */
         File existingDir = new File(EXISTING_DIR);
         if (!existingDir.exists()) {

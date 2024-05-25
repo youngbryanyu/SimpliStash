@@ -7,6 +7,10 @@ import java.io.IOException;
  * Util to help serialization to disk
  */
 public class SerializationUtil {
+    /* Private constructor to prevent instantiation */
+    private SerializationUtil() {
+    }
+
     /**
      * Length-prefixed serialization delimiter.
      */

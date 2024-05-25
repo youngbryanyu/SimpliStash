@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class Replica {
+public class ReplicaHandler {
     /**
      * The replica's ip.
      */
@@ -34,7 +34,7 @@ public class Replica {
     /**
      * The replica IO factory.
      */
-    private final ReplicaIOFactory replicaIOFactory;
+    private final ReplicaHandlerIOFactory replicaIOFactory;
 
     /**
      * The constructor.
@@ -43,7 +43,7 @@ public class Replica {
      * @param port The replica's port.
      */
     @Autowired
-    public Replica(ReplicaIOFactory replicaIOFactory, String ip, int port) {
+    public ReplicaHandler(ReplicaHandlerIOFactory replicaIOFactory, String ip, int port) {
         this.replicaIOFactory = replicaIOFactory;
         this.ip = ip;
         this.port = port;

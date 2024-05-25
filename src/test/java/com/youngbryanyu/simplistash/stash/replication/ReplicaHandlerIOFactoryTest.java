@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * Unit tests for the replica IO factory.
  */
-public class ReplicaIOFactoryTest {
+public class ReplicaHandlerIOFactoryTest {
     /**
      * The mocked socket.
      */
@@ -25,7 +25,7 @@ public class ReplicaIOFactoryTest {
     /**
      * The replica IO factory under test.
      */
-    private ReplicaIOFactory replicaIOFactory;
+    private ReplicaHandlerIOFactory replicaIOFactory;
 
     /**
      * Setup before each test.
@@ -34,7 +34,7 @@ public class ReplicaIOFactoryTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        replicaIOFactory = new ReplicaIOFactory();
+        replicaIOFactory = new ReplicaHandlerIOFactory();
     }
 
     /**

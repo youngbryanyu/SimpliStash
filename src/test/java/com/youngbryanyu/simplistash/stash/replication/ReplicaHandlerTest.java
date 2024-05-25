@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for the replica test.
  */
-public class ReplicaTest {
+public class ReplicaHandlerTest {
     /**
      * The mock socket.
      */
@@ -38,12 +38,12 @@ public class ReplicaTest {
      * The mock replica factory.
      */
     @Mock
-    private ReplicaIOFactory mockReplicaIOFactory;
+    private ReplicaHandlerIOFactory mockReplicaIOFactory;
 
     /**
      * The replica class under test.
      */
-    private Replica replica;
+    private ReplicaHandler replica;
 
     /**
      * Setup before each test.
@@ -55,7 +55,7 @@ public class ReplicaTest {
         when(mockReplicaIOFactory.createSocket(anyString(), anyInt())).thenReturn(mockSocket);
         when(mockReplicaIOFactory.createWriter(any(Socket.class))).thenReturn(mockWriter);
 
-        replica = new Replica(mockReplicaIOFactory, "127.0.0.1", 8080);
+        replica = new ReplicaHandler(mockReplicaIOFactory, "127.0.0.1", 8080);
 
         when(mockSocket.isClosed()).thenReturn(false);
         when(mockSocket.isConnected()).thenReturn(true);

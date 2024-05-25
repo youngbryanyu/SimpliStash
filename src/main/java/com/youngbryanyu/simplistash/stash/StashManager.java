@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.stash.replication.Replica;
-import com.youngbryanyu.simplistash.stash.replication.ReplicaFactory;
+import com.youngbryanyu.simplistash.stash.replication.ReplicaHandler;
+import com.youngbryanyu.simplistash.stash.replication.ReplicaHandlerFactory;
 import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriter;
 import com.youngbryanyu.simplistash.utils.FileUtil;
 import com.youngbryanyu.simplistash.utils.SerializationUtil;
@@ -56,13 +56,13 @@ public class StashManager {
      */
     public static final boolean USE_OFF_HEAP_MEMORY = true;
     /**
-     * The current registered read replicas.
+     * The current registered read replica handlers.
      */
-    private final List<Replica> replicas = new ArrayList<>();
+    private final List<ReplicaHandler> replicaHandlers = new ArrayList<>();
     /**
      * The replica factory.
      */
-    private final ReplicaFactory replicaFactory;
+    private final ReplicaHandlerFactory replicaFactory;
 
     /**
      * Constructor for a stash manager.
@@ -70,7 +70,7 @@ public class StashManager {
      * @param stashFactory The factory used to create the stashes.
      */
     @Autowired
-    public StashManager(StashFactory stashFactory, ReplicaFactory replicaFactory, Logger logger) {
+    public StashManager(StashFactory stashFactory, ReplicaHandlerFactory replicaFactory, Logger logger) {
         this.stashFactory = stashFactory;
         this.replicaFactory = replicaFactory;
         this.logger = logger;
@@ -253,7 +253,7 @@ public class StashManager {
         } else {
              /* Master */
              stats.append(String.format("- Read replica: \t%b\n", false));
-             stats.append(String.format("- Read replica count: \t%d\n", replicas.size()));
+             stats.append(String.format("- Read replica count: \t%d\n", replicaHandlers.size()));
         }
 
         stats.deleteCharAt(stats.length() - 1); // delete extra newline at end
@@ -331,9 +331,9 @@ public class StashManager {
      */
     public void registerReadReplica(String ip, int port) {
         /* Connect to replica */
-        Replica replica = replicaFactory.createReplica(ip, port);
-        replica.connect();
-        replicas.add(replica);
+        ReplicaHandler replicaHandler = replicaFactory.createReplica(ip, port);
+        replicaHandler.connect();
+        replicaHandlers.add(replicaHandler);
 
         logger.info(String.format("Replica registered from: %s/%d", ip, port));
     }
@@ -344,7 +344,7 @@ public class StashManager {
      * @param encodedCommand The command to forward, already encoded.
      */
     public void forwardCommandToReadReplicas(String encodedCommand) {
-        for (Replica replica : replicas) {
+        for (ReplicaHandler replica : replicaHandlers) {
             replica.forwardCommand(encodedCommand);
         }
     }

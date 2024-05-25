@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
  * Replica IO factory.
  */
 @Component
-public class ReplicaIOFactory {
+public class ReplicaHandlerIOFactory {
 
     /**
      * Constructor.
      */
     @Autowired
-    public ReplicaIOFactory() {
+    public ReplicaHandlerIOFactory() {
     }
 
     /**

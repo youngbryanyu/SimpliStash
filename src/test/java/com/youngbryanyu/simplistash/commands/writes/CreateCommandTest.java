@@ -330,12 +330,12 @@ public class CreateCommandTest {
     }
 
     /**
-     * Test execution with the optional arg BACKUPS.
+     * Test execution with the optional arg SNAPSHOTS.
      */
     @Test
-    public void testExecute_optionalArgBACKUPS() {
+    public void testExecute_optionalArgSNAPSHOTS() {
         /* Setup */
-        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "BACKUPS=true"));
+        Deque<String> tokens = new LinkedList<>(List.of("CREATE", "stash1", "1", "SNAPSHOTS=true"));
         String expectedResponse = ProtocolUtil.buildOkResponse();
         when(mockStashManager.createStash(anyString(), anyBoolean(), anyLong(), anyBoolean())).thenReturn(true);
 

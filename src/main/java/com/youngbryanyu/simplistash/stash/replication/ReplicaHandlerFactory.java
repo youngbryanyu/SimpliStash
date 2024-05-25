@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * The replica factory.
  */
 @Component
-public class ReplicaFactory {
+public class ReplicaHandlerFactory {
     /**
      * The spring application context.
      */
@@ -24,7 +24,7 @@ public class ReplicaFactory {
      * @param context The spring application context.
      */
     @Autowired
-    public ReplicaFactory(ApplicationContext context) {
+    public ReplicaHandlerFactory(ApplicationContext context) {
         this.context = context;
     }
 
@@ -35,8 +35,8 @@ public class ReplicaFactory {
      * @param port The port of the replica.
      * @return Returns the replica handler.
      */
-    public Replica createReplica(String ip, int port) {
-        ReplicaIOFactory replicaIOFactory = context.getBean(ReplicaIOFactory.class);
-        return context.getBean(Replica.class, replicaIOFactory, ip, port);
+    public ReplicaHandler createReplica(String ip, int port) {
+        ReplicaHandlerIOFactory replicaIOFactory = context.getBean(ReplicaHandlerIOFactory.class);
+        return context.getBean(ReplicaHandler.class, replicaIOFactory, ip, port);
     }
 }

@@ -25,7 +25,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * Unit tests for the replica factory.
  */
-public class ReplicaFactoryTest {
+public class ReplicaHandlerFactoryTest {
     /**
      * The mocked application context.
      */
@@ -35,16 +35,16 @@ public class ReplicaFactoryTest {
      * The mock replica IO factory.
      */
     @Mock
-    private ReplicaIOFactory mockReplicaIOFactory;
+    private ReplicaHandlerIOFactory mockReplicaIOFactory;
     /**
      * The mock replica.
      */
     @Mock
-    private Replica mockReplica;
+    private ReplicaHandler mockReplica;
     /**
      * The replica factory under test.
      */
-    private ReplicaFactory replicaFactory;
+    private ReplicaHandlerFactory replicaFactory;
 
     /**
      * Setup before each test.
@@ -53,7 +53,7 @@ public class ReplicaFactoryTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        replicaFactory = new ReplicaFactory(mockContext);
+        replicaFactory = new ReplicaHandlerFactory(mockContext);
     }
 
     /**
@@ -61,12 +61,12 @@ public class ReplicaFactoryTest {
      */
     @Test
     public void testCreateRreplica() throws IOException {
-        when(mockContext.getBean(ReplicaIOFactory.class)).thenReturn(mockReplicaIOFactory);
-        when(mockContext.getBean(eq(Replica.class), any(ReplicaIOFactory.class), anyString(), anyInt())).thenReturn(mockReplica);
+        when(mockContext.getBean(ReplicaHandlerIOFactory.class)).thenReturn(mockReplicaIOFactory);
+        when(mockContext.getBean(eq(ReplicaHandler.class), any(ReplicaHandlerIOFactory.class), anyString(), anyInt())).thenReturn(mockReplica);
 
-        Replica result = replicaFactory.createReplica("localhost", 8080);
-        assertTrue(result instanceof Replica);
+        ReplicaHandler result = replicaFactory.createReplica("localhost", 8080);
+        assertTrue(result instanceof ReplicaHandler);
         assertEquals(mockReplica, result);
-        verify(mockContext).getBean(eq(Replica.class), any(ReplicaIOFactory.class), anyString(), anyInt());
+        verify(mockContext).getBean(eq(ReplicaHandler.class), any(ReplicaHandlerIOFactory.class), anyString(), anyInt());
     }
 }

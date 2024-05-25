@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
-import com.youngbryanyu.simplistash.stash.replication.ReplicaFactory;
+import com.youngbryanyu.simplistash.stash.replication.ReplicaHandlerFactory;
 
 /**
  * Unit tests for the stash manager.
@@ -49,7 +49,7 @@ public class StashManagerTest {
      * The mock replica factory.
      */
     @Mock
-    private ReplicaFactory mockReplicaFactory;
+    private ReplicaHandlerFactory mockReplicaFactory;
     /**
      * The stash manager under test.
      */

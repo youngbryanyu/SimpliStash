@@ -2,6 +2,7 @@ package com.youngbryanyu.simplistash.ttl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -179,5 +180,23 @@ public class TTLTimeWheelTest {
         ttlTimeWheel.add("key2", 1000);
         ttlTimeWheel.clear();
         assertEquals(0, ttlTimeWheel.size());
+    }
+
+    /**
+     * Test {@link TTLTimeWheel#getExpirationTime()}.
+     */
+    @Test
+    public void testGetExpirationTime() {
+        ttlTimeWheel.add("key1", 1000);
+        ttlTimeWheel.add("key2", 1000);
+        assertNotNull(ttlTimeWheel.getExpirationTime("key1"));
+    }
+
+    /**
+     * Test {@link TTLTimeWheel#getExpirationTime()} when no TTL exists for the key.
+     */
+    @Test
+    public void testGetExpirationTime_noTTL() {
+        assertEquals(-1, ttlTimeWheel.getExpirationTime("key1"));
     }
 }

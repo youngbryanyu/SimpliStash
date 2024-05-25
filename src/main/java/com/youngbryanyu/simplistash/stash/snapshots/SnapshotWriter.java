@@ -71,17 +71,23 @@ public class SnapshotWriter {
     public void open() throws IOException {
         if (enableSnapshots) {
             /* Ensure base DIR exists */
-            if (enableSnapshots) {
-                FileUtil.ensureDirectoryExists(DIR);
-            }
+            FileUtil.ensureDirectoryExists(DIR);
+            
 
             /* Create temp and final file */
             tempFilePath = Path.of(DIR, name + "_temp." + EXTENSION);
             finalFilePath = Path.of(DIR, name + "." + EXTENSION);
 
             /* Initialize writer with temp file in truncate mode */
-            writer = new BufferedWriter(new FileWriter(tempFilePath.toFile(), false));
+            writer = createBufferedWriter(tempFilePath);
         }
+    }
+
+    /**
+     * Helper to create buffered writer.
+     */
+    protected BufferedWriter createBufferedWriter(Path path) throws IOException {
+        return new BufferedWriter(new FileWriter(path.toFile(), false));
     }
 
     /**
@@ -149,7 +155,9 @@ public class SnapshotWriter {
      * @throws IOException
      */
     public void commit() throws IOException {
-        writer.flush();
-        Files.move(tempFilePath, finalFilePath, StandardCopyOption.REPLACE_EXISTING);
+        if (enableSnapshots) {
+            writer.flush();
+            Files.move(tempFilePath, finalFilePath, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }

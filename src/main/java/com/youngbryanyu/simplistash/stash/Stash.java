@@ -25,9 +25,9 @@ public interface Stash {
      */
     public static final long DEFAULT_MAX_KEY_COUNT = 1_000_000;
     /**
-     * The delay between backups in seconcds.
+     * The delay between backups in seconds.
      */
-    public static final int BACKUP_DELAY_S = 900;
+    public static final int SNAPSHOT_DELAY_S = 60;
 
     /**
      * Set a key to a value.

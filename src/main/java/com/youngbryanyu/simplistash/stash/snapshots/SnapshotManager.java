@@ -81,7 +81,7 @@ public class SnapshotManager {
      * Starts the scheduler to regularly take snapshots
      */
     public void start() {
-        scheduler.scheduleWithFixedDelay(this::takeSnapshot, 0, Stash.BACKUP_DELAY_S, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(this::takeSnapshot, 0, Stash.SNAPSHOT_DELAY_S, TimeUnit.SECONDS);
     }
 
     /**

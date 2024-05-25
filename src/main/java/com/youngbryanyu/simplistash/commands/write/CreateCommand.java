@@ -111,7 +111,7 @@ public class CreateCommand implements Command {
             offHeap = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.OFF_HEAP.name()));
         }
 
-        /* Determine whether to enable snapshots (optional arg)*/
+        /* Determine whether to enable snapshots (optional arg) */
         boolean enableSnapshots = false;
         if (optionalArgVals.containsKey(OptionalArg.SNAPSHOTS.name())) {
             enableSnapshots = Boolean.parseBoolean(optionalArgVals.get(OptionalArg.SNAPSHOTS.name()));
@@ -127,8 +127,9 @@ public class CreateCommand implements Command {
             }
 
             // Max is Long.MAX_VALUE so going above causes NumberFormatException. The 2nd
-            // block of the if statement would never be true, but is here to be safe.
-            if (maxKeyCount <= 0 || maxKeyCount > Command.MAX_KEY_COUNT_LIMIT) {
+            // block of the if statement would never be true (currenlty commented out).
+            // if (maxKeyCount <= 0 || maxKeyCount > Command.MAX_KEY_COUNT_LIMIT) {
+            if (maxKeyCount <= 0) {
                 return ProtocolUtil.buildErrorResponse(buildErrorMessage(ErrorCause.MAX_KEY_COUNT_OUT_OF_RANGE));
             }
         }

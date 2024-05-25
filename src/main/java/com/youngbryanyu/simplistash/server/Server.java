@@ -40,4 +40,11 @@ public interface Server {
      * Decrements the number of client connections.
      */
     public void decrementConnections();
+
+    /**
+     * Returns the port the server is listening on.
+     * 
+     * @return The port the server is listening on.
+     */
+    public int getPort();
 }

@@ -211,4 +211,13 @@ public class PrimaryServer implements Server {
     public synchronized void decrementConnections() {
         currentConnections--;
     }
+
+    /**
+     * Returns the port the server is listening on.
+     * 
+     * @return The port the server is listening on.
+     */
+    public int getPort() {
+        return port;
+    }
 }

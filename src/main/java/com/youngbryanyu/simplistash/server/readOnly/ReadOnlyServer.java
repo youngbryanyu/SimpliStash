@@ -37,7 +37,7 @@ public class ReadOnlyServer implements Server {
      * The read only channel initializer.
      */
     private final ReadOnlyChannelInitializer channelInitializer;
-     /**
+    /**
      * The number of current client connections.
      */
     private int currentConnections;
@@ -45,7 +45,7 @@ public class ReadOnlyServer implements Server {
      * The port the server listens on.
      */
     private int port;
-     /**
+    /**
      * The max allowed server connections.
      */
     private int maxConnections;
@@ -109,7 +109,7 @@ public class ReadOnlyServer implements Server {
         }
     }
 
-     /**
+    /**
      * Increment the number of server connections. Does nothing and returns false if
      * the max number of connections has been reached.
      * 
@@ -131,5 +131,14 @@ public class ReadOnlyServer implements Server {
      */
     public synchronized void decrementConnections() {
         currentConnections--;
+    }
+
+    /**
+     * Returns the port the server is listening on.
+     * 
+     * @return The port the server is listening on.
+     */
+    public int getPort() {
+        return port;
     }
 }

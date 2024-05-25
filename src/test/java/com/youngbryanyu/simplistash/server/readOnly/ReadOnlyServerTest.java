@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.server.readOnly;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -111,6 +112,52 @@ public class ReadOnlyServerTest {
         verify(mockServerBootstrap).bind(Server.DEFAULT_READ_ONLY_PORT);
         verify(mockLogger).info(anyString());
         verify(mockCloseFuture).sync();
+    }
+
+    /**
+     * Test {@link ReadOnlyServer#start()}.
+     */
+    @Test
+    public void testServerStart_customReadOnlyPort() throws Exception {
+        System.setProperty("readOnlyPort", "8000");
+
+        server.start();
+        verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
+        verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
+        verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
+        verify(mockServerBootstrap).bind(8000);
+        verify(mockLogger).info(anyString());
+        verify(mockCloseFuture).sync();
+        assertEquals(8000, server.getPort());
+
+        System.clearProperty("readOnlyPort");
+    }
+
+     /**
+     * Test {@link ReadOnlyServer#start()} with an invalid custom read only port.
+     */
+    @Test
+    public void testServerStart_invalidReadOnlyPort() throws Exception {
+        System.setProperty("readOnlyPort", "invalidPort");
+
+        server.start();
+        verify(mockServerBootstrap).group(mockBossGroup, mockWorkerGroup);
+        verify(mockServerBootstrap).channel(NioServerSocketChannel.class);
+        verify(mockServerBootstrap).childHandler(any(ChannelInitializer.class));
+        verify(mockServerBootstrap).bind(Server.DEFAULT_READ_ONLY_PORT);
+        verify(mockLogger).info(anyString());
+        verify(mockCloseFuture).sync();
+        assertEquals(Server.DEFAULT_READ_ONLY_PORT, server.getPort());
+
+        System.clearProperty("readOnlyPort");
+    }
+
+    /**
+     * Test getting the port.
+     */
+    @Test
+    public void testGetPort() {
+        assertEquals(Server.DEFAULT_READ_ONLY_PORT, server.getPort());
     }
 
     /**

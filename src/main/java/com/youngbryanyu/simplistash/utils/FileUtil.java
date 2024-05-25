@@ -4,9 +4,15 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * File utils
+ * File utils.
  */
 public class FileUtil {
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private FileUtil() {
+    }
+
     /**
      * Ensures that a directory exists and creates if it it doesn't.
      * 

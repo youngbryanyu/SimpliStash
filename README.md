@@ -1,5 +1,5 @@
 # SimpliStash
-A simple in-memory key-value database supporting features like TTL, LRU eviction, snapshots, and master-slave replication. For details and usage notes see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
+A simple in-memory key-value database supporting features like TTL, LRU eviction, snapshots to disk, and master-slave replication. For details and usage notes see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
 ## Installation
 Run the following to clone the repository and run the setup script. 

@@ -1,5 +1,5 @@
 # SimpliStash
-A Stupid Simple In-Memory Key-Value Database. For details and usage notes see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
+A simple in-memory key-value database. For details and usage notes see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
 ## Installation
 Run the following to clone the repository and run the setup script. 
@@ -27,3 +27,6 @@ To run the CLI, run `sstash-cli <ip> <port>`. See [Example](#example) for an exa
 4. `sstash-cli localhost 4001`: Connects to the read-replica's read-only port using the CLI.
 
 For more details, see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
+
+## Contributing
+~~If you are interested in contributing, reach out to `youngyu2002@gmail.com`~~. This project has currently been paused. If you are interested in running it or extending it, you will need to fork the repo. Reach out to `youngyu2002@gmail.com` for any questions.

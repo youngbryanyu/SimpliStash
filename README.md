@@ -14,8 +14,8 @@ The setup script does the following:
 - Compiles the source code
 - Creates symbolic links to executables
 
-## Running SimpliStash
-To start the server, run `sstash <primary_port> <read_only_port> [master_ip] [master_port]`. See [Example](#example) for an example.
+## Running the Database
+To start the database server, run `sstash <primary_port> <read_only_port> [master_ip] [master_port]`. See [Example](#example) for an example.
 
 ## Running the CLI
 To run the CLI, run `sstash-cli <ip> <port>`. See [Example](#example) for an example.

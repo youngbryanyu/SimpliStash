@@ -1,5 +1,6 @@
 package com.youngbryanyu.simplistash.stash.replication;
 
+import org.checkerframework.checker.units.qual.m;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,11 +54,10 @@ public class ReplicaHandlerTest {
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
 
+        /* Set up default behavior */
         when(mockReplicaIOFactory.createSocket(anyString(), anyInt())).thenReturn(mockSocket);
         when(mockReplicaIOFactory.createWriter(any(Socket.class))).thenReturn(mockWriter);
-
         replica = new ReplicaHandler(mockReplicaIOFactory, "127.0.0.1", 8080);
-
         when(mockSocket.isClosed()).thenReturn(false);
         when(mockSocket.isConnected()).thenReturn(true);
     }
@@ -117,7 +118,38 @@ public class ReplicaHandlerTest {
     }
 
     /**
+     * Test forwarding a command with a null socket.
+     */
+    @Test
+    public void testForwardCommandWithNullSocket() throws IOException {
+        when(mockReplicaIOFactory.createSocket(anyString(), anyInt()))
+                .thenReturn(null) /* Return null socket first time */
+                .thenReturn(mockSocket);
+        replica = new ReplicaHandler(mockReplicaIOFactory, "127.0.0.1", 8080);
+        replica.connect();
+        when(mockSocket.isClosed()).thenReturn(true);
+        replica.forwardCommand("SET key value\r\n");
+        verify(mockReplicaIOFactory, times(2)).createSocket("127.0.0.1", 8080);
+    }
+
+    /**
+     * Test forwarding a command with a null socket.
+     */
+    @Test
+    public void testForwardCommandWithNullWriter() throws IOException {
+        when(mockReplicaIOFactory.createWriter(any(Socket.class)))
+                .thenReturn(null); /* Null writer */
+        replica = new ReplicaHandler(mockReplicaIOFactory, "127.0.0.1", 8080);
+        replica.connect();
+        when(mockSocket.isClosed()).thenReturn(true);
+        replica.forwardCommand("SET key value\r\n");
+        verify(mockWriter, never()).flush();
+        verify(mockWriter, never()).write(anyString());
+    }
+
+    /**
      * Test closing the connection.
+     * 
      * @throws IOException
      */
     @Test

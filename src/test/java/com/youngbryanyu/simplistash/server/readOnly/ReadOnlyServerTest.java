@@ -115,7 +115,7 @@ public class ReadOnlyServerTest {
     }
 
     /**
-     * Test {@link ReadOnlyServer#start()}.
+     * Test {@link ReadOnlyServer#start()} with a custom read only port.
      */
     @Test
     public void testServerStart_customReadOnlyPort() throws Exception {

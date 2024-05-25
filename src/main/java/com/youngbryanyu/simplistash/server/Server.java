@@ -20,6 +20,12 @@ public interface Server {
      * The max number of connections allowed concurrently with the read only server.
      */
     public static final int MAX_CONNECTIONS_READ_ONLY = 1000;
+    /**
+     * The number of "clients" that are allowed to connect to the server that
+     * handles writes. Is 1 for read replicas since only the master node should be
+     * able to connect and forward writes.
+     */
+    public static final int REPLICA_PRIMARY_CONNECTION_LIMIT = 1;
 
     /**
      * Starts the server.
@@ -47,4 +53,10 @@ public interface Server {
      * @return The port the server is listening on.
      */
     public int getPort();
+
+    /**
+     * Returns the max number of connections
+     * @return The max number of connections.
+     */
+    public int getMaxConnections();
 }

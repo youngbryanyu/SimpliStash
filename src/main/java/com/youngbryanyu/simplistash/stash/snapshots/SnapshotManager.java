@@ -120,9 +120,9 @@ public class SnapshotManager {
 
                 logger.debug("Snapshot finished for stash: " + name);
             }
-
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(
+                    String.format("Error occurred while taking snapshot of stash \"%s\": %s", name, e.getMessage()));
         }
     }
 

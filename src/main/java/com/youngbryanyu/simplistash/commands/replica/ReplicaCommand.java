@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.youngbryanyu.simplistash.commands.Command;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
-import com.youngbryanyu.simplistash.stash.Stash;
 import com.youngbryanyu.simplistash.stash.StashManager;
 
 /**
@@ -71,8 +70,8 @@ public class ReplicaCommand implements Command {
         /* Register as read replica */
         stashManager.registerReadReplica(ip, port);
 
-        /* Build response */
-        return ProtocolUtil.buildOkResponse();
+        /* Return null, no response needed */
+        return null;
     }
 
     /**

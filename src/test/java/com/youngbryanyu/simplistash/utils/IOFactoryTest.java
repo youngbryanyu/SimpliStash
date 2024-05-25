@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.stash.replication;
+package com.youngbryanyu.simplistash.utils;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 /**
  * Unit tests for the replica IO factory.
  */
-public class ReplicaHandlerIOFactoryTest {
+public class IOFactoryTest {
     /**
      * The mocked socket.
      */
@@ -25,7 +25,7 @@ public class ReplicaHandlerIOFactoryTest {
     /**
      * The replica IO factory under test.
      */
-    private ReplicaHandlerIOFactory replicaIOFactory;
+    private IOFactory replicaIOFactory;
 
     /**
      * Setup before each test.
@@ -34,7 +34,7 @@ public class ReplicaHandlerIOFactoryTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        replicaIOFactory = new ReplicaHandlerIOFactory();
+        replicaIOFactory = new IOFactory();
     }
 
     /**

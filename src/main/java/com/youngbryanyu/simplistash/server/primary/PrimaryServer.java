@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import com.youngbryanyu.simplistash.commands.replica.ReplicaCommand;
 import com.youngbryanyu.simplistash.config.AppConfig;
 import com.youngbryanyu.simplistash.server.Server;
+import com.youngbryanyu.simplistash.utils.IOFactory;
 import com.youngbryanyu.simplistash.protocol.ProtocolUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -31,12 +32,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  */
 @Component
 public class PrimaryServer implements Server {
-    /**
-     * The number of "clients" that are allowed to connect to the server that
-     * handles writes. Is 1 for read replicas since only the master node should be
-     * able to connect and forward writes.
-     */
-    private static final int REPLICA_PRIMARY_CONNECTION_LIMIT = 1;
     /**
      * Number of worker threads to use to handle commands. We use a single thread
      * (similar to Redis).
@@ -78,6 +73,18 @@ public class PrimaryServer implements Server {
      * The max allowed server connections.
      */
     private int maxConnections;
+    /**
+     * The IO factory.
+     */
+    private final IOFactory ioFactory;
+    /**
+     * The output writer.
+     */
+    private PrintWriter out;
+    /**
+     * The socket to connect to the master if the current node is a read-replica.
+     */
+    private Socket socket;
 
     /**
      * Constructor for the server.
@@ -90,13 +97,15 @@ public class PrimaryServer implements Server {
             ServerBootstrap bootstrap,
             PrimaryChannelInitializer channelInitializer,
             KeyExpirationManager keyExpirationManager,
-            Logger logger) {
+            Logger logger,
+            IOFactory ioFactory) {
         this.bossGroup = bossGroup;
         this.workerGroup = workerGroup;
         this.bootstrap = bootstrap;
         this.channelInitializer = channelInitializer;
         this.keyExpirationManager = keyExpirationManager;
         this.logger = logger;
+        this.ioFactory = ioFactory;
 
         currentConnections = 0;
         port = DEFAULT_PRIMARY_PORT;
@@ -146,7 +155,8 @@ public class PrimaryServer implements Server {
                     int masterPort = Integer.parseInt(masterPortStr);
                     registerAsReplica(masterIp, masterPort, InetAddress.getLocalHost().getHostAddress(), port);
                 } catch (NumberFormatException e) {
-                    logger.warn("Failed to register node as a read-replica.");
+                    logger.warn(
+                            "Invalid master port, setting up node as its own master node instead of read-replica...");
                 }
             }
 
@@ -168,20 +178,23 @@ public class PrimaryServer implements Server {
      * @param masterPort The master's port.
      * @param string     The current node's IP.
      * @param port       The current node's port
-     * @throws IOException 
+     * @throws IOException
      */
     private void registerAsReplica(String masterIp, int masterPort, String ip, int port) throws IOException {
         /* Send replica command to server */
         String command = ProtocolUtil.encode(ReplicaCommand.NAME, List.of(ip, Integer.toString(port)), false,
                 Collections.emptyMap());
-        try (Socket socket = new Socket(masterIp, masterPort);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        try {
+            socket = ioFactory.createSocket(masterIp, masterPort);
+            out = ioFactory.createWriter(socket);
             out.print(command);
             out.flush();
 
             /* Set max connections to 1 as a read replica so only the master can connect */
             maxConnections = REPLICA_PRIMARY_CONNECTION_LIMIT;
+
+            logger.info(
+                    String.format("Node registered as a read-replica for master node at: %s/%d", masterIp, masterPort));
         } catch (IOException e) {
             logger.warn("Failed to contact master node to set up read-replication.");
             throw e;
@@ -219,5 +232,14 @@ public class PrimaryServer implements Server {
      */
     public int getPort() {
         return port;
+    }
+
+    /**
+     * Returns the max number of connections.
+     * 
+     * @return The max number of connections.
+     */
+    public int getMaxConnections() {
+        return maxConnections;
     }
 }

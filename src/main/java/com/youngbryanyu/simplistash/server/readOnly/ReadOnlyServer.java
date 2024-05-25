@@ -141,4 +141,13 @@ public class ReadOnlyServer implements Server {
     public int getPort() {
         return port;
     }
+
+    /**
+     * Returns the max number of connections.
+     * 
+     * @return The max number of connections.
+     */
+    public int getMaxConnections() {
+        return maxConnections;
+    }
 }

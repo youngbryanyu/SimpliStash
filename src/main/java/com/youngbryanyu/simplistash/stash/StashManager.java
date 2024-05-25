@@ -251,9 +251,15 @@ public class StashManager {
             stats.append(String.format("- Master port: \t\t%d\n", masterPort));
             stats.append(String.format("- Master ip: \t\t%s\n", masterIp));
         } else {
-             /* Master */
-             stats.append(String.format("- Read replica: \t%b\n", false));
-             stats.append(String.format("- Read replica count: \t%d\n", replicaHandlers.size()));
+            /* Master */
+            stats.append(String.format("- Read replica: \t%b\n", false));
+            stats.append(String.format("- Read replica count: \t%d\n", replicaHandlers.size()));
+            stats.append("\n");
+            stats.append("Replica locations:\n");
+            for (ReplicaHandler replica : replicaHandlers) {
+                stats.append(String.format("- %s/%d\n", replica.getSocket().getInetAddress(),
+                        replica.getSocket().getPort()));
+            }
         }
 
         stats.deleteCharAt(stats.length() - 1); // delete extra newline at end

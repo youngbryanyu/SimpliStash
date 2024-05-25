@@ -22,6 +22,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 
+import com.youngbryanyu.simplistash.utils.IOFactory;
+
 /**
  * Unit tests for the replica factory.
  */
@@ -35,7 +37,7 @@ public class ReplicaHandlerFactoryTest {
      * The mock replica IO factory.
      */
     @Mock
-    private ReplicaHandlerIOFactory mockReplicaIOFactory;
+    private IOFactory mockReplicaIOFactory;
     /**
      * The mock replica.
      */
@@ -61,12 +63,12 @@ public class ReplicaHandlerFactoryTest {
      */
     @Test
     public void testCreateRreplica() throws IOException {
-        when(mockContext.getBean(ReplicaHandlerIOFactory.class)).thenReturn(mockReplicaIOFactory);
-        when(mockContext.getBean(eq(ReplicaHandler.class), any(ReplicaHandlerIOFactory.class), anyString(), anyInt())).thenReturn(mockReplica);
+        when(mockContext.getBean(IOFactory.class)).thenReturn(mockReplicaIOFactory);
+        when(mockContext.getBean(eq(ReplicaHandler.class), any(IOFactory.class), anyString(), anyInt())).thenReturn(mockReplica);
 
         ReplicaHandler result = replicaFactory.createReplica("localhost", 8080);
         assertTrue(result instanceof ReplicaHandler);
         assertEquals(mockReplica, result);
-        verify(mockContext).getBean(eq(ReplicaHandler.class), any(ReplicaHandlerIOFactory.class), anyString(), anyInt());
+        verify(mockContext).getBean(eq(ReplicaHandler.class), any(IOFactory.class), anyString(), anyInt());
     }
 }

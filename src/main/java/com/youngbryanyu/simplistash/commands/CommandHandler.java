@@ -59,7 +59,10 @@ public class CommandHandler {
 
                 /* Check if result is null indicating no commands were executed */
                 if (result == null) {
-                    break;
+                    break; /*
+                            * REPLICA command always returns null, client's commands are processed slightly
+                            * later by netty.
+                            */
                 }
 
                 /* Build response */

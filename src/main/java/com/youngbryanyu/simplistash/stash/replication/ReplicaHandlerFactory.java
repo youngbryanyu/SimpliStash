@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.utils.IOFactory;
+
 /**
  * The replica factory.
  */
@@ -36,7 +38,7 @@ public class ReplicaHandlerFactory {
      * @return Returns the replica handler.
      */
     public ReplicaHandler createReplica(String ip, int port) {
-        ReplicaHandlerIOFactory replicaIOFactory = context.getBean(ReplicaHandlerIOFactory.class);
+        IOFactory replicaIOFactory = context.getBean(IOFactory.class);
         return context.getBean(ReplicaHandler.class, replicaIOFactory, ip, port);
     }
 }

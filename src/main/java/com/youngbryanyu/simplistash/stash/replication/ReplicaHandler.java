@@ -9,6 +9,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.youngbryanyu.simplistash.utils.IOFactory;
+
 /**
  * Class representing a read replica to forward commands to.
  */
@@ -34,7 +36,7 @@ public class ReplicaHandler {
     /**
      * The replica IO factory.
      */
-    private final ReplicaHandlerIOFactory replicaIOFactory;
+    private final IOFactory replicaIOFactory;
 
     /**
      * The constructor.
@@ -43,7 +45,7 @@ public class ReplicaHandler {
      * @param port The replica's port.
      */
     @Autowired
-    public ReplicaHandler(ReplicaHandlerIOFactory replicaIOFactory, String ip, int port) {
+    public ReplicaHandler(IOFactory replicaIOFactory, String ip, int port) {
         this.replicaIOFactory = replicaIOFactory;
         this.ip = ip;
         this.port = port;

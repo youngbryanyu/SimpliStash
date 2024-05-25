@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.youngbryanyu.simplistash.utils.IOFactory;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -40,7 +42,7 @@ public class ReplicaHandlerTest {
      * The mock replica factory.
      */
     @Mock
-    private ReplicaHandlerIOFactory mockReplicaIOFactory;
+    private IOFactory mockReplicaIOFactory;
 
     /**
      * The replica class under test.

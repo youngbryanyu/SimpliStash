@@ -1,4 +1,4 @@
-package com.youngbryanyu.simplistash.stash.replication;
+package com.youngbryanyu.simplistash.utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,16 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Replica IO factory.
+ * IO factory.
  */
 @Component
-public class ReplicaHandlerIOFactory {
+public class IOFactory {
 
     /**
      * Constructor.
      */
     @Autowired
-    public ReplicaHandlerIOFactory() {
+    public IOFactory() {
     }
 
     /**

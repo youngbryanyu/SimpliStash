@@ -74,7 +74,7 @@ public class SnapshotManager {
         this.logger = logger;
 
         backupNeeded = false;
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = createScheduler();
     }
 
     /**
@@ -92,9 +92,16 @@ public class SnapshotManager {
     }
 
     /**
+     * Creates a scheduler with 1 thread.
+     */
+    public ScheduledExecutorService createScheduler() {
+        return Executors.newScheduledThreadPool(1);
+    }
+
+    /**
      * Loops over all entries in the cache and backs them up to disk.
      */
-    private void takeSnapshot() {
+    public void takeSnapshot() {
         try {
             if (backupNeeded) {
                 logger.debug("Snapshot started for stash: " + name);
@@ -121,7 +128,7 @@ public class SnapshotManager {
                 logger.debug("Snapshot finished for stash: " + name);
             }
         } catch (IOException e) {
-            System.out.println(
+            logger.info(
                     String.format("Error occurred while taking snapshot of stash \"%s\": %s", name, e.getMessage()));
         }
     }
@@ -132,6 +139,13 @@ public class SnapshotManager {
      */
     public void markBackupNeeded() {
         backupNeeded = true;
+    }
+
+    /**
+     * Returns whether a backup is needed.
+     */
+    public boolean isBackupNeeded() {
+        return backupNeeded;
     }
 
     /**

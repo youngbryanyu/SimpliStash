@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.youngbryanyu.simplistash.server.primary.Replica;
+import com.youngbryanyu.simplistash.stash.replication.Replica;
+import com.youngbryanyu.simplistash.stash.replication.ReplicaFactory;
 import com.youngbryanyu.simplistash.stash.snapshots.SnapshotWriter;
 import com.youngbryanyu.simplistash.utils.FileUtil;
 import com.youngbryanyu.simplistash.utils.SerializationUtil;
@@ -59,6 +59,10 @@ public class StashManager {
      * The current registered read replicas.
      */
     private final List<Replica> replicas = new ArrayList<>();
+    /**
+     * The replica factory.
+     */
+    private final ReplicaFactory replicaFactory;
 
     /**
      * Constructor for a stash manager.
@@ -66,8 +70,9 @@ public class StashManager {
      * @param stashFactory The factory used to create the stashes.
      */
     @Autowired
-    public StashManager(StashFactory stashFactory, Logger logger) {
+    public StashManager(StashFactory stashFactory, ReplicaFactory replicaFactory, Logger logger) {
         this.stashFactory = stashFactory;
+        this.replicaFactory = replicaFactory;
         this.logger = logger;
         stashes = new ConcurrentHashMap<>();
 
@@ -326,7 +331,7 @@ public class StashManager {
      */
     public void registerReadReplica(String ip, int port) {
         /* Connect to replica */
-        Replica replica = new Replica(ip, port);
+        Replica replica = replicaFactory.createReplica(ip, port);
         replica.connect();
         replicas.add(replica);
 

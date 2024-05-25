@@ -124,7 +124,7 @@ public class PrimaryServerTest {
      */
     @Test
     public void testIncrementAndDecrementConnections() {
-        for (int i = 0; i < Server.MAX_CONNECTIONS_PRIMARY - 1; i++) {
+        for (int i = 0; i < Server.MAX_CONNECTIONS_PRIMARY; i++) {
             assertTrue(server.incrementConnections());
         }
         assertFalse(server.incrementConnections());

@@ -196,10 +196,11 @@ public class PrimaryServer implements Server {
      *         otherwise.
      */
     public synchronized boolean incrementConnections() {
-        currentConnections++;
         if (currentConnections < maxConnections) {
+            currentConnections++;
             return true;
         } else {
+            currentConnections++;
             return false;
         }
     }

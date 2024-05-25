@@ -1,12 +1,19 @@
-package com.youngbryanyu.simplistash.server.primary;
+package com.youngbryanyu.simplistash.stash.replication;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 /**
  * Class representing a read replica to forward commands to.
  */
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class Replica {
     /**
      * The replica's ip.
@@ -24,6 +31,10 @@ public class Replica {
      * The output writer.
      */
     private PrintWriter out;
+    /**
+     * The replica IO factory.
+     */
+    private final ReplicaIOFactory replicaIOFactory;
 
     /**
      * The constructor.
@@ -31,7 +42,9 @@ public class Replica {
      * @param ip   The replica's ip.
      * @param port The replica's port.
      */
-    public Replica(String ip, int port) {
+    @Autowired
+    public Replica(ReplicaIOFactory replicaIOFactory, String ip, int port) {
+        this.replicaIOFactory = replicaIOFactory;
         this.ip = ip;
         this.port = port;
     }
@@ -41,10 +54,10 @@ public class Replica {
      */
     public void connect() {
         try {
-            socket = new Socket(ip, port);
-            out = new PrintWriter(socket.getOutputStream(), true);
+            socket = replicaIOFactory.createSocket(ip, port);
+            out = replicaIOFactory.createWriter(socket);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Failed to establish replica connection: " + e.getMessage());
         }
     }
 
@@ -58,8 +71,6 @@ public class Replica {
             connect();
         }
         if (out != null) {
-            System.out.println("Forwarded command:");
-            System.out.println(encodedCommand);
             out.print(encodedCommand);
             out.flush();
         }
@@ -77,7 +88,25 @@ public class Replica {
                 socket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Failed to gracefully close replica connection: " + e.getMessage());
         }
+    }
+
+    /**
+     * Returns the socket.
+     * 
+     * @return The socket.
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * Returns the print writer.
+     * 
+     * @return The print writer.
+     */
+    public PrintWriter getWriter() {
+        return out;
     }
 }

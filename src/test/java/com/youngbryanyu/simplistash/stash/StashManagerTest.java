@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
+import com.youngbryanyu.simplistash.stash.replication.ReplicaFactory;
+
 /**
  * Unit tests for the stash manager.
  */
@@ -44,6 +46,11 @@ public class StashManagerTest {
     @Mock
     private Logger mockLogger;
     /**
+     * The mock replica factory.
+     */
+    @Mock
+    private ReplicaFactory mockReplicaFactory;
+    /**
      * The stash manager under test.
      */
     private StashManager stashManager;
@@ -56,7 +63,7 @@ public class StashManagerTest {
         MockitoAnnotations.openMocks(this);
         when(mockStashFactory.createOffHeapStash(anyString(), anyLong(), anyBoolean())).thenReturn(mockOffHeapStash);
         when(mockStashFactory.createOnHeapStash(anyString(), anyLong(), anyBoolean())).thenReturn(mockOnHeapStash);
-        stashManager = new StashManager(mockStashFactory, mockLogger);
+        stashManager = new StashManager(mockStashFactory, mockReplicaFactory, mockLogger);
     }
 
     /**

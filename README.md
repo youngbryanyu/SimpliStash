@@ -1,5 +1,5 @@
 # SimpliStash
-A simple in-memory key-value database supporting features like TTL, LRU eviction, snapshots to disk, single-leader replication, and a CLI. For details and documentation see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
+A simple in-memory key-value database with a custom TCP-based protocol supporting features like TTL, LRU eviction, snapshots to disk, single-leader replication, off-heap storage, and a CLI. For details and documentation see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
 ## Prerequisites
 You will need the following dependencies installed:

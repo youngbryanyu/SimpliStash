@@ -12,7 +12,7 @@ chmod +x setup.sh
 
 The setup script does the following:
 - Compiles the source code
-- Creates symbolic links to executables
+- Creates symbolic links to executables `sstash.sh` and `sstash-cli.sh`
 
 ## Running the Database
 To start the database server, run `sstash <primary_port> <read_only_port> [master_ip] [master_port]`. See [Example](#example) for an example.

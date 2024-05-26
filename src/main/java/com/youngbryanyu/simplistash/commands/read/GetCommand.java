@@ -23,7 +23,7 @@ public class GetCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "GET <key> <num_opt> [NAME]";
+    private static final String FORMAT = "GET <key> <num_opt_args> [NAME]";
     /**
      * The minimum number of required arguments.
      */

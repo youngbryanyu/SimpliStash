@@ -255,7 +255,7 @@ public class StashManager {
             stats.append("\n");
             stats.append("Replica locations:\n");
             for (ReplicaHandler replica : replicaHandlers) {
-                stats.append(String.format("- %s/%d\n", replica.getSocket().getInetAddress(),
+                stats.append(String.format("- %s:%d\n", replica.getSocket().getInetAddress(),
                         replica.getSocket().getPort()));
             }
         }

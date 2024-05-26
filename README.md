@@ -1,6 +1,11 @@
 # SimpliStash
 A simple in-memory key-value database supporting features like TTL, LRU eviction, snapshots to disk, single-leader replication, and a CLI. For details and documentation see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 
+## Prerequisites
+You will need the following dependencies installed:
+- [Maven](https://maven.apache.org/install.html) version 3.9.6 (or newer)
+- [Java](https://www.oracle.com/java/technologies/downloads/) verison 8 (or newer)
+
 ## Installation
 Run the following to clone the repository and run the setup script. 
 ```

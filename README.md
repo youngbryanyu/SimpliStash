@@ -31,7 +31,7 @@ To run the CLI, run `sstash-cli <ip> <port>`. See the [example](#example) below.
 3. `sstash 4000 4001 localhost 3000`: Spins up a read-replica of the master node listening on port 3000. The read-replica's read-only server listens on port 4001.
 4. `sstash-cli localhost 4001`: Connects to the read-replica's read-only port using the CLI.
 
-In the above example, both nodes are spun up in the same machine on the same IP address, but this isn't necessary.
+In the above example, both nodes are spun up in the same machine on the same IP address, but the nodes don't necessarily need to be in the same machine.
 
 For command usage details and examples, see the [wiki](https://github.com/youngbryanyu/SimpliStash/wiki).
 

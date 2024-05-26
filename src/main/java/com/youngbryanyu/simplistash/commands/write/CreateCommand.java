@@ -25,7 +25,7 @@ public class CreateCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "CREATE <name> <num_opt_args> [OFF_HEAP] [MAX_KEYS] [SNAPSHOTS]";
+    private static final String FORMAT = "CREATE <name> <num_opt_args> [OFF_HEAP=<true/false>] [MAX_KEYS=<max_keys>] [SNAPSHOTS=<true/false>]";
     /**
      * The minimum number of required arguments.
      */

@@ -1,6 +1,5 @@
 package com.youngbryanyu.simplistash.commands.write;
 
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class ExpireCommand implements Command {
     /**
      * The command's format.
      */
-    private static final String FORMAT = "EXPIRE <key> <TTL> <num_opt_args> [NAME]";
+    private static final String FORMAT = "EXPIRE <key> <ttl> <num_opt_args> [NAME=<name>]";
     /**
      * The minimum number of required arguments.
      */
